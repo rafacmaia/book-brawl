@@ -40,12 +40,19 @@ favorite book of all time is. Those days are over!
 - CSV import from your reading log (format: title, author, rating)
 - Book Arena: head-to-head book comparisons on loop
 - Elo-based ranking system with confidence tiers and variable K values
-- Smart matchmaking: prioritize books with lower confidence rating, similar Elo scores,
-  and unmatched pairs
+- Smart matchmaking: prioritize books with lower confidence rating, similar Elo
+  scores, and unmatched pairs
+- Sophisticated confidence calculation to measure both individual and overall confidence
+  in rankings
 - Persistent rankings via SQLite to build accurate data over time
-- Confidence indicators in the ranking display
-- Add new books at any time
+- Add new books at any time: New books are mapped into the current Elo range based on
+  their original rating, ensuring intelligent initial positioning before the game can
+  refine it.
+- Confidence and matchmaking algorithms are optimized to avoid full pairwise comparisons,
+  allowing the system to scale efficiently.
 - Export your rankings to CSV
+
+_See the [How it Works](#-how-it-works) section below for more details._
 
 ## 📋 Requirements
 
@@ -108,32 +115,91 @@ Just Kids,Patti Smith,9
 ## 📖 How It Works
 
 Each book starts with an Elo score derived from your initial rating (1–10 scale, mapped
-to a range of 800–1200). Every time you pick one book over another, both scores are
-updated using the Elo formula. Books are then ranked by their Elo score and displayed
-with a confidence tier indicating how much data is behind their current position. The Elo
-K value also adapts to confidence, so books with fewer matchups are more volatile at
-first, while well-matched books settle into stable rankings, unlikely to vary much more
-from then on.
+to an initial 800–1200 range). From there, rankings are determined entirely through
+head-to-head comparisons.
 
-### Confidence Tiers
+Every time a book wins a matchup, both books’ Elo scores are updated using the standard
+Elo formula. However, this implementation extends basic Elo with adaptive volatility and
+stability modeling to improve convergence speed and ranking reliability.
 
-- 🔴 Very Low: fewer than 10% of possible matchups played
-- 🟠 Low: 10–20% of matchups played
-- 🟡 Moderate: 20–60% of matchups played
-- 🟢 High: 60–80% of matchups played
-- ✅ Very High: 80%+ of matchups played
+#### Adaptive K-Factor
+
+The Elo K-value (which determines how much a rating can change in a single match) adapts
+dynamically based on ranking confidence:
+
+- Low-confidence books have higher K values, allowing them to move quickly toward their
+  appropriate tier.
+
+- High-confidence books gradually shift to lower K values, reducing volatility as their
+  position stabilizes.
+
+This ensures fast early convergence without sacrificing long-term ranking stability.
+
+### 🔍 Confidence Calculation
+
+Each book’s confidence score represents how stable its current ranking is. It is
+calculated as a weighted combination of three independent signals:
+
+1. **Absolute Coverage** – How many unique opponents the book has faced. This ensures
+   broad exposure across the library.
+2. **Local Coverage** – How thoroughly the book has been tested against competitively
+   similar opponents (based on expected win probability, not just raw Elo difference).
+   This refines placement within its tier.
+3. **Local Density (Rank Fragility)** – Measures how many nearby books sit within a
+   narrow Elo band. Even if a book has strong coverage, tight clusters indicate potential
+   short-term rank instability. High density prevents premature “Very High” confidence
+   assignments.
+
+#### Confidence Tiers
+
+- 🔴 Very Low: Early data, ranking mostly based on initial rating
+- 🟠 Low: Some data, broad tier is likely correct (top/mid/bottom)
+- 🟡 Moderate: General position is fairly reliable, exact rank still shifting
+- 🟢 High: Position is well established, likely within ~10 spots
+- ✅ Very High: Locked in, unlikely to shift significantly
+
+### 🎯 Intelligent Matchmaking
+
+Matchups are not random.
+
+The Book Arena uses weighted stochastic matchmaking designed to maximize information gain
+and accelerate ranking convergence.
+
+Pair selection prioritizes:
+
+- Books with very few matches (to quickly obtain some data on every book)
+- Rare or unmatched pairings
+- Matchups between books with similar Elo score (where outcomes are most informative)
+- Books with lower confidence (to maximize overall ranking confidence)
+
+The result is a system that converges efficiently while still allowing occasional
+cross-tier matchups to maintain global calibration.
+
+### Why This Matters
+
+Instead of treating ranking as a static score, Book Ranker models:
+
+- Volatility (via adaptive K)
+- Information gain (via weighted matchmaking)
+- Local instability (via density detection)
+- Progressive convergence toward stable rankings
+
+The outcome is a ranking system that becomes more reliable over time, without ever fully
+freezing into rigidity. Giving book lovers and ranking enthusiasts a fun, but also
+mathematically robust, way to reflect on their books.
 
 ## 🗂️ Project Structure
 
-| File                               | Description                       |
-|------------------------------------|-----------------------------------|
-| [`main.py`](main.py)               | Entry point and main menu         |
-| [`game.py`](game.py)               | Game loop and Elo logic           |
-| [`models.py`](models.py)           | Book class                        |
-| [`db.py`](db.py)                   | Database setup and queries        |
-| [`csv_handler.py`](csv_handler.py) | CSV import and export logic       |
-| [`display.py`](display.py)         | Rankings display and UI constants |
-| [`state.py`](state.py)             | Global state management           |
+| File                               | Description                                                   |
+|------------------------------------|---------------------------------------------------------------|
+| [`main.py`](main.py)               | Entry point and main menu                                     |
+| [`game.py`](game.py)               | Game loop and matchmaking logic                               |
+| [`models.py`](models.py)           | Book class                                                    |
+| [`db.py`](db.py)                   | Database setup and queries                                    |
+| [`csv_handler.py`](csv_handler.py) | CSV import and export logic                                   |
+| [`display.py`](display.py)         | Rankings display and UI constants                             |
+| [`state.py`](state.py)             | Global state management                                       |
+| [`ranking.py`](ranking.py)         | Mathematical calculations of Elo scores and confidence levels |
 
 ## 🗺️ Roadmap
 

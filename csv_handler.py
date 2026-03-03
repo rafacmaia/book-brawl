@@ -67,4 +67,4 @@ def export_to_csv():
         for i, book in enumerate(ranked_books, start=1):
             writer.writerow([i, book.title, book.author, book.rating, book.elo])
 
-    print(f" \033[33m>\033[0m ✓ Rankings exported to:\033[32m {filepath}\033[33m")
+    print(f" \033[33m>\033[0m ✓ Rankings exported to:\033[32m {filepath}\033[0m")

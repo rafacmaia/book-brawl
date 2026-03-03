@@ -9,7 +9,6 @@ from db import init_db
 from display import (
     view_rankings,
     progress_bar,
-    calculate_rankings_confidence,
     MAIN_MENU,
     LINE_LENGTH,
     TEST_MESSAGE,
@@ -17,6 +16,7 @@ from display import (
 )
 from game import run_game
 from models import Book
+from ranking import calculate_rankings_confidence
 
 
 def startup():
@@ -74,8 +74,9 @@ def main_menu():
             next_action = view_rankings("-v" in choice)
         elif choice == "3":
             add_books()
+            calculate_rankings_confidence()
         elif choice == "4":
-            export_to_csv()
+            export_rankings()
         elif choice == MENU_OPTIONS:
             quit_game()
         else:
@@ -87,7 +88,7 @@ def main_menu():
         if next_action == "q":
             quit_game()
         if next_action == "e":
-            export_to_csv()
+            export_rankings()
 
         print()
 
@@ -97,6 +98,36 @@ def add_books():
     csv_reader()
     state.books = Book.load_all()
     state.book_count = len(state.books)
+
+
+def export_rankings():
+    print()
+    print(f"\033[1;34m EXPORT RANKINGS {'–' * (LINE_LENGTH - 17)}\033[1;0m")
+    print(
+        f" Current progress: "
+        f"\033[1;32m{progress_bar(state.rankings_confidence, 20)}\033[0m"
+    )
+
+    if state.rankings_confidence < 0.2:
+        print(" Not much data yet, ranking mostly based on initial ratings.")
+    elif state.rankings_confidence < 0.4:
+        print(" Still early stages, but broad tiers (top/mid/bottom) likely correct.")
+    elif state.rankings_confidence < 0.6:
+        print(" General positions are fairly reliable, exact ranks still shifting.")
+    elif state.rankings_confidence < 0.8:
+        print(" Positions are well established, likely within ~10 spots.")
+    elif state.rankings_confidence < 0.95:
+        print(" Rankings are locked in, unlikely to shift significantly.")
+    else:
+        print(" Absolute ranking of all books established. Export with confidence!")
+
+    print()
+    choice = input("\033[33m > Proceed with export? (y/n) \033[0m").strip().lower()
+    if choice == "y":
+        export_to_csv()
+        print("\033[33m > \033[0mReturning to main menu...")
+    elif choice != "n":
+        print("\033[31m Invalid choice, returning to main menu.\033[0m")
 
 
 def csv_reader():

@@ -2,8 +2,9 @@ import random
 import textwrap
 
 import state
-from db import save_comparison, get_opponent_counts, get_past_opponents
+from db import save_comparison
 from display import GAME_MENU, LINE_LENGTH
+from ranking import calculate_elo, confidence_score
 
 
 def run_game():
@@ -55,32 +56,32 @@ def select_opponents():
     that have been matched against each other less often, and books with similar Elo
     scores, to maximize information gained from each match.
     """
-    opponent_counts = get_opponent_counts()
-
     # Calculate weights based on confidence level.
-    weights = [
-        confidence_weight(opponent_counts.get(book.id, 0)) for book in state.books
-    ]
+    weights = [sampling_weight(book) for book in state.books]
 
     book_a = random.choices(state.books, weights=weights, k=1)[0]
-    past_opponents = get_past_opponents(book_a)
 
     # DEBUG MODE: Print number of past opponents
     if state.debug:
-        print(f"\nDEBUG: {book_a.title} has {len(past_opponents)} past opponents")
+        print(
+            f"\n\033[31mDEBUG: {book_a.title} "
+            f"-- {len(book_a.opponents)} past opponents "
+            f"-- {sampling_weight(book_a):.2f} weight\033[0m"
+        )
 
     # Exclude book_a from opponent selection
     remaining_book_weights = [
         (b, w) for b, w in zip(state.books, weights) if b.id != book_a.id
     ]
 
-    # Adjust weights: prioritize rarer pairings and books with more similar Elo scores.
-    # Rematch penalty: increase the divisor to penalize rematches more aggressively
-    # Elo gap penalty: decrease the divisor (400 default) to narrow score range
-    adjusted_weights = [
-        w / (1 + past_opponents.get(b.id, 0)) / (1 + abs(book_a.elo - b.elo) / 250)
-        for (b, w) in remaining_book_weights
-    ]
+    # Adjust weights to prioritize rarer pairings and books with similar Elo scores.
+    # Rematch penalty: increase the multiplier to penalize rematches more aggressively
+    # Elo gap penalty: decrease the divisor to prioritize similar score ranges
+    adjusted_weights = []
+    for b, w in remaining_book_weights:
+        rematch_penalty = 1 + 2 * book_a.opponents.get(b.id, 0)
+        elo_gap_penalty = 1 + abs(book_a.elo - b.elo) / 150
+        adjusted_weights.append(max(0.1, w / rematch_penalty / elo_gap_penalty))
 
     book_b = random.choices(
         [b for b, w in remaining_book_weights], weights=adjusted_weights, k=1
@@ -89,19 +90,19 @@ def select_opponents():
     return book_a, book_b
 
 
-def confidence_weight(opponent_count):
+def sampling_weight(book):
     """Calculate selection weight based on confidence level, ensuring a minimum weight
     of 0.1, and highly prioritizing books with fewer than a threshold number of matches.
     """
-    if opponent_count <= round(state.book_count * 0.05):
-        return 2
-    elif opponent_count <= round(state.book_count * 0.1):
-        return 1.5
-    else:
-        return max(
-            0.1,
-            1 - opponent_count / (state.book_count - 1),
-        )
+    if state.book_count <= 1:
+        return 1
+
+    total_opponents = state.book_count - 1
+    faced_opponents = len(book.opponents)
+
+    early_boost = 2.5 * (0.5 ** (faced_opponents / (total_opponents * 0.1)))
+    confidence_weight = 1 - confidence_score(book)
+    return max(0.1, confidence_weight, early_boost)
 
 
 def format_book(book):
@@ -111,37 +112,9 @@ def format_book(book):
 def resolve_comparison(winner, loser):
     new_winner_elo, new_loser_elo = calculate_elo(winner, loser)
     save_comparison(winner.id, loser.id)
+
     winner.update_elo(new_winner_elo)
+    winner.record_opponent(loser.id)
+
     loser.update_elo(new_loser_elo)
-
-
-def calculate_elo(winner, loser):
-    unique_opponents = get_opponent_counts()
-    winner_k = get_k(unique_opponents.get(winner.id, 0))
-    loser_k = get_k(unique_opponents.get(loser.id, 0))
-
-    expected_w = expected_score(winner.elo, loser.elo)
-    expected_l = expected_score(loser.elo, winner.elo)
-    new_winner_elo = round(winner.elo + winner_k * (1 - expected_w))
-    new_loser_elo = round(loser.elo + loser_k * (0 - expected_l))
-
-    return new_winner_elo, new_loser_elo
-
-
-def get_k(unique_opponents):
-    """Calculates and returns k value based on the percentage of unique opponents, i.e.,
-    confidence level.
-    """
-    pct = unique_opponents / (state.book_count - 1)
-    if pct < 0.20:
-        return 40
-    elif pct < 0.50:
-        return 30
-    elif pct < 0.8:
-        return 20
-    else:
-        return 10
-
-
-def expected_score(rating_a, rating_b):
-    return 1 / (1 + 10 ** ((rating_b - rating_a) / 400))
+    loser.record_opponent(winner.id)

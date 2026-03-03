@@ -3,7 +3,7 @@ from rich.console import Console
 from rich.table import Table
 
 import state
-from db import get_opponent_counts
+from ranking import confidence_score, get_k, cluster_density
 
 LINE_LENGTH = 96  # 96 Keep it to an even number
 MENU_OPTIONS = "5"
@@ -45,7 +45,6 @@ def view_rankings(verbose=False):
     option to view more books.
     """
     ranked_books = sorted(state.books, key=lambda book: book.elo, reverse=True)
-    opp_counts = get_opponent_counts()
     batch_end = INITIAL_BATCH_SIZE
 
     print(
@@ -56,7 +55,7 @@ def view_rankings(verbose=False):
 
     print(CONFIDENCE_EXPLANATION)
 
-    print_table(ranked_books, 0, batch_end, opp_counts, verbose)
+    print_table(ranked_books, 0, batch_end, verbose)
 
     while True:
         if batch_end < state.book_count:
@@ -79,9 +78,7 @@ def view_rankings(verbose=False):
 
         if choice == "n":
             batch_end += BATCH_SIZE
-            print_table(
-                ranked_books, batch_end - BATCH_SIZE, batch_end, opp_counts, verbose
-            )
+            print_table(ranked_books, batch_end - BATCH_SIZE, batch_end, verbose)
         elif choice == "?":
             print(CONFIDENCE_EXPLANATION)
             print()
@@ -89,7 +86,7 @@ def view_rankings(verbose=False):
             return choice
 
 
-def print_table(books, start, end, opp_counts, verbose=False):
+def print_table(books, start, end, verbose=False):
     table = Table(box=box.HORIZONTALS, border_style="blue", width=LINE_LENGTH + 1)
     table.add_column("#", justify="center", style="bold green", header_style="green")
     table.add_column("TITLE", justify="left", header_style="bold green")
@@ -98,9 +95,11 @@ def print_table(books, start, end, opp_counts, verbose=False):
 
     if verbose:
         table.add_column("ELO RATING", justify="left", header_style="bold green")
+        table.add_column("K", justify="left", header_style="bold green")
+        table.add_column("DENSITY", justify="left", header_style="bold green")
 
     for i, book in enumerate(books[start:end], start=start + 1):
-        con_score = confidence_score(opp_counts.get(book.id, 0))
+        con_score = confidence_score(book)
         confidence = confidence_label(con_score)
 
         # DEBUG MODE: Print actual confidence value instead of label
@@ -108,33 +107,18 @@ def print_table(books, start, end, opp_counts, verbose=False):
             confidence = str(round(con_score, 2))
 
         if verbose:
-            table.add_row(str(i), book.title, book.author, confidence, str(book.elo))
+            elo = str(book.elo)
+            k = str(get_k(book))
+            density = str(1 - cluster_density(book))
+            table.add_row(str(i), book.title, book.author, confidence, elo, k, density)
         else:
             table.add_row(str(i), book.title, book.author, confidence)
 
     Console().print(table)
 
 
-def confidence_score(unique_opp_count):
-    """Return a confidence score based on the number of unique opponents faced.
-
-    Use a weighted combination of absolute and relative scores. Absolute score is enough
-    to give a general position within the rankings. Relative score gives a more precise
-    positioning.
-    """
-    # Guard to prevent division by zero if there are zero or one books in the system.
-    if state.book_count <= 1:
-        return 0
-
-    absolute_cap = state.book_count * 0.15
-    absolute_score = min(unique_opp_count / absolute_cap, 1)
-    relative_score = unique_opp_count / (state.book_count - 1)
-
-    return absolute_score * 0.55 + relative_score * 0.45
-
-
 def confidence_label(confidence):
-    if confidence < 0.1:
+    if confidence < 0.15:
         return "🔴 Very Low"
     elif confidence < 0.3:
         return "🟠 Low"
@@ -144,12 +128,6 @@ def confidence_label(confidence):
         return "🟢 High"
     else:
         return "✅ Very High"
-
-
-def calculate_rankings_confidence():
-    opp_counts = get_opponent_counts()
-    con_scores = [confidence_score(opp_counts.get(book.id, 0)) for book in state.books]
-    state.rankings_confidence = sum(con_scores) / len(con_scores)
 
 
 def progress_bar(pct, width):

@@ -11,6 +11,7 @@ class Book:
         self.author = author
         self.rating = rating
         self.elo = elo if elo is not None else rating_to_elo(rating)
+        self.opponents = {}  # {opp_id: times_matched}
 
     def save(self):
         with get_connection() as conn:
@@ -29,6 +30,9 @@ class Book:
             Book.elo_min = self.elo
         if self.elo > Book.elo_max:
             Book.elo_max = self.elo
+
+    def record_opponent(self, opponent_id):
+        self.opponents[opponent_id] = self.opponents.get(opponent_id, 0) + 1
 
     @classmethod
     def load_all(cls):
@@ -52,6 +56,16 @@ class Book:
             if row["elo"] > cls.elo_max:
                 cls.elo_max = row["elo"]
 
+        book_map = {b.id: b for b in books}
+        with get_connection() as conn:
+            cursor = conn.execute("""
+                SELECT winner_id, loser_id FROM comparisons
+                """)
+            for row in cursor.fetchall():
+                w_id, l_id = row["winner_id"], row["loser_id"]
+                book_map[w_id].record_opponent(l_id)
+                book_map[l_id].record_opponent(w_id)
+
         return books
 
     def __repr__(self):
@@ -64,7 +78,6 @@ def rating_to_elo(rating):
     If scores are still within the initial 800-1200 range, use that default mapping.
     Otherwise, map to the current elo_min-elo_max distribution.
     """
-    if Book.elo_max <= 1200 and Book.elo_min >= 800:
-        return round(800 + (rating - 1) * (400 / 9))
-    else:
-        return round(Book.elo_min + (rating - 1) * ((Book.elo_max - Book.elo_min) / 9))
+    elo_min = Book.elo_min if Book.elo_min < 800 else 800
+    elo_max = Book.elo_max if Book.elo_max > 1200 else 1200
+    return round(elo_min + (rating - 1) * ((elo_max - elo_min) / 9))
