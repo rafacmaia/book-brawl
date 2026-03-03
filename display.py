@@ -58,7 +58,7 @@ def view_rankings(verbose=False):
     print_table(ranked_books, 0, batch_end, verbose)
 
     while True:
-        if batch_end < state.b_count:
+        if batch_end < len(state.books):
             print(f"{' ' * (LINE_LENGTH - 23)}\033[33mn → See next {BATCH_SIZE}\033[0m")
         print(
             f"\033[0m{' ' * (LINE_LENGTH - 23)}? → Confidence explained\n"
@@ -69,7 +69,7 @@ def view_rankings(verbose=False):
         choice = input(f"{' ' * (LINE_LENGTH - 5)}\033[33m> \033[0m").strip().lower()
 
         while choice not in ("?", "b", "e", "q"):
-            if batch_end < state.b_count and choice == "n":
+            if batch_end < len(state.books) and choice == "n":
                 break
             choice = input(
                 f"{' ' * (LINE_LENGTH - 41)}"

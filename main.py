@@ -36,7 +36,7 @@ def startup():
         print(TEST_MESSAGE)
 
     # First run, no books in the system - prompt for CSV import
-    if state.b_count == 0:
+    if not state.books:
         print(
             " Your library is empty!\n"
             " Please provide the path to a CSV file of your book log to get started.\n"
@@ -44,7 +44,6 @@ def startup():
         )
         csv_reader()
         state.books = Book.load_all()
-        state.b_count = len(state.books)
     else:
         calculate_rankings_confidence()
 
@@ -98,7 +97,6 @@ def add_books():
     print(" Please provide the path to your CSV book log to sync new books.")
     csv_reader()
     state.books = Book.load_all()
-    state.b_count = len(state.books)
 
 
 def export_rankings():
@@ -203,5 +201,4 @@ if __name__ == "__main__":
 
     init_db()
     state.books = Book.load_all()
-    state.b_count = len(state.books)
     startup()

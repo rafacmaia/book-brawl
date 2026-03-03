@@ -20,7 +20,7 @@ def get_k(book):
     """Calculates and returns k value based on the percentage of unique opponents, i.e.,
     confidence level.
     """
-    if state.b_count <= 1:
+    if len(state.books) <= 1:
         return 40
 
     confidence = confidence_score(book)
@@ -55,12 +55,12 @@ def confidence_score(book):
     for, respectively, overall confidence, local confidence, and stability.
     """
     # Guard to prevent division by zero when there are 0-1 books in the system.
-    if state.b_count <= 1:
+    if len(state.books) <= 1:
         return 0
 
     # Absolute score emphasizes that the first batch of matches should carry a lot of
     # weight to quickly reach an overall placement.
-    absolute_cap = max(state.b_count * 0.10, 10)
+    absolute_cap = max(len(state.books) * 0.10, 10)
     absolute_score = min(len(book.opponents) / absolute_cap, 1)
 
     # Local score emphasizes that matches against books with similar Elo scores should

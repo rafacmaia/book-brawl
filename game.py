@@ -94,10 +94,10 @@ def sampling_weight(book):
     """Calculate selection weight based on confidence level, ensuring a minimum weight
     of 0.1, and highly prioritizing books with fewer than a threshold number of matches.
     """
-    if state.b_count <= 1:
+    if len(state.books) <= 1:
         return 1
 
-    total_opponents = state.b_count - 1
+    total_opponents = len(state.books) - 1
     faced_opponents = len(book.opponents)
 
     early_boost = 2.5 * (0.4 ** (faced_opponents / (total_opponents * 0.1)))
