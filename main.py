@@ -4,15 +4,17 @@ import sys
 from datetime import datetime
 
 import state
-from csv_handler import import_from_csv, export_to_csv
+from csv_handler import export_to_csv, csv_reader
 from db import init_db
 from display import (
     view_rankings,
     progress_bar,
+    prompt,
     MAIN_MENU,
     LINE_LENGTH,
     TEST_MESSAGE,
     MENU_OPTIONS,
+    PROMPT,
 )
 from game import run_game
 from models import Book
@@ -39,10 +41,11 @@ def startup():
     if not state.books:
         print(
             " Your library is empty!\n"
-            " Please provide the path to a CSV file of your book log to get started.\n"
-            " It should have the following columns: 'title', 'author', 'rating'.\n"
+            " To get started, please provide the path to a CSV file of your book log.\n"
+            " It should have the following columns: \033[33mtitle\033[0m, \033[33mauthor\033[0m, \033[33mrating\033[0m.\n"
         )
-        csv_reader()
+        if csv_reader(prompt=" CSV file path (q to quit): ", options=["q"]) == "q":
+            quit_game()
         state.books = Book.load_all()
     else:
         calculate_rankings_confidence()
@@ -64,7 +67,11 @@ def main_menu():
         if state.db_path == "data/test.db":
             print(TEST_MESSAGE)
 
-        choice = input("\n\033[1;33m > \033[0m").strip()
+        print()
+        choice = prompt(
+            {"1", "2", "2 -v", "3", "4", MENU_OPTIONS},
+            f"Invalid choice, I can only read options 1-{MENU_OPTIONS}.",
+        )
         next_action = ""
 
         if choice == "1":
@@ -79,11 +86,6 @@ def main_menu():
             export_rankings()
         elif choice == MENU_OPTIONS:
             quit_game()
-        else:
-            print(
-                f"\033[31m Invalid choice, "
-                f"I can only read options 1-{MENU_OPTIONS}.\033[0m"
-            )
 
         if next_action == "q":
             quit_game()
@@ -94,9 +96,43 @@ def main_menu():
 
 
 def add_books():
+    print()
+    print(f"\033[1;34m IMPORT NEW BOOKS {'–' * (LINE_LENGTH - 18)}\033[1;0m")
+
+    if len(state.books) >= state.BOOK_LIMIT:
+        print(
+            f"\033[31m Sorry, you read way too much "
+            f"and reached the limit of {state.BOOK_LIMIT} books.\n"
+            f" I can't handle any more 😭.\033[0m"
+        )
+        return
     print(" Please provide the path to your CSV book log to sync new books.")
-    csv_reader()
-    state.books = Book.load_all()
+    print()
+
+    response = csv_reader(prompt=" CSV file path (b to go back): ", options=["b"])
+    if response == "b":
+        return
+    added, interrupted = response
+
+    if added > 0:
+        plural = "s" if added > 1 else ""
+        print(f"{PROMPT}Imported {added} book{plural}!")
+        state.books = Book.load_all()
+    else:
+        print(
+            f"{PROMPT}\033[31mNo books imported. "
+            "Please check your file and try again.\033[0m "
+        )
+
+    if interrupted:
+        print(
+            f"{PROMPT}\033[31mWarning: \033[0mBook limit reached during import, "
+            "not all books were added."
+        )
+    elif len(state.books) >= state.BOOK_LIMIT:
+        print(
+            f"{PROMPT}\033[31mWarning: \033[0mBook limit reached, no more books can be added!"
+        )
 
 
 def export_rankings():
@@ -121,43 +157,11 @@ def export_rankings():
         print(" Absolute ranking of all books established. Export with confidence!")
 
     print()
-    choice = input("\033[33m > Proceed with export? (y/n) \033[0m").strip().lower()
+    print(f" \033[33mProceed with export (y/n)?\033[0m")
+    choice = prompt({"y", "n"}, "Sorry, I can only understand 'y' or 'n'.")
+
     if choice == "y":
         export_to_csv()
-    elif choice != "n":
-        print("\033[31m Invalid choice, returning to main menu.\033[0m")
-
-
-def csv_reader():
-    while True:
-        if state.books:
-            filepath = input(" CSV file path (b to go back): ").strip()
-            if filepath == "b":
-                print()
-                break
-        else:
-            filepath = input(" CSV file path (q to quit): ").strip()
-            if filepath == "q":
-                quit_game()
-
-        if not (filepath and os.path.exists(filepath)):
-            print(" Invalid path. Please try again.\n")
-            continue
-
-        if not filepath.endswith(".csv"):
-            print(
-                " That doesn't look like a CSV."
-                " Please provide the full path to your CSV file.\n"
-            )
-            continue
-
-        count = import_from_csv(filepath)
-        if count > 0:
-            print(f" Imported {count} books!")
-            print()
-            return
-        else:
-            print(" No books imported. Please check your file and try again.\n")
 
 
 # --- QUITTING AND BACKUPS  ---
@@ -167,11 +171,13 @@ def quit_game():
     if state.books:
         backup_db()
         backup_cleanup()
+    print()
     print(
-        f"\n\033[1;32m{'–' * (LINE_LENGTH // 2 - 15)} "
-        f"📚 Goodbye! Keep on reading 📚 "
-        f"{'–' * (LINE_LENGTH // 2 - 16)}\033[0m\n"
+        f"\033[1;32m{'–' * (LINE_LENGTH // 2 - 16)}"
+        f" 📚 Goodbye! Keep on reading 📚 "
+        f"{'–' * (LINE_LENGTH // 2 - 16)}\033[0m"
     )
+    print()
     sys.exit()
 
 
@@ -185,11 +191,11 @@ def backup_db():
     shutil.copy(state.db_path, backup_path)
 
 
-def backup_cleanup(keep=5):
+def backup_cleanup():
     """Only keep the last N backups."""
     backup_dir = "backup"
     backups = sorted(os.listdir(backup_dir))
-    for old in backups[:-keep]:
+    for old in backups[: -state.BACKUPS_LIMIT]:
         os.remove(os.path.join(backup_dir, old))
 
 

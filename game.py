@@ -3,7 +3,7 @@ import textwrap
 
 import state
 from db import save_comparison
-from display import GAME_MENU, LINE_LENGTH
+from display import GAME_MENU, LINE_LENGTH, PROMPT
 from ranking import calculate_elo, confidence_score
 
 
@@ -15,10 +15,12 @@ def run_game():
     """
     print(GAME_MENU)
 
-    match_count = 1
-    book_a, book_b = select_opponents()
+    match_count = 0
 
     while True:
+        book_a, book_b = select_opponents()
+        match_count += 1
+
         print(
             f"\n\033[1;36m {'–' * (LINE_LENGTH - 5 - len(str(match_count)))}"
             f" {match_count} ––\033[0m"
@@ -28,7 +30,15 @@ def run_game():
             f"   \033[1;33m1.\033[0m {format_book(book_a)}\n"
             f"   \033[1;33m2.\033[0m {format_book(book_b)}"
         )
-        choice = input("\033[1;33m > \033[0m").strip().lower()
+
+        choice = input(PROMPT).strip().lower()
+
+        while choice not in ("1", "2", "b", "q"):
+            print(
+                f"{PROMPT}\033[31mInvalid choice - "
+                "try '1', '2', 'b', or 'q' to quit.\033[0m"
+            )
+            choice = input(PROMPT).strip().lower()
 
         if choice == "q":
             return "q"
@@ -38,15 +48,6 @@ def run_game():
             resolve_comparison(winner=book_a, loser=book_b)
         elif choice == "2":
             resolve_comparison(winner=book_b, loser=book_a)
-        else:
-            print(
-                "\033[1;31m ⚠️ Invalid choice - "
-                "try '1', '2', 'b', or 'q' to quit.\033[0m"
-            )
-            continue
-
-        book_a, book_b = select_opponents()
-        match_count += 1
 
 
 def select_opponents():

@@ -14,6 +14,8 @@ TEST_MESSAGE = (
     f"{' ' * (LINE_LENGTH // 2 - 13)}" f"\033[1;31m⚠️ RUNNING IN TEST MODE ⚠️\033[1;0m"
 )
 
+PROMPT = "\033[1;33m > \033[0m"
+
 MAIN_MENU = f"""\033[1;34m MAIN MENU {'–' * (LINE_LENGTH - 11)}\033[0m
  1. Play
  2. View Rankings
@@ -59,21 +61,22 @@ def view_rankings(verbose=False):
 
     while True:
         if batch_end < len(state.books):
-            print(f"{' ' * (LINE_LENGTH - 23)}\033[33mn → See next {BATCH_SIZE}\033[0m")
+            print(f"{' ' * (LINE_LENGTH - 24)}\033[33mn → See next {BATCH_SIZE}\033[0m")
         print(
-            f"\033[0m{' ' * (LINE_LENGTH - 23)}? → Confidence explained\n"
-            f"\033[0m{' ' * (LINE_LENGTH - 23)}b → Main menu\n"
-            f"{' ' * (LINE_LENGTH - 23)}e → Export rankings\n"
-            f"{' ' * (LINE_LENGTH - 23)}q → Quit\033[0m"
+            f"\033[0m{' ' * (LINE_LENGTH - 24)}? → Confidence explained\n"
+            f"\033[0m{' ' * (LINE_LENGTH - 24)}b → Main menu\n"
+            f"{' ' * (LINE_LENGTH - 24)}e → Export rankings\n"
+            f"{' ' * (LINE_LENGTH - 24)}q → Quit\033[0m"
         )
-        choice = input(f"{' ' * (LINE_LENGTH - 5)}\033[33m> \033[0m").strip().lower()
+
+        choice = input(f"{' ' * (LINE_LENGTH - 8)}{PROMPT}").strip().lower()
 
         while choice not in ("?", "b", "e", "q"):
             if batch_end < len(state.books) and choice == "n":
                 break
             choice = input(
-                f"{' ' * (LINE_LENGTH - 41)}"
-                f"\033[31m⚠️ Invalid choice, please try again > \033[0m"
+                f"{' ' * (LINE_LENGTH - 40)}"
+                f"\033[31mInvalid choice, please try again\033[0m{PROMPT}"
             )
 
         if choice == "n":
@@ -151,3 +154,11 @@ def progress_bar(pct, width):
         label = "✨ COMPLETE! ✨"
 
     return f"{bar} {pct_str}  {label}"
+
+
+def prompt(options, error_message="Invalid choice, please try again.", prompt=PROMPT):
+    while True:
+        choice = input(f"{prompt}").strip().lower()
+        if choice in options:
+            return choice
+        print(f"{prompt}\033[31m{error_message}\033[0m")

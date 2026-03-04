@@ -17,7 +17,8 @@ def init_db():
                 title   TEXT NOT NULL,
                 author  TEXT NOT NULL,
                 rating  REAL NOT NULL,
-                elo     INTEGER DEFAULT 1000
+                elo     INTEGER DEFAULT 1000,
+                UNIQUE (title, author)
             )
         """)
 

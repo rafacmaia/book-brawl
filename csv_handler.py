@@ -3,7 +3,32 @@ import os
 from datetime import datetime
 
 import state
+from display import PROMPT
 from models import Book
+
+
+def csv_reader(prompt=" CSV file path: ", options=None):
+    if options is None:
+        options = ["q"]
+
+    print(prompt)
+    while True:
+        filepath = input(PROMPT).strip()
+        if filepath in options:
+            return filepath
+
+        if not (filepath and os.path.exists(filepath)):
+            print(f"{PROMPT}\033[31mInvalid path. Please try again.\033[0m")
+            continue
+
+        if not filepath.endswith(".csv"):
+            print(
+                f"{PROMPT}\033[31mThat doesn't look like a CSV."
+                " Please provide the full path to your CSV file.\033[0m"
+            )
+            continue
+
+        return import_from_csv(filepath)
 
 
 def import_from_csv(filepath):
@@ -13,36 +38,50 @@ def import_from_csv(filepath):
     """
     existing_books = {(b.title.lower(), b.author.lower()) for b in state.books}
     new_books = 0
+    interrupted = False
 
     try:
         with open(filepath, newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file)
             reader.fieldnames = [field.lower().strip() for field in reader.fieldnames]
             for row in reader:
+                if len(state.books) + new_books >= state.BOOK_LIMIT:
+                    interrupted = True
+                    return new_books, interrupted
+
                 title = row["title"].strip()
                 author = row["author"].strip()
 
+                try:
+                    rating = float(row["rating"].strip())
+                    if not 0 <= rating <= 10:
+                        raise ValueError(
+                            f"Rating must be between 0 and 10, got {rating}"
+                        )
+                except ValueError as e:
+                    print()
+                    print(
+                        f" \033[31mSkipping '{title}' by '{author}'\n"
+                        f"   - invalid rating: {e}.\033[0m "
+                    )
+                    print()
+                    continue
+
                 if (title.lower(), author.lower()) not in existing_books:
-                    Book(title, author, float(row["rating"].strip())).save()
+                    Book(title, author, rating).save()
                     new_books += 1
 
     except FileNotFoundError:
-        print(f" Error! Couldn't find file at: '{filepath}'")
-        return 0
+        print(f"\033[31m Error! Couldn't find file at:\033[0m \n {PROMPT}{filepath}")
+        return 0, interrupted
     except KeyError as e:
         print(
-            f" Error! Missing column '{e}' in CSV file."
-            f" Expected columns: 'title', 'author', 'rating'."
+            f"\033[31m Error! Missing column '{e}' in CSV file. Expected columns:"
+            f" \033[33m title\033[0m,\033[33m author\033[0m,\033[33m rating\033[0m."
         )
-        return 0
-    except ValueError as e:
-        print(
-            f" Error! Invalid rating value: {e}."
-            f" Ensure 'rating' is a number from 1 to 10, inclusive."
-        )
-        return 0
+        return 0, interrupted
 
-    return new_books
+    return new_books, interrupted
 
 
 def export_to_csv():
@@ -67,4 +106,4 @@ def export_to_csv():
         for i, book in enumerate(ranked_books, start=1):
             writer.writerow([i, book.title, book.author, book.rating, book.elo])
 
-    print(f" \033[33m>\033[0m ✓ Rankings exported to:\033[32m {filepath}\033[0m")
+    print(f"{PROMPT}✓ Rankings exported to:\033[32m {filepath}\033[0m")
