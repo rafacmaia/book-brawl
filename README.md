@@ -173,7 +173,7 @@ and accelerate ranking convergence.
 
 Pair selection prioritizes:
 
-- Books with very few matches (to quickly obtain some data on every book)
+- Books with very few matches (to quickly obtain some baseline data on every book)
 - Rare or unmatched pairings
 - Matchups between books with similar Elo score (where outcomes are most informative)
 - Books with lower confidence (to maximize overall ranking confidence)

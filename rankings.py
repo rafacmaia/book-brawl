@@ -15,8 +15,10 @@ from constants import (
 from scoring import (
     confidence_score,
     get_k,
-    cluster_density,
     confidence_summary,
+    absolute_score,
+    local_score,
+    stability_score,
 )
 from utils import PROMPT, style
 
@@ -33,7 +35,10 @@ def view_rankings(verbose=False):
     print(" Your library:      ", style(f"{len(state.books)} Books", "bold green"))
     print(confidence_summary(state.rankings_confidence, "bold green"))
     input(
-        style(f"\n{PROMPT}\033[33mPress Enter to view rankings... ", styling=SUBHEADER)
+        style(
+            f"\n{PROMPT}{style("Press Enter to view rankings...", SUBHEADER)} ",
+            styling=SUBHEADER,
+        )
     )
     print()
 
@@ -83,7 +88,9 @@ def print_table(books, start, end, verbose=False):
     if verbose:
         table.add_column("ELO", justify="left", header_style=HEADER)
         table.add_column("K", justify="left", header_style=HEADER)
-        table.add_column("DENSITY", justify="left", header_style=HEADER)
+        table.add_column("ABS", justify="left", header_style=HEADER)
+        table.add_column("LOC", justify="left", header_style=HEADER)
+        table.add_column("STA", justify="left", header_style=HEADER)
 
     for i, b in enumerate(books[start:end], start=start + 1):
         con_score = confidence_score(b)
@@ -94,10 +101,17 @@ def print_table(books, start, end, verbose=False):
             confidence = str(round(con_score, 2))
 
         if verbose:
-            score = f"{con_score:.2f}"
-            k = str(get_k(b))
-            density = f"{cluster_density(b):.1f}"
-            table.add_row(str(i), b.title, b.author, score, str(b.elo), k, density)
+            table.add_row(
+                str(i),
+                b.title,
+                b.author,
+                f"{con_score:.2f}",
+                str(b.elo),
+                str(get_k(b)),
+                f"{absolute_score(b):.2f}",
+                f"{local_score(b):.2f}",
+                f"{stability_score(b):.2f}",
+            )
         else:
             table.add_row(str(i), b.title, b.author, confidence)
 

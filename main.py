@@ -54,6 +54,7 @@ def startup():
         if csv_reader(prompt=" CSV file path (q to quit): ", options=["q"]) == "q":
             quit_game()
         state.books = Book.load_all()
+        print()
     else:
         calculate_rankings_confidence()
 
@@ -70,14 +71,10 @@ def main_menu():
 
         print(
             f" {rule(padding, ACCENT)}"
-            # f" {' ' * padding}"
             f"{style(confidence_progress, ACCENT)}"
             f"{rule(padding, ACCENT)}"
         )
         print(MAIN_MENU)
-
-        if state.db_path == "data/test.db":
-            print(TEST_MESSAGE)
 
         print()
         choice = prompt(
@@ -105,6 +102,9 @@ def main_menu():
             export_rankings()
 
         print()
+        # Warn if running in test mode, which uses a separate test database
+        if state.db_path == "data/test.db":
+            print(TEST_MESSAGE)
 
 
 def add_books():

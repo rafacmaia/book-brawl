@@ -40,6 +40,12 @@ def get_k(book):
 
 # --- CONFIDENCE SCORE CALCULATIONS ---
 
+ABS_SCORE_WEIGHT = 0.35
+LOC_SCORE_WEIGHT = 0.45
+DEN_SCORE_WEIGHT = 0.20  # density-based stability score
+ABS_MIN_OPPONENTS = 8
+DENSITY_WINDOW = 26
+
 
 def calculate_rankings_confidence():
     if not state.books:
@@ -56,42 +62,59 @@ def confidence_score(book):
     similarly scored opponents faced, and local density in overall rankings to account
     for, respectively, overall confidence, local confidence, and stability.
     """
-    # Guard to prevent division by zero when there are 0-1 books in the system.
     if len(state.books) <= 1:
         return 0
 
     # Absolute score emphasizes that the first batch of matches should carry a lot of
     # weight to quickly reach an overall placement.
-    absolute_cap = max(len(state.books) * 0.10, 10)
-    absolute_score = min(len(book.opponents) / absolute_cap, 1)
+    abs_score_weighted = absolute_score(book) * ABS_SCORE_WEIGHT
 
     # Local score emphasizes that matches against books with similar Elo scores should
     # carry more weight to quickly refine placement within the rankings.
-    relevant_opponents = relevant_opp_faced = 0
-    for opp in state.books:
-        if opp.id != book.id and 0.34 <= expected_score(book.elo, opp.elo) <= 0.66:
-            relevant_opponents += 1
-            if opp.id in book.opponents:
-                relevant_opp_faced += 1
-    local_score = relevant_opp_faced / relevant_opponents if relevant_opponents else 0
+    loc_score_weighted = local_score(book) * LOC_SCORE_WEIGHT
 
     # Density score accounts for the local density of Elo scores in the overall
     # rankings. High cluster density indicates a high chance of ranks easily shifting.
-    density_score = 1 - cluster_density(book)
+    den_score_weighted = stability_score(book) * DEN_SCORE_WEIGHT
 
-    return absolute_score * 0.35 + local_score * 0.45 + density_score * 0.20
+    return abs_score_weighted + loc_score_weighted + den_score_weighted
 
 
-def cluster_density(book):
-    tight_neighbors = sum(
-        1 for opp in state.books if opp.id != book.id and abs(book.elo - opp.elo) < 28
+def absolute_score(book):
+    absolute_cap = (
+        max(len(state.books) * 0.1, ABS_MIN_OPPONENTS)
+        if len(state.books) > ABS_MIN_OPPONENTS
+        else 1
     )
 
-    upper_proximity = max(0, 1 - (Book.elo_max - book.elo) / 28)
-    lower_proximity = max(0, 1 - (book.elo - Book.elo_min) / 28)
+    return min(len(book.opponents) / absolute_cap, 1)
+
+
+def local_score(book):
+    relevant_opponents = relevant_opp_faced = 0
+    for opp in state.books:
+        if opp.id != book.id and 0.35 <= expected_score(book.elo, opp.elo) <= 0.65:
+            relevant_opponents += 1
+            if opp.id in book.opponents:
+                relevant_opp_faced += 1
+
+    return relevant_opp_faced / relevant_opponents if relevant_opponents else 1
+
+
+def stability_score(book):
+    tight_neighbors = sum(
+        1
+        for opp in state.books
+        if opp.id != book.id and abs(book.elo - opp.elo) < DENSITY_WINDOW
+    )
+
+    upper_proximity = max(0, 1 - (Book.elo_max - book.elo) / DENSITY_WINDOW)
+    lower_proximity = max(0, 1 - (book.elo - Book.elo_min) / DENSITY_WINDOW)
     edge_factor = 1 + max(upper_proximity, lower_proximity)
 
-    return min((tight_neighbors * edge_factor) / 10, 1)
+    density = min((tight_neighbors * edge_factor) / 10, 1)
+
+    return 1 - density
 
 
 def confidence_summary(pct, color="bold green"):
