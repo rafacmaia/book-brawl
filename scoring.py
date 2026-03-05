@@ -129,7 +129,10 @@ def confidence_summary(pct, color="bold green"):
     elif pct < 0.6:
         summary += " General positions are fairly reliable, exact ranks still shifting."
     elif pct < 0.8:
-        summary += " Positions are well established, likely within ~10 spots."
+        summary += (
+            " Positions are well established, "
+            "likely within ~5 spots of final placement."
+        )
     elif pct < 0.95:
         summary += " Rankings are locked in, unlikely to shift significantly."
     else:

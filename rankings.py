@@ -32,54 +32,39 @@ def view_rankings(verbose=False):
 
     print()
     print(RANKINGS_HEADER)
-    print(" Your library:      ", style(f"{len(state.books)} Books", "bold green"))
-    print(confidence_summary(state.rankings_confidence, "bold green"))
-    input(
-        style(
-            f"\n{PROMPT}{style("Press Enter to view rankings...", SUBHEADER)} ",
-            styling=SUBHEADER,
-        )
-    )
+
+    # Print informational summary of the user's library and current confidence level
+    print(" Your library:      ", style(f"{len(state.books)} Books", HEADER))
+    print(confidence_summary(state.rankings_confidence, HEADER))
+    input(f"\n{PROMPT}{style("Press Enter to view rankings...", SUBHEADER)} ")
     print()
 
     print_table(ranked_books, 0, batch_end, verbose)
 
     while True:
-        if batch_end < len(state.books):
-            print(
-                f"{' ' * (LINE_LENGTH - 22)}"
-                f"{style(f"n → See next {BATCH_SIZE}", styling=SUBHEADER)}"
-            )
-        print(
-            f"{' ' * (LINE_LENGTH - 22)}? → Confidence tiers\n"
-            f"{' ' * (LINE_LENGTH - 22)}b → Main menu\n"
-            f"{' ' * (LINE_LENGTH - 22)}e → Export rankings\n"
-            f"{' ' * (LINE_LENGTH - 22)}q → Quit"
-        )
+        next_action = rankings_menu(batch_end)
 
-        choice = input(f"{' ' * (LINE_LENGTH - 8)}{PROMPT}").strip().lower()
-
-        while choice not in ("?", "b", "e", "q"):
-            if batch_end < len(state.books) and choice == "n":
-                break
-            choice = input(
-                f"{' ' * (LINE_LENGTH - 40)}"
-                f"{style("Invalid choice, please try again", "red")}{PROMPT}"
-            )
-
-        if choice == "n":
+        if next_action == "n":
             batch_end += BATCH_SIZE
             print_table(ranked_books, batch_end - BATCH_SIZE, batch_end, verbose)
-        elif choice == "?":
+        elif next_action == "?":
             print(CONFIDENCE_TIERS)
         else:
-            return choice
+            return next_action
 
 
 def print_table(books, start, end, verbose=False):
     table = Table(
         box=box.HORIZONTALS, border_style="bright_blue", width=LINE_LENGTH + 1
     )
+
+    add_columns(table, verbose)
+    add_rows(table, books, start, end, verbose)
+
+    Console().print(table)
+
+
+def add_columns(table, verbose):
     table.add_column("#", justify="center", style=HEADER, header_style=HEADER)
     table.add_column("TITLE", justify="left", header_style=HEADER)
     table.add_column("AUTHOR", justify="left", header_style=HEADER)
@@ -92,6 +77,8 @@ def print_table(books, start, end, verbose=False):
         table.add_column("LOC", justify="left", header_style=HEADER)
         table.add_column("STA", justify="left", header_style=HEADER)
 
+
+def add_rows(table, books, start, end, verbose):
     for i, b in enumerate(books[start:end], start=start + 1):
         con_score = confidence_score(b)
         confidence = confidence_label(con_score)
@@ -115,8 +102,6 @@ def print_table(books, start, end, verbose=False):
         else:
             table.add_row(str(i), b.title, b.author, confidence)
 
-    Console().print(table)
-
 
 def confidence_label(confidence):
     if confidence < 0.1:
@@ -125,7 +110,33 @@ def confidence_label(confidence):
         return "🟠 Low"
     elif confidence < 0.6:
         return "🟡 Moderate"
-    elif confidence < 0.8:
+    elif confidence < 0.85:
         return "🟢 High"
     else:
-        return "✅ Very High"
+        return "✅  Very High"
+
+
+def rankings_menu(batch_end):
+    if batch_end < len(state.books):
+        print(
+            f"{' ' * (LINE_LENGTH - 22)}"
+            f"{style(f"n → See next {BATCH_SIZE}", styling=SUBHEADER)}"
+        )
+    print(
+        f"{' ' * (LINE_LENGTH - 22)}? → Confidence tiers\n"
+        f"{' ' * (LINE_LENGTH - 22)}b → Main menu\n"
+        f"{' ' * (LINE_LENGTH - 22)}e → Export rankings\n"
+        f"{' ' * (LINE_LENGTH - 22)}q → Quit"
+    )
+
+    choice = input(f"{' ' * (LINE_LENGTH - 8)}{PROMPT}").strip().lower()
+
+    while choice not in ("?", "b", "e", "q"):
+        if batch_end < len(state.books) and choice == "n":
+            break
+        choice = input(
+            f"{' ' * (LINE_LENGTH - 40)}"
+            f"{style("Invalid choice, please try again", "red")}{PROMPT}"
+        )
+
+    return choice

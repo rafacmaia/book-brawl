@@ -28,7 +28,7 @@ CONFIDENCE_TIERS = (
     🔴 Very Low   — Early data, ranking mostly based on initial rating
     🟠 Low        — Some data, broad tier is likely correct (top/mid/bottom)
     🟡 Moderate   — General position is fairly reliable, exact rank still shifting
-    🟢 High       — Position is well established, likely within ~10 spots
+    🟢 High       — Position is well established, likely within ~5 spots
     ✅  Very High  — Locked in, unlikely to shift significantly"""
     f"\n {rule(LINE_LENGTH - 1, "blue")}"
 )
@@ -60,7 +60,8 @@ MAIN_MENU = f""" {style("MAIN MENU", SUBHEADER)} {rule(LINE_LENGTH - 11, SUBHEAD
  4. Export Rankings
  5. Quit"""
 
-ARENA_HEADER = f""" {style("BOOK ARENA", SUBHEADER)} {rule(LINE_LENGTH - 12, SUBHEADER)}
+ARENA_HEADER = f""" 
+ {style("BOOK ARENA", SUBHEADER)} {rule(LINE_LENGTH - 12, SUBHEADER)}
  Let's rank some books!
  Books will face-off in random matches to craft the ultimate book ranking.
  Options:

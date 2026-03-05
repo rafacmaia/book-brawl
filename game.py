@@ -5,7 +5,7 @@ import state
 from constants import LINE_LENGTH, SUBHEADER, DIVIDER, ARENA_HEADER
 from db import save_comparison
 from scoring import calculate_elo, confidence_score
-from utils import PROMPT, rule, style
+from utils import rule, style, prompt
 
 
 def run_game():
@@ -14,7 +14,6 @@ def run_game():
     Select two books for comparison, prompt the user for selection between the two,
     resolve the match, and repeat until the user stops.
     """
-    print()
     print(ARENA_HEADER, end="")
     input()
 
@@ -24,33 +23,17 @@ def run_game():
         book_a, book_b = select_opponents()
         match_count += 1
 
-        print()
-        print(
-            f" {rule((LINE_LENGTH - 5 - len(str(match_count))), DIVIDER)}"
-            f" {style(match_count, DIVIDER)}"
-            f" {rule(2, DIVIDER)}"
-        )
-        print(
-            f" {style("Which means more to you?", SUBHEADER)}\n"
-            f"   {style("1.", SUBHEADER)} {format_book(book_a)}\n"
-            f"   {style("2.", SUBHEADER)} {format_book(book_b)}"
+        print_match(match_count, book_a, book_b)
+        selection = prompt(
+            {"1", "2", "b", "q"},
+            "Invalid choice! Options: 1, 2, b, or q",
         )
 
-        choice = input(PROMPT).strip().lower()
-
-        while choice not in ("1", "2", "b", "q"):
-            print(
-                f"{PROMPT}"
-                # f"{style("Invalid choice! Options are: '1'  '2'  'b'  'q'", "red")}"
-                f"{style("Sorry, I can only understand options: 1, 2, b, or q", "red")}"
-            )
-            choice = input(PROMPT).strip().lower()
-
-        if choice in ["q", "b"]:
-            return choice
-        elif choice == "1":
+        if selection in ["q", "b"]:
+            return selection
+        elif selection == "1":
             resolve_comparison(winner=book_a, loser=book_b)
-        elif choice == "2":
+        elif selection == "2":
             resolve_comparison(winner=book_b, loser=book_a)
 
 
@@ -66,30 +49,16 @@ def select_opponents():
 
     book_a = random.choices(state.books, weights=weights, k=1)[0]
 
-    # DEBUG MODE: Print number of past opponents
-    if state.debug:
-        print(
-            f"\n\033[31mDEBUG: {book_a.title} "
-            f"-- {len(book_a.opponents)} past opponents "
-            f"-- {sampling_weight(book_a):.2f} weight\033[0m"
-        )
-
     # Exclude book_a from opponent selection
-    remaining_book_weights = [
+    remaining_weights = [
         (b, w) for b, w in zip(state.books, weights) if b.id != book_a.id
     ]
 
-    # Adjust weights to prioritize rarer pairings and books with similar Elo scores.
-    # Rematch penalty: increase the multiplier to penalize rematches more aggressively
-    # Elo gap penalty: decrease the divisor to prioritize similar score ranges
-    adjusted_weights = []
-    for b, w in remaining_book_weights:
-        rematch_penalty = 1 + 2 * book_a.opponents.get(b.id, 0)
-        elo_gap_penalty = 1 + abs(book_a.elo - b.elo) / 150
-        adjusted_weights.append(max(0.1, w / rematch_penalty / elo_gap_penalty))
+    # Adjust weights for book_b selection based on the selected book_a
+    adjusted_weights = adjust_weights(book_a, remaining_weights)
 
     book_b = random.choices(
-        [b for b, w in remaining_book_weights], weights=adjusted_weights, k=1
+        [b for b, w in remaining_weights], weights=adjusted_weights, k=1
     )[0]
 
     return book_a, book_b
@@ -110,8 +79,33 @@ def sampling_weight(book):
     return max(0.1, confidence_weight, early_boost)
 
 
-def format_book(book):
-    return textwrap.fill(str(book), width=LINE_LENGTH - 7, subsequent_indent="\t")
+def adjust_weights(book_a, weights):
+    # Adjust weights to prioritize rarer pairings and books with similar Elo scores.
+    # Rematch penalty: increase the multiplier to penalize rematches more aggressively
+    # Elo gap penalty: decrease the divisor to prioritize similar score ranges
+    adjusted_weights = []
+    for b, w in weights:
+        rematch_penalty = 1 + 2 * book_a.opponents.get(b.id, 0)
+        elo_gap_penalty = 1 + abs(book_a.elo - b.elo) / 150
+        adjusted_weights.append(max(0.1, w / rematch_penalty / elo_gap_penalty))
+
+    return adjusted_weights
+
+
+def print_match(match_count, book_a, book_b):
+    header = (
+        f" {rule((LINE_LENGTH - 5 - len(str(match_count))), DIVIDER)}"
+        f" {style(match_count, DIVIDER)}"
+        f" {rule(2, DIVIDER)}"
+    )
+
+    match = (
+        f" {style("Which means more to you?", SUBHEADER)}\n"
+        f"   {style("1.", SUBHEADER)} {format_book(book_a)}\n"
+        f"   {style("2.", SUBHEADER)} {format_book(book_b)}"
+    )
+
+    print("\n" + header + "\n" + match)
 
 
 def resolve_comparison(winner, loser):
@@ -123,3 +117,7 @@ def resolve_comparison(winner, loser):
 
     winner.record_opponent(loser.id)
     loser.record_opponent(winner.id)
+
+
+def format_book(book):
+    return textwrap.fill(str(book), width=LINE_LENGTH - 7, subsequent_indent="\t")

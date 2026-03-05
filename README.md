@@ -77,29 +77,38 @@ _See the [How it Works](#-how-it-works) section below for more details._
 2. Create a virtual environment and activate it:
    ```bash
    python -m venv .venv
+   ```
+
+3. Activate the virtual environment:
+   ```bash
    source .venv/bin/activate
    ```
 
-
-3. Install dependencies:
+4. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
 
-4. Run the app:
+5. Run the app:
    ```bash
    python main.py
    ```
    In the first run, you'll be prompted to import your book log from a CSV file.
 
 
-5. To run on sample or test data instead of your own library:
+6. (Optional) Run in test mode to experiment on a separate database:
    ```bash
    python main.py --test
    ```
-   *Note, a sample CSV with 20 books is included at [
-   `data/sample-books.csv`](data/sample-books.csv) to get you started.*
+
+### Observations
+
+- Steps 1, 2, and 4 only need to be done once. In later sessions, from within the project
+  directory, just run steps 3 and 5 to launch the app.
+
+- A sample CSV with 25 books is included at [
+  `data/sample-books.csv`](data/sample-books.csv) to get you started.
 
 ## 📃 CSV Format
 
