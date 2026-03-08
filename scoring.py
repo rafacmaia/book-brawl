@@ -1,6 +1,6 @@
 import state
 from models import Book
-from utils import style, progress_bar
+from utils import progress_bar, style
 
 # --- ELO SCORE CALCULATIONS ---
 
@@ -40,9 +40,9 @@ def get_k(book):
 
 # --- CONFIDENCE SCORE CALCULATIONS ---
 
-ABS_SCORE_WEIGHT = 0.35
+ABS_SCORE_WEIGHT = 0.30
 LOC_SCORE_WEIGHT = 0.45
-DEN_SCORE_WEIGHT = 0.20  # density-based stability score
+DEN_SCORE_WEIGHT = 0.25  # density-based stability score
 ABS_MIN_OPPONENTS = 8
 DENSITY_WINDOW = 26
 
@@ -122,13 +122,13 @@ def confidence_summary(pct, color="bold green"):
 
     if pct < 0.2:
         summary += " Not much data yet, ranking mostly based on initial ratings."
-    elif pct < 0.4:
+    elif pct < 0.45:
         summary += (
             " Still early stages, but broad tiers (top/mid/bottom) likely correct."
         )
-    elif pct < 0.6:
+    elif pct < 0.65:
         summary += " General positions are fairly reliable, exact ranks still shifting."
-    elif pct < 0.8:
+    elif pct < 0.85:
         summary += (
             " Positions are well established, "
             "likely within ~5 spots of final placement."

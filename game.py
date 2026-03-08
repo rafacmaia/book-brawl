@@ -100,9 +100,9 @@ def print_match(match_count, book_a, book_b):
     )
 
     match = (
-        f" {style("Which means more to you?", SUBHEADER)}\n"
-        f"   {style("1.", SUBHEADER)} {format_book(book_a)}\n"
-        f"   {style("2.", SUBHEADER)} {format_book(book_b)}"
+        f" {style('Which means more to you?', SUBHEADER)}\n"
+        f"   {style('1.', SUBHEADER)} {format_book(book_a)}\n"
+        f"   {style('2.', SUBHEADER)} {format_book(book_b)}"
     )
 
     print("\n" + header + "\n" + match)

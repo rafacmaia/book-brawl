@@ -23,14 +23,14 @@ DIVIDER = "cyan"
 
 
 CONFIDENCE_TIERS = (
-    f"{style(" Confidence Tiers ", "bold" + ACCENT)}{rule(LINE_LENGTH - 18, "blue")}"
+    f"{style(' Confidence Tiers ', 'bold' + ACCENT)}{rule(LINE_LENGTH - 18, 'blue')}"
     f"""
     🔴 Very Low   — Early data, ranking mostly based on initial rating
     🟠 Low        — Some data, broad tier is likely correct (top/mid/bottom)
     🟡 Moderate   — General position is fairly reliable, exact rank still shifting
     🟢 High       — Position is well established, likely within ~5 spots
     ✅  Very High  — Locked in, unlikely to shift significantly"""
-    f"\n {rule(LINE_LENGTH - 1, "blue")}"
+    f"\n {rule(LINE_LENGTH - 1, 'blue')}"
 )
 
 TEST_MESSAGE = (
@@ -39,7 +39,7 @@ TEST_MESSAGE = (
 
 GOODBYE = (
     f"{rule((LINE_LENGTH // 2 - 16), HEADER)}"
-    f"{style(" 📚 Goodbye! Keep on reading 📚 ", HEADER)}"
+    f"{style(' 📚 Goodbye! Keep on reading 📚 ', HEADER)}"
     f"{rule((LINE_LENGTH // 2 - 16), HEADER)}"
 )
 
@@ -49,7 +49,7 @@ GOODBYE = (
 
 TITLE = (
     f"{rule((LINE_LENGTH // 2 - 8), HEADER)}"
-    f"{style("  BOOK RANKER  ", HEADER)}"
+    f"{style('  BOOK RANKER  ', HEADER)}"
     f"{rule((LINE_LENGTH // 2 - 7), HEADER)}"
 )
 
@@ -73,13 +73,13 @@ ARENA_HEADER = f"""
  {style("Let's get started! (press Enter) ", SUBHEADER)}"""
 
 RANKINGS_HEADER = (
-    f"{style(" CURRENT RANKINGS ", SUBHEADER)}{rule(LINE_LENGTH - 18, SUBHEADER)}"
+    f"{style(' CURRENT RANKINGS ', SUBHEADER)}{rule(LINE_LENGTH - 18, SUBHEADER)}"
 )
 
 IMPORT_HEADER = (
-    f"{style(" IMPORT NEW BOOKS ", SUBHEADER)}{rule(LINE_LENGTH - 18, SUBHEADER)}"
+    f"{style(' IMPORT NEW BOOKS ', SUBHEADER)}{rule(LINE_LENGTH - 18, SUBHEADER)}"
 )
 
 EXPORT_HEADER = (
-    f"{style(" EXPORT RANKINGS ", SUBHEADER)}{rule(LINE_LENGTH - 17, SUBHEADER)}"
+    f"{style(' EXPORT RANKINGS ', SUBHEADER)}{rule(LINE_LENGTH - 17, SUBHEADER)}"
 )

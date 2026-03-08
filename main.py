@@ -8,17 +8,17 @@ from rich.console import Console
 import constants
 import state
 from constants import (
-    LINE_LENGTH,
-    QUIT_OPTION,
     ACCENT,
-    TITLE,
-    GOODBYE,
-    TEST_MESSAGE,
-    MAIN_MENU,
-    IMPORT_HEADER,
     EXPORT_HEADER,
+    GOODBYE,
+    IMPORT_HEADER,
+    LINE_LENGTH,
+    MAIN_MENU,
+    QUIT_OPTION,
+    TEST_MESSAGE,
+    TITLE,
 )
-from csv_handler import export_to_csv, csv_reader
+from csv_handler import csv_reader, export_to_csv
 from db import init_db
 from game import run_game
 from models import Book
@@ -26,7 +26,7 @@ from rankings import (
     view_rankings,
 )
 from scoring import calculate_rankings_confidence, confidence_summary
-from utils import prompt, style, PROMPT, rule, progress_bar
+from utils import PROMPT, progress_bar, prompt, rule, style
 
 console = Console(width=LINE_LENGTH)
 
@@ -49,9 +49,13 @@ def startup():
         print(
             " Your library is empty!\n"
             " To get started, please provide the path to a CSV file of your book log.\n"
-            " It should have the following columns: \033[33mtitle\033[0m, \033[33mauthor\033[0m, \033[33mrating\033[0m.\n"
+            " It should have the following columns:"
+            "\033[33m title\033[0m,\033[33m author\033[0m, \033[33m rating\033[0m.\n"
         )
-        if csv_reader(prompt=" CSV file path (q to quit): ", options=["q"]) == "q":
+        response = (
+            csv_reader(prompt=" CSV file path (q to quit): ", options=["q"]) == "q"
+        )
+        if response == "q":
             quit_game()
         state.books = Book.load_all()
         print()
@@ -121,7 +125,7 @@ def add_books():
     print(" Please provide the path to your CSV book log to sync new books.")
     print()
 
-    response = csv_reader(prompt=f" CSV file path (b to go back): ", options=["b"])
+    response = csv_reader(prompt=" CSV file path (b to go back): ", options=["b"])
     if response == "b":
         return
     added, interrupted = response
@@ -153,7 +157,7 @@ def export_rankings():
     print(confidence_summary(state.rankings_confidence, constants.HEADER))
 
     print()
-    print(f" Proceed with export (y/n)?")
+    print(" Proceed with export (y/n)?")
     choice = prompt({"y", "n"}, "Sorry, I can only understand 'y' or 'n'.")
 
     if choice == "y":
@@ -194,7 +198,8 @@ def backup_cleanup():
 
 if __name__ == "__main__":
     if "--test" in sys.argv:
-        state.db_path = "data/test.db"
+        # state.db_path = "data/test.db"
+        state.db_path = "data/test2.db"
     if "--debug" in sys.argv:
         state.debug = True
 

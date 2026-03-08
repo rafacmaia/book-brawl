@@ -65,14 +65,14 @@ def progress_bar(pct, width=20):
     # Make sure labels have an odd number of chars to fit the display better.
     if pct < 0.2:
         label = "🔴 JUST STARTING"
-    elif pct < 0.4:
+    elif pct < 0.45:
         label = "🟠 COOKING"
-    elif pct < 0.6:
+    elif pct < 0.65:
         label = "🟡 GETTING THERE"
-    elif pct < 0.8:
+    elif pct < 0.85:
         label = "🟢 WE'RE CLOSE"
     elif pct < 0.95:
-        label = "✅ LOCKED IN"
+        label = "✅  LOCKED IN"
     else:
         label = "✨ COMPLETE! ✨"
 

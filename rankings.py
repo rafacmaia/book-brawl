@@ -4,19 +4,19 @@ from rich.table import Table
 
 import state
 from constants import (
-    LINE_LENGTH,
-    INITIAL_BATCH_SIZE,
     BATCH_SIZE,
-    HEADER,
-    SUBHEADER,
-    RANKINGS_HEADER,
     CONFIDENCE_TIERS,
+    HEADER,
+    INITIAL_BATCH_SIZE,
+    LINE_LENGTH,
+    RANKINGS_HEADER,
+    SUBHEADER,
 )
 from scoring import (
-    confidence_score,
-    get_k,
-    confidence_summary,
     absolute_score,
+    confidence_score,
+    confidence_summary,
+    get_k,
     local_score,
     stability_score,
 )
@@ -36,7 +36,7 @@ def view_rankings(verbose=False):
     # Print informational summary of the user's library and current confidence level
     print(" Your library:      ", style(f"{len(state.books)} Books", HEADER))
     print(confidence_summary(state.rankings_confidence, HEADER))
-    input(f"\n{PROMPT}{style("Press Enter to view rankings...", SUBHEADER)} ")
+    input(f"\n{PROMPT}{style('Press Enter to view rankings...', SUBHEADER)} ")
     print()
 
     print_table(ranked_books, 0, batch_end, verbose)
@@ -44,7 +44,7 @@ def view_rankings(verbose=False):
     while True:
         next_action = rankings_menu(batch_end)
 
-        if next_action == "n":
+        if next_action == "":
             batch_end += BATCH_SIZE
             print_table(ranked_books, batch_end - BATCH_SIZE, batch_end, verbose)
         elif next_action == "?":
@@ -120,7 +120,7 @@ def rankings_menu(batch_end):
     if batch_end < len(state.books):
         print(
             f"{' ' * (LINE_LENGTH - 22)}"
-            f"{style(f"n → See next {BATCH_SIZE}", styling=SUBHEADER)}"
+            f"{style(f'↵ → See next {BATCH_SIZE}', styling=SUBHEADER)}"
         )
     print(
         f"{' ' * (LINE_LENGTH - 22)}? → Confidence tiers\n"
@@ -132,11 +132,11 @@ def rankings_menu(batch_end):
     choice = input(f"{' ' * (LINE_LENGTH - 8)}{PROMPT}").strip().lower()
 
     while choice not in ("?", "b", "e", "q"):
-        if batch_end < len(state.books) and choice == "n":
+        if batch_end < len(state.books) and choice == "":
             break
         choice = input(
             f"{' ' * (LINE_LENGTH - 40)}"
-            f"{style("Invalid choice, please try again", "red")}{PROMPT}"
+            f"{style('Invalid choice, please try again', 'red')}{PROMPT}"
         )
 
     return choice
