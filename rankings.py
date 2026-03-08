@@ -54,20 +54,32 @@ def view_rankings(verbose=False):
 
 
 def rank_books():
-    sorted_books = sorted(state.books, key=lambda book: book.elo, reverse=True)
+    # Sort books by Elo score, breaking ties by rating
+    sorted_books = sorted(state.books, key=lambda b: (b.elo, b.rating), reverse=True)
 
     ranked_books = []
     previous_rank = 0
     for i, b in enumerate(sorted_books, start=1):
-        rank = str(i) if i == 1 or sorted_books[i - 2].elo != b.elo else previous_rank
+        tied_to_previous = (
+            i > 1
+            and sorted_books[i - 2].elo == b.elo
+            and sorted_books[i - 2].rating == b.rating
+        )
+
+        if tied_to_previous:
+            rank = previous_rank
+        else:
+            rank = str(i)
 
         previous_rank = rank
 
-        is_tied = (i != len(sorted_books) and b.elo == sorted_books[i].elo) or (
-            i > 1 and sorted_books[i - 2].elo == b.elo
+        tied_to_next = (
+            i != len(sorted_books)
+            and b.elo == sorted_books[i].elo
+            and b.rating == sorted_books[i].rating
         )
 
-        if is_tied:
+        if tied_to_previous or tied_to_next:
             rank += "~"
 
         ranked_books.append((rank, b))
@@ -87,7 +99,7 @@ def print_table(books, start, end, verbose=False):
 
 
 def add_columns(table, verbose):
-    table.add_column("#", justify="center", style=HEADER, header_style=HEADER)
+    table.add_column("#", justify="left", style=HEADER, header_style=HEADER)
     table.add_column("TITLE", justify="left", header_style=HEADER)
     table.add_column("AUTHOR", justify="left", header_style=HEADER)
     table.add_column("CONFIDENCE", justify="left", header_style=HEADER)
