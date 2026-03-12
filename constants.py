@@ -1,4 +1,4 @@
-from utils import rule, style
+from utils import PROMPT, rule, style
 
 LINE_LENGTH = 86  # Keep it to an even number
 BOOK_LIMIT = 2500
@@ -26,6 +26,13 @@ TEST_MESSAGE = (
     f"{' ' * (LINE_LENGTH // 2 - 13)}\033[1;31m⚠️ RUNNING IN TEST MODE ⚠️\033[1;0m"
 )
 
+EMPTY_LIBRARY = (
+    " Your library is empty!\n"
+    " To get started, please provide the path to a CSV file of your book log.\n"
+    " It should have the following columns:"
+    "\033[33m title\033[0m,\033[33m author\033[0m, \033[33m rating\033[0m.\n"
+)
+
 CONFIDENCE_TIERS = (
     f"{style(' Confidence Tiers ', 'bold' + ACCENT)}{rule(LINE_LENGTH - 18, 'blue')}"
     f"""
@@ -38,6 +45,25 @@ CONFIDENCE_TIERS = (
 )
 
 ARENA_OPTIONS = ["1", "2", "u", "b", "q"]
+
+LIMIT_REACHED = (
+    f"\033[31m Sorry, you read way too much "
+    f"and reached the limit of {BOOK_LIMIT} books.\n"
+    f" I can't handle any more 😭.\033[0m"
+)
+
+EMPTY_IMPORT = (
+    f"{PROMPT}\033[31mNo books imported. Please check your file and try again.\033[0m "
+)
+
+IMPORT_INTERRUPTED = (
+    f"{PROMPT}\033[31mWarning: \033[0m"
+    f"Book limit reached during import, not all books were added."
+)
+
+LIMIT_WARNING = (
+    f"{PROMPT}\033[31mWarning: \033[0mBook limit reached, no more books can be added!"
+)
 
 GOODBYE = (
     f"{rule((LINE_LENGTH // 2 - 16), HEADER)}"

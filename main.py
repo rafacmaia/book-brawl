@@ -9,9 +9,14 @@ import constants
 import state
 from constants import (
     ACCENT,
+    EMPTY_IMPORT,
+    EMPTY_LIBRARY,
     EXPORT_HEADER,
     GOODBYE,
     IMPORT_HEADER,
+    IMPORT_INTERRUPTED,
+    LIMIT_REACHED,
+    LIMIT_WARNING,
     LINE_LENGTH,
     MAIN_MENU,
     QUIT_OPTION,
@@ -46,12 +51,7 @@ def startup():
 
     # First run, no books in the system - prompt for CSV import
     if not state.books:
-        print(
-            " Your library is empty!\n"
-            " To get started, please provide the path to a CSV file of your book log.\n"
-            " It should have the following columns:"
-            "\033[33m title\033[0m,\033[33m author\033[0m, \033[33m rating\033[0m.\n"
-        )
+        print(EMPTY_LIBRARY)
         response = csv_reader(prompt=" CSV file path (q to quit): ", back_key="q")
         if response == "q":
             quit_game()
@@ -115,11 +115,7 @@ def add_books():
     print(IMPORT_HEADER)
 
     if len(state.books) >= constants.BOOK_LIMIT:
-        print(
-            f"\033[31m Sorry, you read way too much "
-            f"and reached the limit of {constants.BOOK_LIMIT} books.\n"
-            f" I can't handle any more 😭.\033[0m"
-        )
+        print(LIMIT_REACHED)
         return
     print(" Please provide the path to your CSV book log to sync new books.")
     print()
@@ -131,25 +127,15 @@ def add_books():
     added, interrupted = import_from_csv(response)
 
     if added > 0:
-        plural = "s" if added > 1 else ""
-        print(f"{PROMPT}Imported {added} book{plural}!")
+        print(f"{PROMPT}Imported {added} book{'s' if added > 1 else ''}!")
         state.books = Book.load_all()
     else:
-        print(
-            f"{PROMPT}\033[31mNo books imported. "
-            "Please check your file and try again.\033[0m "
-        )
+        print(EMPTY_IMPORT)
 
     if interrupted:
-        print(
-            f"{PROMPT}\033[31mWarning: \033[0mBook limit reached during import, "
-            "not all books were added."
-        )
+        print(IMPORT_INTERRUPTED)
     elif len(state.books) >= constants.BOOK_LIMIT:
-        print(
-            f"{PROMPT}\033[31mWarning: \033[0m"
-            f"Book limit reached, no more books can be added!"
-        )
+        print(LIMIT_WARNING)
 
 
 def export_rankings():
