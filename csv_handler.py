@@ -103,8 +103,8 @@ def export_to_csv():
 
     with open(filepath, "w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
-        writer.writerow(["Rank", "Title", "Author", "Rating", "Score"])
+        writer.writerow(["Rank", "Title", "Author", "Rating"])
         for i, book in enumerate(ranked_books, start=1):
-            writer.writerow([i, book.title, book.author, book.rating, book.elo])
+            writer.writerow([i, book.title, book.author, book.rating])
 
     print(f"{PROMPT}✓ Rankings exported to:\033[32m {filepath}\033[0m")
