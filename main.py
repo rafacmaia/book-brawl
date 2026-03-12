@@ -53,15 +53,15 @@ def startup():
     # First run, no books in the system - prompt for CSV import
     if not state.books:
         print(EMPTY_LIBRARY)
+
         response = csv_reader(prompt=" CSV file path (q to quit): ", back_key="q")
         if response == "q":
             quit_game()
-        import_from_csv(response)
-        state.books = Book.load_all()
-        print()
-    else:
-        calculate_rankings_confidence()
 
+        process_imports(response)
+        print()
+
+    calculate_rankings_confidence()
     main_menu()
 
 
@@ -71,16 +71,16 @@ def main_menu():
         confidence_progress = (
             f"  CONFIDENCE: {progress_bar(state.rankings_confidence, 20)}  "
         )
-        padding = (LINE_LENGTH - len(confidence_progress) - 1) // 2
 
+        padding = (LINE_LENGTH - len(confidence_progress) - 1) // 2
         print(
             f" {rule(padding, ACCENT)}"
             f"{style(confidence_progress, ACCENT)}"
             f"{rule(padding, ACCENT)}"
         )
         print(MAIN_MENU)
-
         print()
+
         choice = prompt(
             {"1", "2", "2 -v", "3", "4", QUIT_OPTION},
             f"Invalid choice, I can only read options 1-{QUIT_OPTION}.",
@@ -91,7 +91,7 @@ def main_menu():
             next_action = run_game()
             calculate_rankings_confidence()
         elif choice in ("2", "2 -v"):
-            next_action = view_rankings("-v" in choice)
+            next_action = view_rankings(verbose="-v" in choice)
         elif choice == "3":
             add_books()
             calculate_rankings_confidence()
@@ -125,21 +125,24 @@ def add_books():
     if response == "b":
         return
 
-    added, interrupted = import_from_csv(response)
+    process_imports(response)
+
+
+def process_imports(filepath):
+    """Process imports."""
+    added, interrupted = import_from_csv(filepath)
 
     if added > 0:
         print(f"{PROMPT}Imported {added} book{'s' if added > 1 else ''}!")
         state.books = Book.load_all()
+        if interrupted:
+            print(IMPORT_INTERRUPTED)
+        elif len(state.books) >= constants.BOOK_LIMIT:
+            print(LIMIT_WARNING)
     else:
         print(EMPTY_IMPORT)
-        input(
-            f"{PROMPT}{style('Press Enter to return to the main menu... ', SUBHEADER)}"
-        )
 
-    if interrupted:
-        print(IMPORT_INTERRUPTED)
-    elif len(state.books) >= constants.BOOK_LIMIT:
-        print(LIMIT_WARNING)
+    input(f"{PROMPT}{style('Press Enter for the main menu... ', SUBHEADER)}")
 
 
 def export_rankings():
