@@ -28,3 +28,10 @@ build/
 
 # Environment variables
 .env
+
+# Mac Metadata
+.DS_Store
+
+# Temporary web terminal deployment (ttyd) - remove when web UI is built
+deploy.sh
+.rsyncignore

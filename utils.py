@@ -1,6 +1,7 @@
-import state
+import textwrap
 
-PROMPT = "\033[1;33m > \033[0m"
+import state
+from theme import LINE_LENGTH, PRIMARY, PROMPT, SECONDARY
 
 
 def prompt(options, error_message=None, p=PROMPT):
@@ -61,7 +62,7 @@ def ansi(styling=None):
     return "\033[" + ";".join(sections) + "m"
 
 
-def rankings_summary(pct, color="bold green"):
+def rankings_summary(pct, color=PRIMARY):
     summary = f" Your library:       {style(f'{len(state.books)} Books', color)}"
     summary += f"\n Current confidence: {style(progress_bar(pct, 20), color)}\n"
 
@@ -107,3 +108,12 @@ def progress_bar(pct, width=20):
         label = "✨ COMPLETE! ✨"
 
     return f"{bar} {pct_str}  {label}"
+
+
+def format_book(book, width=LINE_LENGTH - 7):
+    return textwrap.fill(str(book), width=width, subsequent_indent="\t")
+
+
+def press_enter(message="Press Enter for the main menu... ", new_line=True):
+    print() if new_line else None
+    input(f"{PROMPT}{style(message, SECONDARY)}")

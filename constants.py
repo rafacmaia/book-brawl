@@ -1,6 +1,6 @@
-from utils import PROMPT, rule, style
+from theme import ACCENT, ERROR, LINE_LENGTH, PRIMARY, PROMPT, SECONDARY
+from utils import rule, style
 
-LINE_LENGTH = 86  # Keep it to an even number
 BOOK_LIMIT = 2500
 BACKUPS_LIMIT = 5
 
@@ -8,17 +8,6 @@ QUIT_OPTION = "5"
 
 INITIAL_BATCH_SIZE = 50
 BATCH_SIZE = 50
-
-
-# --- Styling constants
-
-
-HEADER = "bold green"
-SUBHEADER = "bold yellow"
-ACCENT = "blue"
-DIVIDER = "cyan"
-REDO = "bold magenta"
-
 
 # --- Informational constants
 
@@ -53,22 +42,24 @@ LIMIT_REACHED = (
 )
 
 EMPTY_IMPORT = (
-    f"{PROMPT}\033[31mNo books imported. Please check your file and try again.\033[0m "
+    f"{PROMPT}"
+    f"{style('No books imported. Please check your file and try again.', ERROR)}"
 )
 
 IMPORT_INTERRUPTED = (
-    f"{PROMPT}\033[31mWarning: \033[0m"
-    f"Book limit reached during import, not all books were added."
+    f"{PROMPT}{style('Warning:', ERROR)}"
+    f" Book limit reached during import, not all books were added."
 )
 
 LIMIT_WARNING = (
-    f"{PROMPT}\033[31mWarning: \033[0mBook limit reached, no more books can be added!"
+    f"{PROMPT}{style('Warning:', ERROR)}"
+    f" Book limit reached, no more books can be added!"
 )
 
 GOODBYE = (
-    f"{rule((LINE_LENGTH // 2 - 16), HEADER)}"
-    f"{style(' 📚 Goodbye! Keep on reading 📚 ', HEADER)}"
-    f"{rule((LINE_LENGTH // 2 - 16), HEADER)}"
+    f"{rule((LINE_LENGTH // 2 - 16), PRIMARY)}"
+    f"{style(' 📚 Goodbye! Keep on reading 📚 ', PRIMARY)}"
+    f"{rule((LINE_LENGTH // 2 - 16), PRIMARY)}"
 )
 
 
@@ -76,39 +67,39 @@ GOODBYE = (
 
 
 TITLE = (
-    f"{rule((LINE_LENGTH // 2 - 8), HEADER)}"
-    f"{style('  BOOK RANKER  ', HEADER)}"
-    f"{rule((LINE_LENGTH // 2 - 7), HEADER)}"
+    f"{rule((LINE_LENGTH // 2 - 8), PRIMARY)}"
+    f"{style('  BOOK RANKER  ', PRIMARY)}"
+    f"{rule((LINE_LENGTH // 2 - 7), PRIMARY)}"
 )
 
-MAIN_MENU = f""" {style("MAIN MENU", SUBHEADER)} {rule(LINE_LENGTH - 11, SUBHEADER)}
+MAIN_MENU = f""" {style("MAIN MENU", SECONDARY)} {rule(LINE_LENGTH - 11, SECONDARY)}
  1. Play
  2. View Rankings
  3. Import New Books
  4. Export Rankings
  5. Quit"""
 
-ARENA_HEADER = f""" 
- {style("BOOK ARENA", SUBHEADER)} {rule(LINE_LENGTH - 12, SUBHEADER)}
+ARENA_HEADER = f"""
+ {style("BOOK ARENA", SECONDARY)} {rule(LINE_LENGTH - 12, SECONDARY)}
  Let's rank some books!
  Books will face-off in random matches to craft the ultimate book ranking.
  Options:
-   {style("1", SUBHEADER)} → Select book #1
-   {style("2", SUBHEADER)} → Select book #2
-   {style("u", SUBHEADER)} → Undo previous match
-   {style("b", SUBHEADER)} → Back to main menu
-   {style("q", SUBHEADER)} → Quit program
-   
- {style("Let's get started! (press Enter) ", SUBHEADER)}"""
+   {style("1", SECONDARY)} → Select book #1
+   {style("2", SECONDARY)} → Select book #2
+   {style("u", SECONDARY)} → Undo previous match
+   {style("b", SECONDARY)} → Back to main menu
+   {style("q", SECONDARY)} → Quit program
+
+ {style("Let's get started! (press Enter) ", SECONDARY)}"""
 
 RANKINGS_HEADER = (
-    f"{style(' CURRENT RANKINGS ', SUBHEADER)}{rule(LINE_LENGTH - 18, SUBHEADER)}"
+    f"{style(' CURRENT RANKINGS ', SECONDARY)}{rule(LINE_LENGTH - 18, SECONDARY)}"
 )
 
 IMPORT_HEADER = (
-    f"{style(' IMPORT NEW BOOKS ', SUBHEADER)}{rule(LINE_LENGTH - 18, SUBHEADER)}"
+    f"{style(' IMPORT NEW BOOKS ', SECONDARY)}{rule(LINE_LENGTH - 18, SECONDARY)}"
 )
 
 EXPORT_HEADER = (
-    f"{style(' EXPORT RANKINGS ', SUBHEADER)}{rule(LINE_LENGTH - 17, SUBHEADER)}"
+    f"{style(' EXPORT RANKINGS ', SECONDARY)}{rule(LINE_LENGTH - 17, SECONDARY)}"
 )
