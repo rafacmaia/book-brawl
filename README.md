@@ -219,6 +219,7 @@ mathematically robust, way to reflect on their books.
 | [`csv_handler.py`](csv_handler.py) | CSV import and export handling        |
 | [`constants.py`](constants.py)     | UI strings and layout values          |
 | [`utils.py`](utils.py)             | Styling utilities                     |
+| [`theme.py`](theme.py)             | Color and layout constants            |
 | [`state.py`](state.py)             | Global state management               |
 
 ## 🗺️ Roadmap

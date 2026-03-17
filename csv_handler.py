@@ -5,7 +5,8 @@ from datetime import datetime
 import constants
 import state
 from models import Book
-from theme import PROMPT
+from theme import ERROR, PROMPT
+from utils import style
 
 
 def csv_reader(prompt=" CSV file path: ", back_key="q"):
@@ -16,7 +17,7 @@ def csv_reader(prompt=" CSV file path: ", back_key="q"):
             return filepath
 
         if not (filepath and os.path.exists(filepath)):
-            print(f"{PROMPT}\033[31mInvalid path. Please try again.\033[0m")
+            print(f"{PROMPT}{style('Invalid path. Please try again.', ERROR)}")
             continue
 
         if not filepath.endswith(".csv"):

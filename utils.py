@@ -1,7 +1,7 @@
 import textwrap
 
 import state
-from theme import LINE_LENGTH, PRIMARY, PROMPT, SECONDARY
+from theme import ERROR, LINE_LENGTH, PRIMARY, PROMPT, SECONDARY
 
 
 def prompt(options, error_message=None, p=PROMPT):
@@ -12,7 +12,7 @@ def prompt(options, error_message=None, p=PROMPT):
         choice = input(f"{p}").strip().lower()
         if choice in options:
             return choice
-        print(f"{p}\033[31m{error_message}\033[0m")
+        print(f"{p}{style(error_message, ERROR)}")
 
 
 def style(text, styling=None):

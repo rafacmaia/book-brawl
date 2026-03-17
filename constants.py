@@ -1,7 +1,7 @@
 from theme import ACCENT, ERROR, LINE_LENGTH, PRIMARY, PROMPT, SECONDARY
 from utils import rule, style
 
-BOOK_LIMIT = 2500
+BOOK_LIMIT = 250
 BACKUPS_LIMIT = 5
 
 QUIT_OPTION = "5"

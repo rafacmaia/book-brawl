@@ -16,7 +16,7 @@ from scoring import (
     local_score,
     stability_score,
 )
-from theme import LINE_LENGTH, PRIMARY, PROMPT, SECONDARY
+from theme import ERROR, LINE_LENGTH, PRIMARY, PROMPT, SECONDARY
 from utils import press_enter, rankings_summary, style
 
 
@@ -198,7 +198,7 @@ def rankings_menu(batch_end):
             break
         choice = input(
             f"{' ' * (LINE_LENGTH - 40)}"
-            f"{style('Invalid choice, please try again', 'red')}{PROMPT}"
+            f"{style('Invalid choice, please try again', ERROR)}{PROMPT}"
         )
 
     return choice
