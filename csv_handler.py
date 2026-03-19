@@ -36,7 +36,6 @@ def import_from_csv(filepath):
 
     Return count of new books imported.
     """
-    existing_books = {(b.title.lower(), b.author.lower()) for b in state.books}
     new_books = []
     interrupted = False
 
@@ -44,40 +43,11 @@ def import_from_csv(filepath):
         with open(filepath, newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file)
             reader.fieldnames = [field.lower().strip() for field in reader.fieldnames]
-            for row in reader:
-                if len(state.books) + len(new_books) >= constants.BOOK_LIMIT:
-                    interrupted = True
-                    return new_books, interrupted
-
-                title = row["title"].strip()
-                author = row["author"].strip()
-
-                raw_rating = (row.get("rating") or "").strip()
-                try:
-                    rating = float(raw_rating) if raw_rating else 5.0
-                    if not 0 <= rating <= 10:
-                        raise ValueError(
-                            f"Rating must be between 0 and 10, got {rating}"
-                        )
-                except ValueError as e:
-                    print()
-                    print(
-                        f" \033[31mSkipping '{title}' by '{author}'\n"
-                        f"   - invalid rating: {e}.\033[0m "
-                    )
-                    print()
-                    continue
-
-                if (title.lower(), author.lower()) not in existing_books:
-                    book = Book(title, author, rating)
-                    book.save()
-                    new_books.append(book)
+            new_books, interrupted = process_rows(reader, new_books, interrupted)
 
     except FileNotFoundError:
-        print(
-            f"{PROMPT}\033[31mError! Couldn't find file at:\033[0m "
-            f"\n {PROMPT}{filepath}"
-        )
+        print(f"{PROMPT}{style("Error! Couldn't find file at:", ERROR)}")
+        print(f"{PROMPT}{filepath}")
         return new_books, interrupted
     except KeyError as e:
         print(
@@ -85,6 +55,54 @@ def import_from_csv(filepath):
             f"Required columns: \033[33m title\033[31m,\033[33m author\033[31m."
         )
         return new_books, interrupted
+
+    return new_books, interrupted
+
+
+def process_rows(reader, new_books, interrupted):
+    existing_books = {(b.title.lower(), b.author.lower()) for b in state.books}
+
+    for i, row in enumerate(reader, start=2):
+        if len(state.books) + len(new_books) >= constants.BOOK_LIMIT:
+            interrupted = True
+            return new_books, interrupted
+
+        title = row["title"].strip()
+        author = row["author"].strip()
+        raw_rating = (row.get("rating") or "").strip()
+
+        if not (title and author):
+            continue
+        if not title or not author:
+            print()
+            print(
+                style(
+                    f" Skipping row {i}: '{title if title else ' '}' by "
+                    f"'{author if author else ' '}' – missing title or author.",
+                    ERROR,
+                )
+            )
+            print()
+
+        try:
+            rating = float(raw_rating) if raw_rating else 5.0
+            if not 0 <= rating <= 10:
+                raise ValueError(f"Rating must be between 0 and 10, got {rating}")
+        except ValueError as e:
+            print()
+            print(
+                style(
+                    f" Skipping '{title}' by '{author}'\n   - invalid rating: {e}. ",
+                    ERROR,
+                )
+            )
+            print()
+            continue
+
+        if (title.lower(), author.lower()) not in existing_books:
+            book = Book(title, author, rating)
+            book.save()
+            new_books.append(book)
 
     return new_books, interrupted
 
