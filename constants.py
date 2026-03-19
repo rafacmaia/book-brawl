@@ -106,20 +106,29 @@ PIT_INSTRUCTIONS = f"""
    {style("b", SECONDARY)} → Back to main menu
    {style("q", SECONDARY)} → Quit program
 
- {style("Press Enter to launch the pit... ", SECONDARY)}"""
-
-LEADERBOARD_HEADER = (
-    f"{style(' THE LEADERBOARD ', SECONDARY)}{rule(LINE_LENGTH - 17, SECONDARY)}"
-)
-
-IMPORT_HEADER = (
-    f"{style(' IMPORT NEW BOOKS ', SECONDARY)}{rule(LINE_LENGTH - 18, SECONDARY)}"
-)
-
-EXPORT_HEADER = (
-    f"{style(' EXPORT LEADERBOARD ', SECONDARY)}{rule(LINE_LENGTH - 20, SECONDARY)}"
-)
-
-RESET_HEADER = (
-    f"{style(' FACTORY RESET ', SECONDARY)}{rule(LINE_LENGTH - 15, SECONDARY)}"
-)
+SUMMARY_LABELS = [
+    (
+        PROGRESS_TIERS[0],
+        " Not much data yet, ranking mostly based on initial ratings, if available.",
+    ),
+    (
+        PROGRESS_TIERS[1],
+        " Still early stages, but broad tiers (top/mid/bottom) likely correct.",
+    ),
+    (
+        PROGRESS_TIERS[2],
+        " General positions are fairly reliable, exact ranks still shifting.",
+    ),
+    (
+        PROGRESS_TIERS[3],
+        " Positions are well established, likely within ~5 spots of final placement.",
+    ),
+    (
+        PROGRESS_TIERS[4],
+        " Rankings are locked in, unlikely to shift by more than 1 or 2 spots.",
+    ),
+    (
+        PROGRESS_TIERS[5],
+        " Final standings of all books established! All books are brawled out!",
+    ),
+]

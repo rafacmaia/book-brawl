@@ -1,3 +1,7 @@
+from rich import box
+from rich.console import Console
+from rich.table import Table
+
 import state
 from constants import (
     ACCURACY_TIERS,
@@ -5,9 +9,6 @@ from constants import (
     INITIAL_BATCH_SIZE,
     LEADERBOARD_HEADER,
 )
-from rich import box
-from rich.console import Console
-from rich.table import Table
 from scoring import (
     absolute_score,
     confidence_score,
@@ -15,8 +16,8 @@ from scoring import (
     local_score,
     stability_score,
 )
-from theme import ERROR, LINE_LENGTH, PRIMARY, PROMPT, SECONDARY
-from utils import leaderboard_summary, press_enter, style
+from theme import ACCENT, ERROR, LINE_LENGTH, PRIMARY, PROMPT, SECONDARY
+from utils import header, leaderboard_summary, press_enter, rule, style
 
 
 def view_leaderboard(verbose=False):
@@ -28,8 +29,7 @@ def view_leaderboard(verbose=False):
     ranked_books = rank_books()
     batch_end = INITIAL_BATCH_SIZE
 
-    print()
-    print(LEADERBOARD_HEADER)
+    print(header("THE LEADERBOARD", new_line=True))
 
     # Print informational summary of the user's library and current confidence level
     print(leaderboard_summary(state.current_progress, PRIMARY))

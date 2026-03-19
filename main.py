@@ -3,6 +3,8 @@ import shutil
 import sys
 from datetime import datetime
 
+from rich.console import Console
+
 import state
 import theme
 from constants import (
@@ -34,6 +36,7 @@ from scoring import calculate_progress
 from theme import ACCENT, ERROR, LINE_LENGTH, PROMPT, SECONDARY
 from utils import (
     format_book,
+    header,
     leaderboard_summary,
     press_enter,
     progress_bar,
@@ -91,6 +94,7 @@ def main_menu(first_run=False):
                 f"{rule(padding, ACCENT)}"
             )
 
+        print(header("MAIN MENU"))
         print(MAIN_MENU)
         print()
 
@@ -127,8 +131,7 @@ def main_menu(first_run=False):
 
 
 def add_books():
-    print()
-    print(IMPORT_HEADER)
+    print(header("IMPORT NEW BOOKS", new_line=True))
 
     if len(state.books) >= BOOK_LIMIT:
         print(LIMIT_REACHED)
@@ -175,8 +178,7 @@ def process_import(filepath):
 
 
 def export_leaderboard():
-    print()
-    print(EXPORT_HEADER)
+    print(header("EXPORT LEADERBOARD", new_line=True))
     print(leaderboard_summary(state.current_progress, theme.PRIMARY))
 
     print()
@@ -189,8 +191,7 @@ def export_leaderboard():
 
 
 def reset_handler():
-    print()
-    print(RESET_HEADER)
+    print(header("FACTORY RESET", new_line=True))
     print(" This will delete all data and trigger a complete program reset.")
     print(style(" This cannot be undone. All data will be lost.", ERROR))
 

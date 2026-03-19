@@ -123,3 +123,11 @@ def format_book(book, width=LINE_LENGTH - 7):
 def press_enter(message="Press Enter for the main menu... ", new_line=True):
     print() if new_line else None
     input(f"{PROMPT}{style(message, SECONDARY)}")
+
+
+def header(title, color=SECONDARY, new_line=False):
+    next_line = "\n" if new_line else ""
+    text = style(title, "bold" + color)
+    divider = rule(LINE_LENGTH - len(title) - 2, color)
+
+    return f"{next_line} {text} {divider}"

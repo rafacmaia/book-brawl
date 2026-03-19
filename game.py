@@ -9,8 +9,8 @@ from constants import (
 )
 from db import save_comparison
 from scoring import calculate_elo, confidence_score
-from theme import ACCENT, DIVIDER, LINE_LENGTH, PRIMARY, PROMPT, REDO, SECONDARY
-from utils import format_book, prompt, rule, style
+from theme import DIVIDER, ERROR, LINE_LENGTH, PROMPT, REDO, SECONDARY
+from utils import format_book, header, press_enter, prompt, rule, style
 
 PendingMatch = namedtuple("PendingMatch", ["match", "a", "b", "choice"])
 
@@ -21,12 +21,16 @@ def run_game():
     Select two books for comparison, prompt the user for choice between the two,
     resolve the match, and repeat until the user stops.
     """
-    print(PIT_HEADER)
-    print(
-        f" {style(len(state.books), SECONDARY)} books entered. {style('One wins.', SECONDARY)}"
-    )
-    print(PIT_INSTRUCTIONS, end="")
-    input()
+    print(header("BRAWL PIT", new_line=True))
+
+    if len(state.books) <= 1:
+        print(
+            f" {style('Not enough books in the pit.', ERROR)} Add some more and try again."
+        )
+        press_enter()
+        return None
+
+    print_instructions()
 
     match_count = 1
     book_a, book_b = select_opponents()
@@ -59,7 +63,16 @@ def run_game():
 
         previous = PendingMatch(match_count, book_a, book_b, choice)
 
-        selected = False
+def print_instructions():
+    instructions = (
+        f" {style(len(state.books), SECONDARY)} books enter."
+        f" {style('One wins.', SECONDARY)}\n"
+    )
+
+    instructions += PIT_INSTRUCTIONS
+
+    print(instructions, end="")
+    input()
 
 
 def select_opponents():
