@@ -3,10 +3,11 @@ import shutil
 import sys
 from datetime import datetime
 
-import constants
 import state
 import theme
 from constants import (
+    BACKUPS_LIMIT,
+    BOOK_LIMIT,
     EMPTY_IMPORT,
     EMPTY_LIBRARY,
     EXPORT_HEADER,
@@ -16,7 +17,8 @@ from constants import (
     LIMIT_REACHED,
     LIMIT_WARNING,
     MAIN_MENU,
-    QUIT_OPTION,
+    MAIN_OPTIONS,
+    RESET_HEADER,
     TEST_MESSAGE,
     TITLE,
 )
@@ -29,7 +31,7 @@ from leaderboard import (
 from models import Book
 from rich.console import Console
 from scoring import calculate_progress
-from theme import ACCENT, LINE_LENGTH, PROMPT, SECONDARY
+from theme import ACCENT, ERROR, LINE_LENGTH, PROMPT, SECONDARY
 from utils import (
     format_book,
     leaderboard_summary,
@@ -93,8 +95,8 @@ def main_menu(first_run=False):
         print()
 
         choice = prompt(
-            {"1", "2", "2 -v", "3", "4", "q", QUIT_OPTION},
-            error_message=f"Nope, I can only read options 1-{QUIT_OPTION}.",
+            MAIN_OPTIONS,
+            error_message=f"Nope, I can only read options 1-{MAIN_OPTIONS[-1]}.",
         )
         next_action = ""
 
@@ -108,7 +110,9 @@ def main_menu(first_run=False):
             calculate_progress()
         elif choice == "4":
             export_leaderboard()
-        elif choice in [QUIT_OPTION, "q"]:
+        elif choice == "5":
+            reset_handler()
+        elif choice in ["6", "q"]:
             quit_game()
 
         if next_action == "q":
@@ -126,7 +130,7 @@ def add_books():
     print()
     print(IMPORT_HEADER)
 
-    if len(state.books) >= constants.BOOK_LIMIT:
+    if len(state.books) >= BOOK_LIMIT:
         print(LIMIT_REACHED)
         press_enter()
         return
@@ -162,7 +166,7 @@ def process_import(filepath):
 
         if interrupted:
             print(IMPORT_INTERRUPTED)
-        elif len(state.books) >= constants.BOOK_LIMIT:
+        elif len(state.books) >= BOOK_LIMIT:
             print(LIMIT_WARNING)
 
         press_enter(new_line=False)
@@ -182,6 +186,44 @@ def export_leaderboard():
     if choice == "y":
         export_to_csv()
         press_enter(new_line=False)
+
+
+def reset_handler():
+    print()
+    print(RESET_HEADER)
+    print(" This will delete all data and trigger a complete program reset.")
+    print(style(" This cannot be undone. All data will be lost.", ERROR))
+
+    print(
+        f"\n Would you like to export the leaderboard before resetting?"
+        f" {style('(y/n)', SECONDARY)}"
+    )
+    choice = prompt({"y", "n"}, "Sorry, I can only understand 'y' or 'n'.")
+    if choice == "y":
+        export_to_csv()
+
+    print(
+        f"\n {style('Final warning:', ERROR)} Proceed with complete factory reset?"
+        f" {style('(y/n)', SECONDARY)}"
+    )
+    choice = prompt({"y", "n"}, "Sorry, I can only understand 'y' or 'n'.")
+    if choice == "y" and reset():
+        press_enter(message="Press Enter to quit... ", new_line=False)
+        quit_game()
+
+
+def reset():
+    try:
+        os.remove(state.db_path)
+    except OSError as e:
+        print(f"{PROMPT}{style(f'Reset failed: {e}.', ERROR)}")
+        print(" Please try again. Returning to main menu.")
+        return False
+
+    state.books = []
+
+    print(f"{PROMPT}✓ Reset complete. Restart the app to start book brawling again.")
+    return True
 
 
 # --- QUITTING AND BACKUPS  ---
@@ -211,7 +253,7 @@ def backup_cleanup():
     """Only keep the last N backups."""
     backup_dir = "backup"
     backups = sorted(os.listdir(backup_dir))
-    for old in backups[: -constants.BACKUPS_LIMIT]:
+    for old in backups[:-BACKUPS_LIMIT]:
         os.remove(os.path.join(backup_dir, old))
 
 

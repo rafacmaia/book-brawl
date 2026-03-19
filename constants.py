@@ -4,7 +4,8 @@ from utils import rule, style
 BOOK_LIMIT = 2500
 BACKUPS_LIMIT = 5
 
-QUIT_OPTION = "5"
+MAIN_OPTIONS = ["1", "2", "2 -v", "3", "4", "5", "q", "6"]
+PIT_OPTIONS = ["1", "2", "u", "b", "q"]
 
 INITIAL_BATCH_SIZE = 50
 BATCH_SIZE = 50
@@ -37,7 +38,6 @@ ACCURACY_TIERS = (
     f"\n {rule(LINE_LENGTH - 1, 'blue')}"
 )
 
-PIT_OPTIONS = ["1", "2", "u", "b", "q"]
 
 LIMIT_REACHED = (
     f"\033[31m Sorry, you read way too much "
@@ -84,7 +84,8 @@ MAIN_MENU = f""" {style("MAIN MENU", SECONDARY)} {rule(LINE_LENGTH - 11, SECONDA
  2. Leaderboard
  3. Import New Books
  4. Export Leaderboard
- 5. Tap Out"""
+ 5. Factory Reset
+ 6. Tap Out"""
 
 PIT_HEADER = f"""
  {style("BRAWL PIT", SECONDARY)} {rule(LINE_LENGTH - 11, SECONDARY)}"""
@@ -117,4 +118,8 @@ IMPORT_HEADER = (
 
 EXPORT_HEADER = (
     f"{style(' EXPORT LEADERBOARD ', SECONDARY)}{rule(LINE_LENGTH - 20, SECONDARY)}"
+)
+
+RESET_HEADER = (
+    f"{style(' FACTORY RESET ', SECONDARY)}{rule(LINE_LENGTH - 15, SECONDARY)}"
 )
