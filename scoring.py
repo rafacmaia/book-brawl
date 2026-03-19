@@ -62,7 +62,7 @@ def confidence_score(book):
     for, respectively, overall confidence, local confidence, and stability.
     """
     if len(state.books) <= 1:
-        return 0
+        return 1
 
     # Absolute score boosts the first batch of matches to quickly reach an
     # overall placement.
