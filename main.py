@@ -215,9 +215,9 @@ def manual_entry():
         book = Book(title, author, rating)
 
         print(style("\nAdding: ", SECONDARY))
-        print(f"   - {format_book(book, LINE_LENGTH - 5)}")
+        print(f"  - {format_book(book, LINE_LENGTH - 5)}")
         if raw_rating:
-            print(f"   - Rating: {rating}")
+            print(f"  - Rating: {rating}")
 
         print()
         confirm = prompt({"y", "n"}, p=f"{PROMPT}Confirm (y/n)? ")

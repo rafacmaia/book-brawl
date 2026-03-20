@@ -62,6 +62,7 @@ def import_from_csv(filepath):
 
 def process_rows(reader, new_books, interrupted):
     existing_books = {(b.title.lower(), b.author.lower()) for b in state.books}
+    skipped_rows = 0
 
     for i, row in enumerate(reader, start=2):
         if len(state.books) + len(new_books) >= BOOK_LIMIT:
@@ -102,13 +103,9 @@ def process_rows(reader, new_books, interrupted):
             new_books.append(book)
             existing_books.add((title.lower(), author.lower()))
         else:
-            print(
-                style(
-                    f" Skipping '{title}' by '{author}' – already in the system",
-                    ERROR,
-                )
-            )
+            skipped_rows += 1
 
+    print(f" Skipped {skipped_rows} books already in the system.")
     return new_books, interrupted
 
 
