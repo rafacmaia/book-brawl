@@ -43,7 +43,8 @@ favorite book of all time is. Those days are over!
 
 ## 🪩 Features
 
-- CSV import from your reading log (format: title, author, rating)
+- CSV import or manual entry: add books in batches or one at a time. New additions are
+  intelligently mapped onto the current rankings.
 - Brawl Pit: head-to-head book comparisons on loop
 - Undo option: redo the previous match at any point in the Brawl Pit
 - Elo-based ranking system with accuracy tiers and variable K values
@@ -52,9 +53,6 @@ favorite book of all time is. Those days are over!
 - Multifactor accuracy scoring: measures both individual and overall accuracy
   of rankings
 - Persistent rankings via SQLite to build accurate data over time
-- Add new books at any time: New books are mapped into the current Elo range based on
-  their original rating, ensuring intelligent initial positioning before the game can
-  refine it.
 - Accuracy and matchmaking algorithms are optimized to avoid full pairwise comparisons,
   allowing the system to scale efficiently to libraries of 2500+ books.
 - Tied rankings are broken by head-to-head wins, then by initial rating, with a visual
@@ -225,7 +223,7 @@ mathematically robust, way to reflect on their books.
 
 ## 🗺️ Roadmap
 
-- [ ] Support for adding/removing individual books
+- [ ] Support for removing individual books
+- [ ] Web UI, full browser-based interface
 - [ ] Filter rankings by genre, author, or year read (e.g., "2021" or "Fantasy")
-- [ ] Web UI, full browser-based interface (longer term)
   
