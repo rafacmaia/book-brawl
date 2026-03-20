@@ -46,7 +46,7 @@ def view_leaderboard(verbose=False):
         elif next_action == "?":
             print(header("Accuracy Tiers", color=ACCENT))
             print(ACCURACY_TIERS)
-            print(rule(LINE_LENGTH - 1, ACCENT))
+            print(f" {rule(LINE_LENGTH - 1, ACCENT)}")
         else:
             return next_action
 

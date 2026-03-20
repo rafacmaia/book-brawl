@@ -6,7 +6,6 @@ from datetime import datetime
 from rich.console import Console
 
 import state
-import theme
 from constants import (
     BACKUPS_LIMIT,
     BOOK_LIMIT,
@@ -21,9 +20,11 @@ from leaderboard import (
     view_leaderboard,
 )
 from messages import (
+    CSV_INSTRUCTIONS,
     EMPTY_IMPORT,
     GOODBYE,
     IMPORT_INTERRUPTED,
+    IMPORT_MENU,
     LIMIT_REACHED,
     LIMIT_WARNING,
     ONBOARDING,
@@ -31,7 +32,7 @@ from messages import (
 )
 from models import Book
 from scoring import calculate_progress
-from theme import ACCENT, ERROR, LINE_LENGTH, PROMPT, SECONDARY
+from theme import ACCENT, DIVIDER, ERROR, LINE_LENGTH, PRIMARY, PROMPT, SECONDARY
 from utils import (
     format_book,
     header,
@@ -63,13 +64,14 @@ def startup():
     first_run = not state.books
     if first_run:
         print(ONBOARDING)
+        print(CSV_INSTRUCTIONS)
 
         while not state.books:
-            print()
-            response = csv_reader(prompt=" CSV file path (q to quit): ", back_key="q")
-            if response == "q":
+            filepath = csv_reader(prompt=" CSV file path (q to quit): ", back_key="q")
+            if filepath == "q":
                 quit_game()
-            process_import(response)
+            new_books, interrupted = import_from_csv(filepath)
+            process_import(new_books, interrupted)
 
         print()
 
@@ -121,6 +123,7 @@ def main_menu(first_run=False):
         if next_action == "e":
             export_leaderboard()
 
+        first_run = False
         print()
         # Warn if running in test mode, which uses a separate test database
         if state.db_path == "data/test.db":
@@ -134,30 +137,118 @@ def add_books():
         print(LIMIT_REACHED)
         press_enter()
         return
-    print(" Please provide the path to your CSV book log to sync new books.")
-    print()
 
-    response = csv_reader(prompt=" CSV file path (b to go back): ", back_key="b")
-    if response == "b":
-        return
+    while True:
+        print(IMPORT_MENU)
+        choice = prompt({"1", "2", "b"})
 
-    process_import(response)
+        if choice == "1":
+            new_books, interrupted = manual_entry()
+            process_import(new_books, interrupted, method="manual")
+            break
+        elif choice == "2":
+            print(f"\n {rule(LINE_LENGTH - 1, DIVIDER)}")
+            print(" Please provide the path to your CSV file to sync new books.")
+            print(CSV_INSTRUCTIONS)
+
+            filepath = csv_reader(
+                prompt=" CSV file path (b to go back): ", back_key="b"
+            )
+            if filepath == "b":
+                print(f"\n {rule(LINE_LENGTH - 1, DIVIDER)}")
+                continue
+
+            print("\n Processing file...")
+            new_books, interrupted = import_from_csv(filepath)
+            print()
+            process_import(new_books, interrupted, method="CSV")
+            break
+        elif choice == "b":
+            return
 
 
-def process_import(filepath):
+def manual_entry():
+    existing_books = {(b.title.lower(), b.author.lower()) for b in state.books}
+    new_books = []
+    interrupted = False
+
+    while True:
+        if len(state.books) + len(new_books) >= BOOK_LIMIT:
+            interrupted = True
+            return new_books, interrupted
+
+        count = len(new_books) + 1
+
+        print()
+        print(
+            f" {rule((LINE_LENGTH - 5 - len(str(count))), DIVIDER)}"
+            f" {style(count, DIVIDER)}"
+            f" {rule(2, DIVIDER)}"
+        )
+
+        title = input(style(" Title:  ", SECONDARY)).strip()
+        author = input(style(" Author: ", SECONDARY)).strip()
+
+        if (title.lower(), author.lower()) in existing_books:
+            print(style(" Book already in the system!", ERROR))
+            continue
+
+        rating = None
+        while True:
+            raw_rating = input(style(" Rating (0-10, ↵ to skip): ", SECONDARY)).strip()
+
+            try:
+                if raw_rating:
+                    rating = float(raw_rating)
+                    if not 0 <= rating <= 10:
+                        raise ValueError()
+            except ValueError:
+                error_message = (
+                    "Nope, rating must be between 0 and 10 (decimals allowed)."
+                )
+                print(f"{PROMPT}{error_message}")
+                continue
+
+            break
+
+        rating = rating if raw_rating else 5.0
+        book = Book(title, author, rating)
+
+        print(style("\nAdding: ", SECONDARY))
+        print(f"   - {format_book(book, LINE_LENGTH - 5)}")
+        if raw_rating:
+            print(f"   - Rating: {rating}")
+
+        print()
+        confirm = prompt({"y", "n"}, p=f"{PROMPT}Confirm (y/n)? ")
+
+        if confirm == "y":
+            book.save()
+            new_books.append(book)
+            existing_books.add((title.lower(), author.lower()))
+
+        next_action = prompt({"y", "n"}, p=f"{PROMPT}Add another book (y/n)? ")
+        if next_action == "n":
+            print()
+            if len(new_books) > 0:
+                print(f" {rule(LINE_LENGTH - 1, DIVIDER)}")
+            return new_books, interrupted
+
+
+def process_import(new_books, interrupted, method="CSV"):
     """Process result form csv import, display results and relevant messages."""
     first_import = not state.books
-    new_books, interrupted = import_from_csv(filepath)
     added = len(new_books)
 
     if added > 0:
         state.books = Book.load_all()
 
-        suffix = "!" if first_import else ":"
+        suffix = "!" if first_import or added > 100 else ":"
         plural = "s" if added > 1 else ""
+
         print(f"{PROMPT}Imported {added} book{plural}{suffix}")
 
-        if not first_import:
+        if not first_import and added <= 100:
             for i, book in enumerate(new_books, start=1):
                 print(
                     f"     {style(f'{i}.', SECONDARY)}"
@@ -169,18 +260,22 @@ def process_import(filepath):
         elif len(state.books) >= BOOK_LIMIT:
             print(LIMIT_WARNING)
 
-        press_enter(new_line=False)
-    else:
+        press_enter()
+    elif added == 0 and method == "CSV":
         print(EMPTY_IMPORT)
+        press_enter(new_line=False)
 
 
 def export_leaderboard():
     print(header("EXPORT LEADERBOARD", new_line=True))
-    print(leaderboard_summary(state.current_progress, theme.PRIMARY))
+    print(leaderboard_summary(state.current_progress, PRIMARY))
 
     print()
-    print(" Proceed with export (y/n)?")
-    choice = prompt({"y", "n"}, "Sorry, I can only understand 'y' or 'n'.")
+    choice = prompt(
+        {"y", "n"},
+        p=f"{PROMPT}Proceed with export (y/n)? ",
+        error_message="Sorry, I can only understand 'y' or 'n'.",
+    )
 
     if choice == "y":
         export_to_csv()
@@ -192,20 +287,22 @@ def reset_handler():
     print(" This will delete all data and trigger a complete program reset.")
     print(style(" This cannot be undone. All data will be lost.", ERROR))
 
-    print(
-        f"\n Would you like to export the leaderboard before resetting?"
-        f" {style('(y/n)', SECONDARY)}"
+    print()
+    export_choice = prompt(
+        {"y", "n"},
+        p=f"{PROMPT}Would you like to export the leaderboard before resetting (y/n)? ",
+        error_message="Sorry, I can only understand 'y' or 'n'.",
     )
-    choice = prompt({"y", "n"}, "Sorry, I can only understand 'y' or 'n'.")
-    if choice == "y":
+    if export_choice == "y":
         export_to_csv()
 
-    print(
-        f"\n {style('Final warning:', ERROR)} Proceed with complete factory reset?"
-        f" {style('(y/n)', SECONDARY)}"
+    print()
+    reset_choice = prompt(
+        {"y", "n"},
+        p=f"{PROMPT}{style('Final warning:', ERROR)} Proceed with complete factory reset (y/n)? ",
+        error_message="Sorry, I can only understand 'y' or 'n'.",
     )
-    choice = prompt({"y", "n"}, "Sorry, I can only understand 'y' or 'n'.")
-    if choice == "y" and reset():
+    if reset_choice == "y" and reset():
         press_enter(message="Press Enter to quit... ", new_line=False)
         quit_game()
 
@@ -256,11 +353,15 @@ def backup_cleanup():
 
 
 if __name__ == "__main__":
+    if "--debug" in sys.argv:
+        state.debug = True
     if "--test" in sys.argv:
         # state.db_path = "data/test.db"
         state.db_path = "data/test2.db"
-    if "--debug" in sys.argv:
-        state.debug = True
+    if "--demo1" in sys.argv:
+        state.db_path = "data/demo1.db"
+    if "--demo2" in sys.argv:
+        state.db_path = "data/demo2.db"
 
     init_db()
     state.books = Book.load_all()

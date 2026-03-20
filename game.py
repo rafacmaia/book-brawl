@@ -130,13 +130,13 @@ def adjust_weights(book_a, weights):
 
 
 def print_match(match_count, book_a, book_b, redo=False):
-    match_header = (
+    match_divider = (
         f" {rule((LINE_LENGTH - 5 - len(str(match_count))), DIVIDER)}"
         f" {style(match_count, DIVIDER)}"
         f" {rule(2, DIVIDER)}"
     )
 
-    redo_header = (
+    redo_divider = (
         f" {rule(2, REDO)}"
         f" {style('REMATCH', REDO)}"
         f" {rule((LINE_LENGTH - 16 - len(str(match_count))), REDO)}"
@@ -150,9 +150,9 @@ def print_match(match_count, book_a, book_b, redo=False):
         f"   {style('2.', SECONDARY)} {format_book(book_b)}"
     )
 
-    header = match_header if not redo else redo_header
+    divider = match_divider if not redo else redo_divider
 
-    print("\n" + header + "\n" + match)
+    print("\n" + divider + "\n" + match)
 
 
 def rematch(previous):

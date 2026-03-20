@@ -61,7 +61,9 @@ def confidence_score(book):
     opponents with similar score, and local density in overall rankings to account
     for, respectively, overall confidence, local confidence, and stability.
     """
-    if len(state.books) <= 1:
+    if len(state.books) < 1:
+        return 0
+    if len(state.books) == 1:
         return 1
 
     # Absolute score boosts the first batch of matches to quickly reach an

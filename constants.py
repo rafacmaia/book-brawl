@@ -19,7 +19,7 @@ SIGNATURE = "© 2026 Zou Labs🐈‍⬛"
 
 MAIN_MENU = """ 1. Play
  2. Leaderboard
- 3. Import New Books
+ 3. Add New Books
  4. Export Leaderboard
  5. Factory Reset
  6. Tap Out

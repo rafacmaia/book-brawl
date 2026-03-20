@@ -2,8 +2,8 @@ import csv
 import os
 from datetime import datetime
 
-import constants
 import state
+from constants import BOOK_LIMIT
 from models import Book
 from theme import ERROR, PROMPT
 from utils import style
@@ -46,14 +46,15 @@ def import_from_csv(filepath):
             new_books, interrupted = process_rows(reader, new_books, interrupted)
 
     except FileNotFoundError:
-        print(f"{PROMPT}{style("Error! Couldn't find file at:", ERROR)}")
-        print(f"{PROMPT}{filepath}")
+        print(f" {style("Error! Couldn't find file at:", ERROR)}")
+        print(f" {PROMPT}{filepath}")
         return new_books, interrupted
     except KeyError as e:
-        print(
-            f"{PROMPT}\033[31mError! Missing column \033[33m{e}\033[31m in CSV file. "
-            f"Required columns: \033[33m title\033[31m,\033[33m author\033[31m."
+        error_message = (
+            f" Error! Missing column \033[33m{e}\033[31m in CSV file. "
+            f"Required columns: \033[33m title\033[31m,\033[33m author"
         )
+        print(style(error_message, ERROR))
         return new_books, interrupted
 
     return new_books, interrupted
@@ -63,7 +64,7 @@ def process_rows(reader, new_books, interrupted):
     existing_books = {(b.title.lower(), b.author.lower()) for b in state.books}
 
     for i, row in enumerate(reader, start=2):
-        if len(state.books) + len(new_books) >= constants.BOOK_LIMIT:
+        if len(state.books) + len(new_books) >= BOOK_LIMIT:
             interrupted = True
             return new_books, interrupted
 
@@ -74,35 +75,39 @@ def process_rows(reader, new_books, interrupted):
         if not (title and author):
             continue
         if not title or not author:
-            print()
             print(
                 style(
-                    f" Skipping row {i}: '{title if title else ' '}' by "
-                    f"'{author if author else ' '}' – missing title or author.",
+                    f"Skipping row {i}: '{title if title else ' '}' by "
+                    f"'{author if author else ' '}' – missing title or author",
                     ERROR,
                 )
             )
-            print()
 
         try:
             rating = float(raw_rating) if raw_rating else 5.0
             if not 0 <= rating <= 10:
-                raise ValueError(f"Rating must be between 0 and 10, got {rating}")
+                raise ValueError(f" Rating must be between 0 and 10, got {rating}")
         except ValueError as e:
-            print()
             print(
                 style(
-                    f" Skipping '{title}' by '{author}'\n   - invalid rating: {e}. ",
+                    f" Skipping '{title}' by '{author}' – invalid rating: {e}",
                     ERROR,
                 )
             )
-            print()
             continue
 
         if (title.lower(), author.lower()) not in existing_books:
             book = Book(title, author, rating)
             book.save()
             new_books.append(book)
+            existing_books.add((title.lower(), author.lower()))
+        else:
+            print(
+                style(
+                    f" Skipping '{title}' by '{author}' – already in the system",
+                    ERROR,
+                )
+            )
 
     return new_books, interrupted
 

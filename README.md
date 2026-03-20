@@ -217,8 +217,9 @@ mathematically robust, way to reflect on their books.
 | [`models.py`](models.py)           | Book class                           |
 | [`db.py`](db.py)                   | Database setup and queries           |
 | [`csv_handler.py`](csv_handler.py) | CSV import and export handling       |
-| [`constants.py`](constants.py)     | UI strings and layout values         |
+| [`messages.py`](messages.py)       | Formatted display messages & headers |
 | [`utils.py`](utils.py)             | Styling utilities                    |
+| [`constants.py`](constants.py)     | UI strings and layout values         |
 | [`theme.py`](theme.py)             | Color and layout constants           |
 | [`state.py`](state.py)             | Global state management              |
 
@@ -226,6 +227,5 @@ mathematically robust, way to reflect on their books.
 
 - [ ] Support for adding/removing individual books
 - [ ] Filter rankings by genre, author, or year read (e.g., "2021" or "Fantasy")
-- [ ] Web terminal; serve the CLI interface via browser (Flask + xterm.js)
 - [ ] Web UI, full browser-based interface (longer term)
   

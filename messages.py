@@ -5,12 +5,17 @@ from utils import rule, style
 # ====== MENUS
 
 
-PIT_MENU = f""" {style("Match options:", "bold" + SECONDARY)}
+PIT_MENU = f"""{style("Match options:", SECONDARY)}
    {style("1", SECONDARY)} → Select book #1
    {style("2", SECONDARY)} → Select book #2
    {style("u", SECONDARY)} → Undo previous match
    {style("b", SECONDARY)} → Back to main menu
    {style("q", SECONDARY)} → Quit program"""
+
+IMPORT_MENU = f""" How would you like to import new books?
+   {style("1", SECONDARY)} → Manual entry
+   {style("2", SECONDARY)} → Import from CSV
+   {style("b", SECONDARY)} → Back to main menu"""
 
 
 # ====== HEADERS & DIVIDERS
@@ -35,12 +40,15 @@ GOODBYE = (
 ONBOARDING = f""" {style("Welcome to Book Brawl", SECONDARY)}, where books face off for the ultimate ranking!
 
  To start the search for the one book to rule them all, please provide the path to a
- CSV file of all your contenders.
+ CSV file of all your contenders."""
 
+CSV_INSTRUCTIONS = f""" 
  It must have {style("title", SECONDARY)} and {style("author", SECONDARY)} columns. A {style("rating", SECONDARY)} column is optional, but encouraged.
 
  Note: If {style("rating", SECONDARY)} is included, it should be between 0 and 10, decimals welcome. This
- sets an initial placement for each book, which the brawl pit will confirm or dispel."""
+ sets an initial placement for each book, which the brawl pit will confirm or dispel.
+"""
+
 
 PIT_INSTRUCTIONS = f"""
  Books will be repeatedly paired against each other, and each time you'll be asked:

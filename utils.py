@@ -5,7 +5,7 @@ from constants import PROGRESS_LABELS, SUMMARY_LABELS
 from theme import ERROR, LINE_LENGTH, PRIMARY, PROMPT, SECONDARY
 
 
-def prompt(options, error_message=None, p=PROMPT):
+def prompt(options, p=PROMPT, error_message=None):
     if not error_message:
         error_message = f"Nope, please try: {', '.join(options)}"
 
@@ -13,7 +13,7 @@ def prompt(options, error_message=None, p=PROMPT):
         choice = input(f"{p}").strip().lower()
         if choice in options:
             return choice
-        print(f"{p}{style(error_message, ERROR)}")
+        print(f"{PROMPT}{style(error_message, ERROR)}")
 
 
 def style(text, styling=None):
