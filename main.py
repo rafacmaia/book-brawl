@@ -25,12 +25,12 @@ from messages import (
     CSV_INSTRUCTIONS,
     EMPTY_IMPORT,
     GOODBYE,
-    IMPORT_INTERRUPTED,
     IMPORT_MENU,
     LIMIT_REACHED,
     LIMIT_WARNING,
     ONBOARDING,
     TITLE,
+    import_interrupted,
 )
 from models import Book
 from scoring import calculate_progress
@@ -69,7 +69,10 @@ def startup():
         print(CSV_INSTRUCTIONS)
 
         while not state.books:
-            filepath = csv_reader(prompt="\n CSV file path (q to quit): ", back_key="q")
+            filepath = csv_reader(
+                prompt=f"\n {style('CSV file path (q to quit): ', SECONDARY)}",
+                back_key="q",
+            )
             if filepath == "q":
                 quit_game()
             new_books, interrupted = import_from_csv(filepath)
@@ -154,15 +157,15 @@ def add_books():
             print(CSV_INSTRUCTIONS)
 
             filepath = csv_reader(
-                prompt="\n CSV file path (b to go back): ", back_key="b"
+                prompt=f"\n {style('CSV file path (b to go back):', SECONDARY)} ",
+                back_key="b",
             )
             if filepath == "b":
                 print(f"\n {rule(LINE_LENGTH - 1, DIVIDER)}")
                 continue
 
-            print("\n Processing file...")
+            print(f"\n {style('Processing file...', SECONDARY)}")
             new_books, interrupted = import_from_csv(filepath)
-            print()
             process_import(new_books, interrupted, method="CSV")
             break
         elif choice == "b":
@@ -248,8 +251,9 @@ def process_import(new_books, interrupted=False, method="CSV"):
         verb = "Imported" if method == "CSV" else "Added"
         plural = "s" if added > 1 else ""
         suffix = "!" if first_import or added > 100 else ":"
+        message = style(f"✓ {verb} {added} book{plural}{suffix}", PRIMARY)
 
-        print(f"{PROMPT}{verb} {added} book{plural}{suffix}")
+        print(f"\n{PROMPT}{message}")
 
         if not first_import and added <= 100:
             for i, book in enumerate(new_books, start=1):
@@ -259,15 +263,14 @@ def process_import(new_books, interrupted=False, method="CSV"):
                 )
 
         if interrupted:
-            print()
-            print(IMPORT_INTERRUPTED)
+            print(import_interrupted(added))
         elif len(state.books) >= BOOK_LIMIT and not first_import:
-            print()
             print(LIMIT_WARNING)
 
         press_enter()
-    elif added == 0 and method == "CSV" and not interrupted:
-        print(EMPTY_IMPORT)
+    elif added == 0 and method == "CSV":
+        if not interrupted:
+            print(EMPTY_IMPORT)
         if not first_import:
             press_enter()
 

@@ -77,11 +77,13 @@ EMPTY_IMPORT = (
     f" No books imported. Please check file and try again."
 )
 
-IMPORT_INTERRUPTED = (
-    f"{PROMPT}{style('WARNING:', ERROR)}"
-    f" Book limit reached during import, not all books were added."
-)
-
 LIMIT_WARNING = (
     f"{PROMPT}{style('WARNING:', ERROR)} Book limit reached, no more can be added!"
 )
+
+
+def import_interrupted(books_imported):
+    return (
+        f"{PROMPT}{style('WARNING:', ERROR)} Book limit reached, only the first "
+        f"{books_imported} valid books were added."
+    )
