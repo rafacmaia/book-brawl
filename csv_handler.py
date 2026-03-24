@@ -50,8 +50,8 @@ def import_from_csv(filepath):
             new_books, interrupted = process_rows(reader, new_books, interrupted)
 
     except FileNotFoundError:
-        print(f" {PROMPT}{style("ERROR! Couldn't find file at:", ERROR)}")
-        print(f" {PROMPT}{filepath}")
+        print(f"{PROMPT}{style("ERROR! Couldn't find file at:", ERROR)}")
+        print(f"{PROMPT}{filepath}")
         interrupted = True
         return new_books, interrupted
     except KeyError as e:
@@ -78,27 +78,34 @@ def process_rows(reader, new_books, interrupted):
         author = row["author"].strip()
         raw_rating = (row.get("rating") or "").strip()
 
-        if not (title and author):
+        if not (title or author):
             continue
-        if not title or not author:
+        if not (title and author):
+            missing_field = "title" if not title else "author"
             print(
+                PROMPT,
                 style(
-                    f" Skipping row {i}: '{title if title else ' '}' by "
-                    f"'{author if author else ' '}' – missing title or author",
+                    f"Skipped row {i}: '{title if title else '  '}'"
+                    f"{f" by '{author}'" if author else ''} – missing {missing_field}",
                     ERROR,
-                )
+                ),
+                sep="",
             )
+            continue
 
         try:
             rating = float(raw_rating) if raw_rating else DEFAULT_RATING
+
             if not 0 <= rating <= 10:
-                raise ValueError(f" Rating must be between 0 and 10, got {rating}")
-        except ValueError as e:
+                raise ValueError
+        except ValueError:
             print(
+                PROMPT,
                 style(
-                    f" Skipping '{title}' by '{author}' – invalid rating: {e}",
+                    f"Skipped '{title}' by '{author}' – invalid rating: '{raw_rating}'",
                     ERROR,
-                )
+                ),
+                sep="",
             )
             continue
 
@@ -112,8 +119,10 @@ def process_rows(reader, new_books, interrupted):
 
     if skipped_rows:
         print(
-            f" Skipped {skipped_rows} book{'s' if skipped_rows > 1 else ''}"
-            f" already in the system."
+            PROMPT,
+            f"Skipped {skipped_rows} book{'s' if skipped_rows > 1 else ''}"
+            f" already in the system.",
+            sep="",
         )
     return new_books, interrupted
 
