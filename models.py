@@ -1,5 +1,5 @@
 from constants import DEFAULT_RATING
-from db.connection import get_connection
+from db import books_repo
 
 
 class Book:
@@ -15,18 +15,10 @@ class Book:
         self.opponents = {}  # {opp_id: times_matched} - used for confidence scoring
         self.won_over = {}  # {opp_id: times_won_over} - used for tiebreaking
 
-    def save(self):
-        with get_connection() as conn:
-            cursor = conn.execute(
-                "INSERT INTO book (title, author, rating, elo) VALUES (?, ?, ?, ?)",
-                (self.title, self.author, self.rating, self.elo),
-            )
-            self.id = cursor.lastrowid
-
     def update_elo(self, new_elo):
+        """Update the Elo score for this book and update the global min/max."""
         self.elo = new_elo
-        with get_connection() as conn:
-            conn.execute("UPDATE book SET elo = ? WHERE id = ?", (self.elo, self.id))
+        books_repo.update_elo(self)
 
         if self.elo < Book.elo_min:
             Book.elo_min = self.elo
@@ -38,44 +30,6 @@ class Book:
 
     def record_won_over(self, opponent_id):
         self.won_over[opponent_id] = self.won_over.get(opponent_id, 0) + 1
-
-    @classmethod
-    def load_all(cls):
-        cls.elo_min = 800
-        cls.elo_max = 1200
-
-        with get_connection() as conn:
-            cursor = conn.execute("SELECT title, author, rating, elo, id FROM book")
-            rows = cursor.fetchall()
-
-        books = []
-        for row in rows:
-            books.append(
-                cls(
-                    title=row["title"],
-                    author=row["author"],
-                    rating=row["rating"],
-                    elo=row["elo"],
-                    book_id=row["id"],
-                )
-            )
-            if row["elo"] < cls.elo_min:
-                cls.elo_min = row["elo"]
-            if row["elo"] > cls.elo_max:
-                cls.elo_max = row["elo"]
-
-        book_map = {b.id: b for b in books}
-        with get_connection() as conn:
-            cursor = conn.execute("""
-                SELECT winner_id, loser_id FROM comparison
-                """)
-            for row in cursor.fetchall():
-                w_id, l_id = row["winner_id"], row["loser_id"]
-                book_map[w_id].record_opponent(l_id)
-                book_map[l_id].record_opponent(w_id)
-                book_map[w_id].record_won_over(l_id)
-
-        return books
 
     def __repr__(self):
         return f"{self.title}, by {self.author}"

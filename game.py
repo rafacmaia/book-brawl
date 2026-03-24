@@ -5,7 +5,7 @@ import state
 from constants import (
     PIT_OPTIONS,
 )
-from db.connection import save_comparison
+from db.comparisons_repo import insert as insert_comparison
 from messages import PIT_INSTRUCTIONS
 from scoring import calculate_elo, confidence_score
 from theme import DIVIDER, ERROR, LINE_LENGTH, PROMPT, REDO, SECONDARY
@@ -166,7 +166,7 @@ def resolve_comparison(book_a, book_b, selection):
     loser = book_b if selection == "1" else book_a
 
     new_winner_elo, new_loser_elo = calculate_elo(winner, loser)
-    save_comparison(winner.id, loser.id)
+    insert_comparison(winner.id, loser.id)
 
     winner.update_elo(new_winner_elo)
     loser.update_elo(new_loser_elo)

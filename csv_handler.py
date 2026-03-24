@@ -4,6 +4,7 @@ from datetime import datetime
 
 import state
 from constants import BOOK_LIMIT, DEFAULT_RATING
+from db.books_repo import insert
 from models import Book
 from theme import ERROR, PROMPT
 from utils import style
@@ -104,7 +105,7 @@ def process_rows(reader, new_books, interrupted):
 
         if (title.lower(), author.lower()) not in existing_books:
             book = Book(title, author, rating)
-            book.save()
+            insert(book)
             new_books.append(book)
             existing_books.add((title.lower(), author.lower()))
         else:

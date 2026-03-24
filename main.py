@@ -15,6 +15,7 @@ from constants import (
     TEST_MESSAGE,
 )
 from csv_handler import csv_reader, export_to_csv, import_from_csv
+from db.books_repo import get_all, insert
 from db.connection import init_db
 from game import run_game
 from leaderboard import (
@@ -219,7 +220,7 @@ def manual_entry():
         confirm = prompt(p=f"{PROMPT}Confirm (y/n)? ")
 
         if confirm == "y":
-            book.save()
+            insert(book)
             new_books.append(book)
             existing_books.add((title.lower(), author.lower()))
 
@@ -377,5 +378,5 @@ if __name__ == "__main__":
         state.db_path = "data/demo2.db"
 
     init_db()
-    state.books = Book.load_all()
+    state.books = get_all()
     startup()
