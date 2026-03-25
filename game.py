@@ -26,7 +26,7 @@ def run_game(books):
         press_enter()
         return None
 
-    print_instructions(len(books))
+    _print_instructions(len(books))
 
     match_count = 1
     book_a, book_b = select_opponents(books)
@@ -37,7 +37,7 @@ def run_game(books):
             match_count += 1
             book_a, book_b = select_opponents(books)
 
-        print_match(match_count, book_a, book_b)
+        _print_match(match_count, book_a, book_b)
         choice = prompt(options=PIT_OPTIONS)
 
         while choice == "u" and previous is None:
@@ -46,7 +46,7 @@ def run_game(books):
 
         if choice == "u":
             opponents_selected = True  # Makes sure the interrupted match gets reprinted
-            previous = rematch(previous)
+            previous = _rematch(previous)
             continue
 
         if previous:
@@ -59,7 +59,7 @@ def run_game(books):
         opponents_selected = False
 
 
-def print_instructions(book_count):
+def _print_instructions(book_count):
     instructions = (
         f" {style(book_count, SECONDARY)} books enter."
         f" {style('One wins.', SECONDARY)}\n"
@@ -71,7 +71,7 @@ def print_instructions(book_count):
     input()
 
 
-def print_match(match_count, book_a, book_b, redo=False):
+def _print_match(match_count, book_a, book_b, redo=False):
     match_divider = (
         f" {rule((LINE_LENGTH - 5 - len(str(match_count))), DIVIDER)}"
         f" {style(match_count, DIVIDER)}"
@@ -97,7 +97,7 @@ def print_match(match_count, book_a, book_b, redo=False):
     print("\n" + divider + "\n" + match)
 
 
-def rematch(previous):
-    print_match(previous.match, previous.a, previous.b, redo=True)
+def _rematch(previous):
+    _print_match(previous.match, previous.a, previous.b, redo=True)
     new_choice = prompt(options=["1", "2"])
     return PendingMatch(previous.match, previous.a, previous.b, new_choice)

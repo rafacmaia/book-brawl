@@ -5,7 +5,7 @@ from fastapi import FastAPI
 import state
 from db.books_repo import get_all
 from db.connection import init_db
-from leaderboard import rank_books
+from services.ranking_service import rank_books
 from services.scoring_service import calculate_progress
 
 
@@ -22,7 +22,7 @@ app = FastAPI(lifespan=lifespan)
 
 @app.get("/rankings")
 def get_rankings():
-    ranked_books = rank_books()
+    ranked_books = rank_books(state.books)
     return [
         {
             "Rank": rank,
