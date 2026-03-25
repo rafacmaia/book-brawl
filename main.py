@@ -38,7 +38,7 @@ from theme import ACCENT, DIVIDER, ERROR, LINE_LENGTH, PRIMARY, PROMPT, SECONDAR
 from utils import (
     format_book,
     header,
-    leaderboard_summary,
+    library_summary,
     press_enter,
     progress_bar,
     prompt,
@@ -77,7 +77,7 @@ def startup():
             )
             if filepath == "q":
                 quit_game()
-            new_books, interrupted = import_from_csv(filepath)
+            new_books, interrupted = import_from_csv(filepath, state.books)
             process_import(new_books, interrupted)
 
         print()
@@ -114,10 +114,10 @@ def main_menu(first_run=False):
         elif choice in ("2", "2 -v"):
             next_action = view_leaderboard(state.books, verbose="-v" in choice)
         elif choice == "3":
-            add_books()
+            add_books(state.books)
             state.progress = calculate_progress(state.books)
         elif choice == "4":
-            export_leaderboard()
+            export_leaderboard(state.books)
         elif choice == "5":
             reset_handler()
         elif choice in ["6", "q"]:
@@ -126,7 +126,7 @@ def main_menu(first_run=False):
         if next_action == "q":
             quit_game()
         if next_action == "e":
-            export_leaderboard()
+            export_leaderboard(state.books)
 
         first_run = False
         print()
@@ -135,10 +135,11 @@ def main_menu(first_run=False):
             print(TEST_MESSAGE)
 
 
-def add_books():
+def add_books(books):
+    """Add new books to the library either through a CSV import or manual entry."""
     print(header("IMPORT NEW BOOKS", new_line=True))
 
-    if len(state.books) >= BOOK_LIMIT:
+    if len(books) >= BOOK_LIMIT:
         print(LIMIT_REACHED)
         press_enter()
         return
@@ -148,7 +149,7 @@ def add_books():
         choice = prompt(options=["1", "2", "b"])
 
         if choice == "1":
-            new_books = manual_entry()
+            new_books = manual_entry(books)
             process_import(new_books, method="manual")
             break
         elif choice == "2":
@@ -165,15 +166,16 @@ def add_books():
                 continue
 
             print(f"\n {style('Processing file...', SECONDARY)}")
-            new_books, interrupted = import_from_csv(filepath)
+            new_books, interrupted = import_from_csv(filepath, books)
+            print()
             process_import(new_books, interrupted, method="CSV")
             break
         elif choice == "b":
             return
 
 
-def manual_entry():
-    existing_books = {(b.title.lower(), b.author.lower()) for b in state.books}
+def manual_entry(books):
+    existing_books = {(b.title.lower(), b.author.lower()) for b in books}
     new_books = []
 
     while True:
@@ -215,7 +217,7 @@ def manual_entry():
         book = Book(title, author, rating)
 
         print(style("\n Adding: ", SECONDARY))
-        print(f"  - {format_book(book, LINE_LENGTH - 5)}")
+        print(f"  {style('–', SECONDARY)} {format_book(book, LINE_LENGTH - 5)}")
         if raw_rating:
             print(f"  - Rating: {rating}")
 
@@ -227,7 +229,7 @@ def manual_entry():
             new_books.append(book)
             existing_books.add((title.lower(), author.lower()))
 
-        if len(state.books) + len(new_books) >= BOOK_LIMIT:
+        if len(books) + len(new_books) >= BOOK_LIMIT:
             print(f"\ {rule(LINE_LENGTH - 1, DIVIDER)}")
             return new_books
 
@@ -253,7 +255,7 @@ def process_import(new_books, interrupted=False, method="CSV"):
         suffix = "!" if first_import or added > 100 else ":"
         message = style(f"✓ {verb} {added} book{plural}{suffix}", PRIMARY)
 
-        print(f"\n{PROMPT}{message}")
+        print(f"{PROMPT}{message}")
 
         if not first_import and added <= 100:
             for i, book in enumerate(new_books, start=1):
@@ -270,14 +272,14 @@ def process_import(new_books, interrupted=False, method="CSV"):
         press_enter()
     elif added == 0 and method == "CSV":
         if not interrupted:
-            print(EMPTY_IMPORT)
+            print(EMPTY_IMPORT + "\n")
         if not first_import:
-            press_enter()
+            press_enter(new_line=False)
 
 
-def export_leaderboard():
+def export_leaderboard(books):
     print(header("EXPORT LEADERBOARD", new_line=True))
-    print(leaderboard_summary(state.progress, PRIMARY))
+    print(library_summary(len(books), calculate_progress(books), PRIMARY))
 
     print()
     choice = prompt(
@@ -286,7 +288,7 @@ def export_leaderboard():
     )
 
     if choice == "y":
-        export_to_csv()
+        export_to_csv(books)
         press_enter(new_line=False)
 
 
@@ -302,7 +304,7 @@ def reset_handler():
     )
 
     if export_choice == "y":
-        export_to_csv()
+        export_to_csv(state.books)
 
     print()
     reset_choice = prompt(
@@ -342,31 +344,36 @@ def reset():
 
 
 def quit_game():
+    """Quit the program and perform any necessary backups."""
     if state.books:
-        backup_db()
-        backup_cleanup()
-    print()
-    print(GOODBYE)
-    print()
+        backup_db(state.db_path)
+        backup_cleanup(BACKUPS_LIMIT, state.db_path)
+    print("\n" + GOODBYE + "\n")
     sys.exit()
 
 
-def backup_db():
+def backup_db(filepath):
+    """Back up the current database."""
     backup_dir = "backup"
     os.makedirs(backup_dir, exist_ok=True)
 
+    current_db = os.path.splitext(os.path.basename(filepath))[0]
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    backup_path = os.path.join(backup_dir, f"backup_{timestamp}.db")
+    backup_path = os.path.join(backup_dir, f"backup_{current_db}_{timestamp}.db")
 
     shutil.copy(state.db_path, backup_path)
 
 
-def backup_cleanup():
-    """Only keep the last N backups."""
+def backup_cleanup(limit, filepath):
+    """Only keep the last N backups for the current database."""
     backup_dir = "backup"
-    backups = sorted(os.listdir(backup_dir))
-    for old in backups[:-BACKUPS_LIMIT]:
-        os.remove(os.path.join(backup_dir, old))
+    current_db = os.path.splitext(os.path.basename(filepath))[0]
+
+    all_backups = sorted(os.listdir(backup_dir))
+    relevant_backups = [f for f in all_backups if f.startswith(f"backup_{current_db}_")]
+
+    for db in relevant_backups[:-limit]:
+        os.remove(os.path.join(backup_dir, db))
 
 
 if __name__ == "__main__":
@@ -378,5 +385,5 @@ if __name__ == "__main__":
     if "--demo2" in sys.argv:
         state.db_path = "data/demo2.db"
 
-    init_db()
+    init_db(state.db_path)
     startup()

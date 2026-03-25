@@ -11,7 +11,7 @@ from services.scoring_service import calculate_progress
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    init_db()
+    init_db(state.db_path)
     state.books = get_all()
     state.progress = calculate_progress(state.books)
     yield

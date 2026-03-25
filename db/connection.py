@@ -3,14 +3,16 @@ import sqlite3
 import state
 
 
-def get_connection():
-    conn = sqlite3.connect(state.db_path)
+def get_connection(path=None):
+    if path is None:
+        path = state.db_path
+    conn = sqlite3.connect(path)
     conn.row_factory = sqlite3.Row  # allows access by field name instead of just index
     return conn
 
 
-def init_db():
-    with get_connection() as conn:
+def init_db(path):
+    with get_connection(path) as conn:
         conn.execute("""
             CREATE TABLE IF NOT EXISTS user (
                 id        INTEGER PRIMARY KEY AUTOINCREMENT,

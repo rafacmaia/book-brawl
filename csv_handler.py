@@ -2,15 +2,17 @@ import csv
 import os
 from datetime import datetime
 
-import state
 from constants import BOOK_LIMIT, DEFAULT_RATING
 from db.books_repo import insert
 from models import Book
-from theme import ERROR, PROMPT
+from theme import ERROR, PROMPT, SECONDARY
 from utils import style
+
+# ====== CSV IMPORT
 
 
 def csv_reader(prompt=" CSV file path: ", back_key="q"):
+    """Prompt the user for a CSV file path."""
     print(prompt)
     while True:
         filepath = input(PROMPT).strip()
@@ -32,23 +34,26 @@ def csv_reader(prompt=" CSV file path: ", back_key="q"):
         return filepath
 
 
-def import_from_csv(filepath):
+def import_from_csv(filepath, books):
     """Import books from a CSV, skipping any already in the system.
 
-    Return count of new books imported.
+    Return a list of books imported and a boolean indicating if the import was
+    interrupted.
     """
     new_books = []
     interrupted = False
-
     try:
         with open(filepath, newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file)
 
+            # Guard against empty CSV files with no headers
             if not reader.fieldnames:
                 return new_books, interrupted
 
             reader.fieldnames = [field.lower().strip() for field in reader.fieldnames]
-            new_books, interrupted = process_rows(reader, new_books, interrupted)
+            new_books, interrupted = _process_rows(
+                reader, new_books, interrupted, books
+            )
 
     except FileNotFoundError:
         print(f"{PROMPT}{style("ERROR! Couldn't find file at:", ERROR)}")
@@ -56,22 +61,26 @@ def import_from_csv(filepath):
         interrupted = True
         return new_books, interrupted
     except KeyError as e:
-        err_msg = style(
-            f"ERROR! Missing column \033[33m{e}\033[31m in CSV file. ", ERROR
+        print(
+            f"{PROMPT}{style('ERROR! Missing column', ERROR)}"
+            f" {style(e, SECONDARY)} {style('in CSV file.', ERROR)}"
         )
-        print(f"{PROMPT}{err_msg}")
         interrupted = True
         return new_books, interrupted
 
     return new_books, interrupted
 
 
-def process_rows(reader, new_books, interrupted):
-    existing_books = {(b.title.lower(), b.author.lower()) for b in state.books}
+def _process_rows(reader, new_books, interrupted, books):
+    """Process each row of the CSV, adding new books to the database.
+
+    Validates each row, skipping duplicate and invalid entries.
+    """
+    existing_books = {(b.title.lower(), b.author.lower()) for b in books}
     skipped_rows = 0
 
     for i, row in enumerate(reader, start=2):
-        if len(state.books) + len(new_books) >= BOOK_LIMIT:
+        if len(books) + len(new_books) >= BOOK_LIMIT:
             interrupted = True
             return new_books, interrupted
 
@@ -96,7 +105,6 @@ def process_rows(reader, new_books, interrupted):
 
         try:
             rating = float(raw_rating) if raw_rating else DEFAULT_RATING
-
             if not 0 <= rating <= 10:
                 raise ValueError
         except ValueError:
@@ -120,19 +128,23 @@ def process_rows(reader, new_books, interrupted):
 
     if skipped_rows:
         print(
-            PROMPT,
+            f"{PROMPT}"
             f"Skipped {skipped_rows} book{'s' if skipped_rows > 1 else ''}"
             f" already in the system.",
-            sep="",
         )
+
     return new_books, interrupted
 
 
-def export_to_csv():
-    """Export all books with their current rankings, to a CSV file."""
-    os.makedirs("exports", exist_ok=True)
+# ====== CSV EXPORT
+
+
+def export_to_csv(books):
+    """Export all books with their current rankings, as a CSV file."""
+    exports_dir = "exports"
+    os.makedirs(exports_dir, exist_ok=True)
     timestamp = datetime.now().strftime("%Y-%m-%d")
-    filepath = os.path.join("exports", f"book_brawl_{timestamp}.csv")
+    filepath = os.path.join(exports_dir, f"book_brawl_{timestamp}.csv")
 
     # Check if the file already exists, if so, append a number to the end
     if os.path.exists(filepath):
@@ -142,7 +154,7 @@ def export_to_csv():
             filepath = f"{base}_{counter}.csv"
             counter += 1
 
-    ranked_books = sorted(state.books, key=lambda b: b.elo, reverse=True)
+    ranked_books = sorted(books, key=lambda b: b.elo, reverse=True)
 
     with open(filepath, "w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
@@ -150,4 +162,4 @@ def export_to_csv():
         for i, book in enumerate(ranked_books, start=1):
             writer.writerow([i, book.title, book.author, book.rating])
 
-    print(f"{PROMPT}✓ Leaderboard exported to:\033[32m {filepath}\033[0m")
+    print(f"{PROMPT}✓ Leaderboard exported to: {style(filepath, 'green')}")

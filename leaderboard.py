@@ -18,7 +18,7 @@ from services.scoring_service import (
     stability_score,
 )
 from theme import ACCENT, ERROR, LINE_LENGTH, PRIMARY, PROMPT, SECONDARY
-from utils import header, leaderboard_summary, press_enter, rule, style
+from utils import header, library_summary, press_enter, rule, style
 
 
 def view_leaderboard(books, verbose=False):
@@ -33,7 +33,7 @@ def view_leaderboard(books, verbose=False):
     print(header("THE LEADERBOARD", new_line=True))
 
     # Print informational summary of the user's library and current confidence level
-    print(leaderboard_summary(calculate_progress(books), PRIMARY))
+    print(library_summary(len(books), calculate_progress(books), PRIMARY))
     press_enter("Press Enter to view leaderboard...")
     print()
 

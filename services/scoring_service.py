@@ -10,7 +10,7 @@ ABS_MIN_OPPONENTS = 8
 DENSITY_WINDOW = 26
 
 
-# --- CONFIDENCE SCORING ---
+# ====== CONFIDENCE SCORING
 
 
 def calculate_progress(books):
@@ -100,7 +100,7 @@ def stability_score(book, books):
     return 1 - density
 
 
-# --- ELO SCORING ---
+# ====== ELO CALCULATION
 
 
 def calculate_elo(winner, loser, books):
