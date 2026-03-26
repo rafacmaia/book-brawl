@@ -1,3 +1,7 @@
 rich==14.3.3
 fastapi
+pydantic
 uvicorn
+PyJWT
+python-dotenv
+requests
