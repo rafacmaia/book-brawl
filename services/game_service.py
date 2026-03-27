@@ -26,7 +26,7 @@ def select_opponents(books):
     return book_a, book_b
 
 
-def resolve_comparison(book_a, book_b, selection, books):
+def resolve_comparison(book_a, book_b, books, selection=1):
     """Update book records after a match is resolved.
 
     Update Elo scores, persist match, and update book opponents and wins.

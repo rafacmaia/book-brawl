@@ -3,5 +3,6 @@ fastapi
 pydantic
 uvicorn
 PyJWT
+cryptography
 python-dotenv
 requests

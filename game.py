@@ -21,7 +21,8 @@ def run_game(books):
 
     if len(books) <= 1:
         print(
-            f" {style('Not enough books in the pit.', ERROR)} Add some more and try again."
+            f" {style('Not enough books in the pit.', ERROR)}"
+            f" Add some more and try again."
         )
         press_enter()
         return None
