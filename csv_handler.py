@@ -2,13 +2,9 @@ import csv
 import os
 from datetime import datetime
 
-from constants import BOOK_LIMIT, DEFAULT_RATING
-from db.books_repo import insert
-from models import Book
+from services.library_service import import_books
 from theme import ERROR, PROMPT, SECONDARY
 from utils import style
-
-# ====== CSV IMPORT
 
 
 def csv_reader(prompt=" CSV file path: ", back_key="q"):
@@ -37,106 +33,38 @@ def csv_reader(prompt=" CSV file path: ", back_key="q"):
 def import_from_csv(filepath, books):
     """Import books from a CSV, skipping any already in the system.
 
-    Return a list of books imported and a boolean indicating if the import was
-    interrupted.
+    Return a list of books imported (empty if import failed or no books were added) and
+    a boolean indicating if the import was interrupted midway.
     """
-    new_books = []
-    interrupted = False
     try:
         with open(filepath, newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file)
 
             # Guard against empty CSV files with no headers
             if not reader.fieldnames:
-                return new_books, interrupted
+                return [], False
 
-            reader.fieldnames = [field.lower().strip() for field in reader.fieldnames]
-            new_books, interrupted = _process_rows(
-                reader, new_books, interrupted, books
-            )
+            reader.fieldnames = [f.lower().strip() for f in reader.fieldnames]
+
+            if "title" not in reader.fieldnames or "author" not in reader.fieldnames:
+                print(f"{PROMPT}{style('ERROR! Missing required columns.', ERROR)}")
+                return [], False
+
+            result = import_books(reader, books)
 
     except FileNotFoundError:
-        print(f"{PROMPT}{style("ERROR! Couldn't find file at:", ERROR)}")
+        print(f"{PROMPT}{style('ERROR! Could not find file at:', ERROR)}")
         print(f"{PROMPT}{filepath}")
-        interrupted = True
-        return new_books, interrupted
-    except KeyError as e:
-        print(
-            f"{PROMPT}{style('ERROR! Missing column', ERROR)}"
-            f" {style(e, SECONDARY)} {style('in CSV file.', ERROR)}"
-        )
-        interrupted = True
-        return new_books, interrupted
+        return [], False
 
-    return new_books, interrupted
+    for error in result.errors:
+        print(f"{PROMPT}{style(error, ERROR)}")
 
+    if result.skipped:
+        plural = "s" if result.skipped > 1 else ""
+        print(f"{PROMPT}Skipped {result.skipped} book{plural} already in the system.")
 
-def _process_rows(reader, new_books, interrupted, books):
-    """Process each row of the CSV, adding new books to the database.
-
-    Validates each row, skipping duplicate and invalid entries.
-    """
-    existing_books = {(b.title.lower(), b.author.lower()) for b in books}
-    skipped_rows = 0
-
-    for i, row in enumerate(reader, start=2):
-        if len(books) + len(new_books) >= BOOK_LIMIT:
-            interrupted = True
-            return new_books, interrupted
-
-        title = row["title"].strip()
-        author = row["author"].strip()
-        raw_rating = (row.get("rating") or "").strip()
-
-        if not (title or author):
-            continue
-        if not (title and author):
-            missing_field = "title" if not title else "author"
-            print(
-                PROMPT,
-                style(
-                    f"Skipped row {i}: '{title if title else '  '}'"
-                    f"{f" by '{author}'" if author else ''} – missing {missing_field}",
-                    ERROR,
-                ),
-                sep="",
-            )
-            continue
-
-        try:
-            rating = float(raw_rating) if raw_rating else DEFAULT_RATING
-            if not 0 <= rating <= 10:
-                raise ValueError
-        except ValueError:
-            print(
-                PROMPT,
-                style(
-                    f"Skipped '{title}' by '{author}' – invalid rating: '{raw_rating}'",
-                    ERROR,
-                ),
-                sep="",
-            )
-            continue
-
-        if (title.lower(), author.lower()) not in existing_books:
-            book = Book(title, author, rating)
-            insert(book)
-            new_books.append(book)
-            existing_books.add((title.lower(), author.lower()))
-        else:
-            skipped_rows += 1
-
-    if skipped_rows:
-        print(
-            f"{PROMPT}"
-            f"Skipped {skipped_rows} book{'s' if skipped_rows > 1 else ''}"
-            f" already in the system.",
-        )
-
-    return new_books, interrupted
-
-
-# ====== CSV EXPORT
+    return result.new_books, result.interrupted
 
 
 def export_to_csv(books):
