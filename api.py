@@ -14,7 +14,10 @@ from models import Book
 from services import library_service
 from services.game_service import resolve_comparison, select_opponents
 from services.ranking_service import rank_books
-from services.scoring_service import calculate_progress
+from services.scoring_service import (
+    calculate_progress,
+    confidence_score,
+)
 
 # ====== APP SETUP
 
@@ -23,14 +26,13 @@ from services.scoring_service import calculate_progress
 async def lifespan(_app: FastAPI):
     init_db(state.db_path)
     state.books = books_repo.get_all()
-    state.progress = calculate_progress(state.books)
     yield
 
 
 app = FastAPI(lifespan=lifespan)
 
 
-# ====== MATCHES
+# ====== MATCHES: MAIN GAME LOOP
 
 
 class MatchResult(BaseModel):
@@ -83,10 +85,10 @@ def post_match(result: MatchResult, _user_id: str = Depends(get_current_user)):
 
 
 @app.get("/progress")
-def get_progress():
+def get_progress(_user_id: str = Depends(get_current_user)):
     """Return the user's overall progress in the game."""
     return {
-        "progress": round(state.progress, 4),
+        "progress": round(calculate_progress(state.books), 4),
         "book_count": len(state.books),
     }
 
@@ -99,6 +101,7 @@ def get_leaderboard(_user_id: str = Depends(get_current_user)):
             "rank": rank,
             "title": book.title,
             "author": book.author,
+            "accuracy": round(confidence_score(book, state.books), 4),
         }
         for rank, book in ranked_books
     ]
@@ -129,7 +132,6 @@ def add_book(book: BookData, _user_id: str = Depends(get_current_user)):
         raise HTTPException(status_code=409, detail="Book already exists")
 
     state.books.append(new_book)
-    state.progress = calculate_progress(state.books)
 
     return {"id": new_book.id, "title": new_book.title, "author": new_book.author}
 
@@ -153,7 +155,6 @@ def import_books(file: UploadFile, _user_id: str = Depends(get_current_user)):
     result = library_service.import_books(reader, state.books)
 
     state.books.extend(result.new_books)
-    state.progress = calculate_progress(state.books)
 
     return {
         "imported": len(result.new_books),

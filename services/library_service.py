@@ -42,10 +42,10 @@ def _process_row(row, i, existing_books, result):
         return
 
     if not (title and author):
+        author_clause = f" by '{author}'" if author else ""
         result.errors.append(
             f"Skipped row {i}: '{title if title else '  '}'"
-            f"{f" by '{author}'" if author else ''}"
-            f" – missing {'title' if not title else 'author'}"
+            f"{author_clause} – missing {'title' if not title else 'author'}"
         )
         return
 
