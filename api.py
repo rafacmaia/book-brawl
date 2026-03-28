@@ -81,7 +81,7 @@ def post_match(result: MatchResult, _user_id: str = Depends(get_current_user)):
     return {"status": "ok", "winner": winner.id, "loser": loser.id}
 
 
-# ====== LEADERBOARD
+# ====== LEADERBOARD: PROGRESS & RANKINGS
 
 
 @app.get("/progress")
@@ -107,7 +107,7 @@ def get_leaderboard(_user_id: str = Depends(get_current_user)):
     ]
 
 
-# ====== BOOKS
+# ====== BOOK INSERTIONS
 
 
 class BookData(BaseModel):

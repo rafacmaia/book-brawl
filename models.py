@@ -1,4 +1,4 @@
-from constants import DEFAULT_RATING
+from config import DEFAULT_RATING
 from db import books_repo
 
 

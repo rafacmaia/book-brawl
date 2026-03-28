@@ -1,12 +1,19 @@
 from collections import namedtuple
 
-from constants import (
-    PIT_OPTIONS,
-)
-from messages import PIT_INSTRUCTIONS
 from services.game_service import resolve_comparison, select_opponents
-from theme import DIVIDER, ERROR, LINE_LENGTH, PROMPT, REDO, SECONDARY
-from utils import format_book, header, press_enter, prompt, rule, style
+from ui import (
+    DIVIDER,
+    ERROR,
+    LINE_WIDTH,
+    PIT_INSTRUCTIONS,
+    PIT_OPTIONS,
+    PROMPT,
+    REDO,
+    SECONDARY,
+    rule,
+    style,
+)
+from utils import format_book, header, press_enter, prompt
 
 PendingMatch = namedtuple("PendingMatch", ["match", "a", "b", "choice"])
 
@@ -74,7 +81,7 @@ def _print_instructions(book_count):
 
 def _print_match(match_count, book_a, book_b, redo=False):
     match_divider = (
-        f" {rule((LINE_LENGTH - 5 - len(str(match_count))), DIVIDER)}"
+        f" {rule((LINE_WIDTH - 5 - len(str(match_count))), DIVIDER)}"
         f" {style(match_count, DIVIDER)}"
         f" {rule(2, DIVIDER)}"
     )
@@ -82,7 +89,7 @@ def _print_match(match_count, book_a, book_b, redo=False):
     redo_divider = (
         f" {rule(2, REDO)}"
         f" {style('REMATCH', REDO)}"
-        f" {rule((LINE_LENGTH - 16 - len(str(match_count))), REDO)}"
+        f" {rule((LINE_WIDTH - 16 - len(str(match_count))), REDO)}"
         f" {style(match_count, REDO)}"
         f" {rule(2, REDO)}"
     )

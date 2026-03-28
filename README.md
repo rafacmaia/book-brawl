@@ -215,10 +215,8 @@ mathematically robust, way to reflect on their books.
 | [`models.py`](models.py)            | Book class                           |
 | [`connection.py`](db/connection.py) | Database setup and queries           |
 | [`csv_handler.py`](csv_handler.py)  | CSV import and export handling       |
-| [`messages.py`](messages.py)        | Formatted display messages & headers |
 | [`utils.py`](utils.py)              | Styling utilities                    |
-| [`constants.py`](constants.py)      | UI strings and layout values         |
-| [`theme.py`](theme.py)              | Color and layout constants           |
+| [`constants.py`](ui.py)             | UI strings and layout values         |
 | [`state.py`](state.py)              | Global state management              |
 
 ## 🗺️ Roadmap

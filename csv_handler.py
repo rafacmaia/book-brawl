@@ -3,8 +3,7 @@ import os
 from datetime import datetime
 
 from services.library_service import import_books
-from theme import ERROR, PROMPT, SECONDARY
-from utils import style
+from ui import ERROR, PROMPT, SECONDARY, style
 
 
 def csv_reader(prompt=" CSV file path: ", back_key="q"):

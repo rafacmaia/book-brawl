@@ -1,18 +1,28 @@
-import state
-from constants import BOOK_LIMIT, DEFAULT_RATING
-from csv_handler import csv_reader, import_from_csv
+import os
+
+from config import BOOK_LIMIT, DEFAULT_RATING
+from csv_handler import csv_reader, export_to_csv, import_from_csv
 from db.books_repo import insert
-from messages import (
-    CSV_INSTRUCTIONS,
-    EMPTY_IMPORT,
-    IMPORT_MENU,
-    LIMIT_REACHED,
-    LIMIT_WARNING,
-    import_interrupted,
-)
 from models import Book
-from theme import DIVIDER, ERROR, LINE_LENGTH, PRIMARY, PROMPT, SECONDARY
-from utils import format_book, header, press_enter, prompt, rule, style
+from ui import (
+    CSV_INSTRUCTIONS,
+    DIVIDER,
+    EMPTY_IMPORT,
+    ERROR,
+    IMPORT_MENU,
+    LIMIT_WARNING,
+    LINE_WIDTH,
+    PRIMARY,
+    PROMPT,
+    SECONDARY,
+    import_interrupted,
+    limit_reached,
+    rule,
+    style,
+)
+from utils import format_book, header, press_enter, prompt
+
+# ====== ADDING BOOKS
 
 
 def add_books(books):
@@ -20,7 +30,7 @@ def add_books(books):
     print(header("IMPORT NEW BOOKS", new_line=True))
 
     if len(books) >= BOOK_LIMIT:
-        print(LIMIT_REACHED)
+        print(limit_reached(BOOK_LIMIT))
         press_enter()
         return
 
@@ -30,10 +40,10 @@ def add_books(books):
 
         if choice == "1":
             new_books = _manual_entry(books)
-            process_import(new_books, method="manual")
+            process_import(new_books, books, method="manual")
             break
         elif choice == "2":
-            print(f"\n {rule(LINE_LENGTH - 1, DIVIDER)}")
+            print(f"\n {rule(LINE_WIDTH - 1, DIVIDER)}")
             print(" Please provide the path to your CSV file to sync new books.")
             print(CSV_INSTRUCTIONS)
 
@@ -42,13 +52,13 @@ def add_books(books):
                 back_key="b",
             )
             if filepath == "b":
-                print(f"\n {rule(LINE_LENGTH - 1, DIVIDER)}")
+                print(f"\n {rule(LINE_WIDTH - 1, DIVIDER)}")
                 continue
 
             print(f"\n {style('Processing file...', SECONDARY)}")
             new_books, interrupted = import_from_csv(filepath, books)
             print()
-            process_import(new_books, interrupted, method="CSV")
+            process_import(new_books, books, interrupted, method="CSV")
             break
         elif choice == "b":
             return
@@ -64,7 +74,7 @@ def _manual_entry(books):
 
         print()
         print(
-            f" {rule((LINE_LENGTH - 5 - len(str(count))), DIVIDER)}"
+            f" {rule((LINE_WIDTH - 5 - len(str(count))), DIVIDER)}"
             f" {style(count, DIVIDER)}"
             f" {rule(2, DIVIDER)}"
         )
@@ -98,7 +108,7 @@ def _manual_entry(books):
         book = Book(title, author, rating)
 
         print(style("\n Adding: ", SECONDARY))
-        print(f"  {style('–', SECONDARY)} {format_book(book, LINE_LENGTH - 5)}")
+        print(f"  {style('–', SECONDARY)} {format_book(book, LINE_WIDTH - 5)}")
         if raw_rating:
             print(f"  - Rating: {rating}")
 
@@ -111,7 +121,7 @@ def _manual_entry(books):
             existing_books.add((title.lower(), author.lower()))
 
         if len(books) + len(new_books) >= BOOK_LIMIT:
-            print(f"\ {rule(LINE_LENGTH - 1, DIVIDER)}")
+            print(f"\ {rule(LINE_WIDTH - 1, DIVIDER)}")
             return new_books
 
         next_action = prompt(p=f"{PROMPT}Add another book (y/n)? ")
@@ -119,17 +129,17 @@ def _manual_entry(books):
         if next_action == "n":
             print()
             if len(new_books) > 0:
-                print(f" {rule(LINE_LENGTH - 1, DIVIDER)}")
+                print(f" {rule(LINE_WIDTH - 1, DIVIDER)}")
             return new_books
 
 
-def process_import(new_books, interrupted=False, method="CSV"):
+def process_import(new_books, books, interrupted=False, method="CSV"):
     """Process import/new entries, display results and relevant messages."""
-    first_import = not state.books
+    first_import = not books
     added = len(new_books)
 
     if added > 0:
-        state.books.extend(new_books)
+        books.extend(new_books)
 
         verb = "Imported" if method == "CSV" else "Added"
         plural = "s" if added > 1 else ""
@@ -142,12 +152,12 @@ def process_import(new_books, interrupted=False, method="CSV"):
             for i, book in enumerate(new_books, start=1):
                 print(
                     f"     {style(f'{i}.', SECONDARY)}"
-                    f" {format_book(book, LINE_LENGTH - 9)}"
+                    f" {format_book(book, LINE_WIDTH - 9)}"
                 )
 
         if interrupted:
             print(import_interrupted(added))
-        elif len(state.books) >= BOOK_LIMIT and not first_import:
+        elif len(books) >= BOOK_LIMIT and not first_import:
             print(LIMIT_WARNING)
 
         press_enter()
@@ -156,3 +166,57 @@ def process_import(new_books, interrupted=False, method="CSV"):
             print(EMPTY_IMPORT + "\n")
         if not first_import:
             press_enter(new_line=False)
+
+
+# ====== LIBRARY RESET
+
+
+def reset_handler(books, db_path):
+    print(header("FACTORY RESET", new_line=True))
+    print(" This will delete all data and trigger a complete program reset.")
+    print(style(" This cannot be undone. All data will be lost.", ERROR))
+
+    print()
+    export_choice = prompt(
+        p=f"{PROMPT}Would you like to export the leaderboard before resetting (y/n)? ",
+        error_message="Sorry, I can only understand 'y' or 'n'.",
+    )
+
+    if export_choice == "y":
+        export_to_csv(books)
+
+    print()
+    reset_choice = prompt(
+        p=f"{PROMPT}{style('Final warning:', ERROR)} Proceed with complete factory reset (y/n)? ",
+        error_message="Sorry, I can only understand 'y' or 'n'.",
+    )
+
+    if reset_choice == "y":
+        success, error = _reset(db_path)
+        _process_reset(success, error)
+        return "q"
+    else:
+        return None
+
+
+def _reset(db_path):
+    try:
+        os.remove(db_path)
+    except OSError as e:
+        return False, str(e)
+
+    return True, None
+
+
+def _process_reset(success, error):
+    if success:
+        print(
+            f"{PROMPT}✓ Reset complete. Restart the app to start book brawling again."
+        )
+        press_enter(message="Press Enter to quit... ", new_line=False)
+    else:
+        print(f"{PROMPT}{style(f'Reset failed: {error}.', ERROR)}")
+        press_enter(
+            message="Please try again. Press Enter for the main menu... ",
+            new_line=False,
+        )

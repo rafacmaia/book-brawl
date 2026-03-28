@@ -1,66 +1,16 @@
 import textwrap
 
-from constants import PROGRESS_LABELS, SUMMARY_LABELS
-from theme import ERROR, LINE_LENGTH, PRIMARY, PROMPT, SECONDARY
-
-# ====== STYLING
-
-
-def style(text, styling=None):
-    """Apply ANSI styling to the provided text."""
-    code = _ansi(styling)
-
-    if not code:
-        return text
-
-    return code + str(text) + "\033[0m"
-
-
-def rule(length, styling=None, symbol="─"):
-    """Return a horizontal rule with the provided styling."""
-    code = _ansi(styling)
-    if not code:
-        return symbol * length
-
-    return code + (symbol * length) + "\033[0m"
-
-
-def _ansi(styling=None):
-    """Return ANSI escape codes for the provided styling."""
-    if not styling:
-        return ""
-
-    sections = []
-
-    if "bold" in styling:
-        sections.append("1")
-    if "dim" in styling:
-        sections.append("2")
-    if "italic" in styling:
-        sections.append("3")
-    if "underline" in styling:
-        sections.append("4")
-
-    if "red" in styling:
-        sections.append("31")
-    elif "green" in styling:
-        sections.append("32")
-    elif "yellow" in styling:
-        sections.append("33")
-    elif "blue" in styling:
-        sections.append("94")
-    elif "magenta" in styling:
-        sections.append("35")
-    elif "cyan" in styling:
-        sections.append("36")
-    elif "white" in styling:
-        sections.append("37")
-
-    if not sections:
-        return ""
-
-    return "\033[" + ";".join(sections) + "m"
-
+from ui import (
+    ERROR,
+    LINE_WIDTH,
+    PRIMARY,
+    PROGRESS_LABELS,
+    PROMPT,
+    SECONDARY,
+    SUMMARY_LABELS,
+    rule,
+    style,
+)
 
 # ====== FORMATTING
 
@@ -69,12 +19,12 @@ def header(title, color=SECONDARY, new_line=False):
     """Return a formatted header with the provided title and styling."""
     next_line = "\n" if new_line else ""
     text = style(title, "bold" + color)
-    divider = rule(LINE_LENGTH - len(title) - 2, color)
+    divider = rule(LINE_WIDTH - len(title) - 2, color)
 
     return f"{next_line} {text} {divider}"
 
 
-def format_book(book, width=LINE_LENGTH - 7):
+def format_book(book, width=LINE_WIDTH - 7):
     return textwrap.fill(str(book), width=width, subsequent_indent="\t")
 
 

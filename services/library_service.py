@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from constants import BOOK_LIMIT, DEFAULT_RATING
+from config import BOOK_LIMIT, DEFAULT_RATING
 from db.books_repo import insert
 from models import Book
 

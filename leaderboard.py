@@ -2,11 +2,6 @@ from rich import box
 from rich.console import Console
 from rich.table import Table
 
-from constants import (
-    ACCURACY_TIERS,
-    BATCH_SIZE,
-    INITIAL_BATCH_SIZE,
-)
 from services.ranking_service import rank_books
 from services.scoring_service import (
     absolute_score,
@@ -17,8 +12,20 @@ from services.scoring_service import (
     sampling_weight,
     stability_score,
 )
-from theme import ACCENT, ERROR, LINE_LENGTH, PRIMARY, PROMPT, SECONDARY
-from utils import header, library_summary, press_enter, rule, style
+from ui import (
+    ACCENT,
+    ACCURACY_TIERS,
+    BATCH_SIZE,
+    ERROR,
+    INITIAL_BATCH_SIZE,
+    LINE_WIDTH,
+    PRIMARY,
+    PROMPT,
+    SECONDARY,
+    rule,
+    style,
+)
+from utils import header, library_summary, press_enter
 
 
 def view_leaderboard(books, verbose=False):
@@ -50,15 +57,13 @@ def view_leaderboard(books, verbose=False):
         elif next_action == "?":
             print(header("Accuracy Tiers", color=ACCENT))
             print(ACCURACY_TIERS)
-            print(f" {rule(LINE_LENGTH - 1, ACCENT)}")
+            print(f" {rule(LINE_WIDTH - 1, ACCENT)}")
         else:
             return next_action
 
 
 def _print_table(ranked_books, start, end, books, verbose=False):
-    table = Table(
-        box=box.HORIZONTALS, border_style="bright_blue", width=LINE_LENGTH + 1
-    )
+    table = Table(box=box.HORIZONTALS, border_style="bright_blue", width=LINE_WIDTH + 1)
 
     _add_columns(table, verbose)
     _add_rows(table, ranked_books, start, end, books, verbose)
@@ -119,23 +124,23 @@ def _confidence_label(confidence):
 def _table_menu(batch_end, book_count):
     if batch_end < book_count:
         print(
-            f"{' ' * (LINE_LENGTH - 20)}"
+            f"{' ' * (LINE_WIDTH - 20)}"
             f"{style(f'↵ → See next {BATCH_SIZE}', styling=SECONDARY)}"
         )
     print(
-        f"{' ' * (LINE_LENGTH - 20)}? → Accuracy tiers\n"
-        f"{' ' * (LINE_LENGTH - 20)}b → Main menu\n"
-        f"{' ' * (LINE_LENGTH - 20)}e → Export\n"
-        f"{' ' * (LINE_LENGTH - 20)}q → Quit"
+        f"{' ' * (LINE_WIDTH - 20)}? → Accuracy tiers\n"
+        f"{' ' * (LINE_WIDTH - 20)}b → Main menu\n"
+        f"{' ' * (LINE_WIDTH - 20)}e → Export\n"
+        f"{' ' * (LINE_WIDTH - 20)}q → Quit"
     )
 
-    choice = input(f"{' ' * (LINE_LENGTH - 8)}{PROMPT}").strip().lower()
+    choice = input(f"{' ' * (LINE_WIDTH - 8)}{PROMPT}").strip().lower()
 
     while choice not in ("?", "b", "e", "q"):
         if batch_end < book_count and choice == "":
             break
         choice = input(
-            f"{' ' * (LINE_LENGTH - 40)}"
+            f"{' ' * (LINE_WIDTH - 40)}"
             f"{style('Invalid choice, please try again', ERROR)}{PROMPT}"
         )
 

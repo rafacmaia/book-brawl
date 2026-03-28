@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS comparison (
 
 
 -- Indexes to speed up the frequent queries.
-CREATE INDEX IF NOT EXISTS idx_book_user       ON book(user_id);
-CREATE INDEX IF NOT EXISTS idx_comparison_user ON comparison(user_id);
-CREATE INDEX IF NOT EXISTS idx_comparison_winner ON comparison(winner_id);
-CREATE INDEX IF NOT EXISTS idx_comparison_loser  ON comparison(loser_id);
+CREATE INDEX IF NOT EXISTS idx_book_user            ON book(user_id);
+CREATE INDEX IF NOT EXISTS idx_comparison_user      ON comparison(user_id);
+CREATE INDEX IF NOT EXISTS idx_comparison_winner    ON comparison(winner_id);
+CREATE INDEX IF NOT EXISTS idx_comparison_loser     ON comparison(loser_id);
