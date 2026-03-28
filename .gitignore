@@ -29,9 +29,15 @@ build/
 
 # Environment variables
 .env
+.env.local
+.enc.*local
 
 # Mac Metadata
 .DS_Store
+
+# Frontend
+node_modules/
+dist/
 
 # Web terminal deployment
 deploy.sh
