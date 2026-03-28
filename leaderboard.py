@@ -4,13 +4,9 @@ from rich.table import Table
 
 from services.ranking_service import rank_books
 from services.scoring_service import (
-    absolute_score,
     calculate_progress,
     confidence_score,
-    get_k,
-    local_score,
-    sampling_weight,
-    stability_score,
+    score_breakdown,
 )
 from ui import (
     ACCENT,
@@ -89,28 +85,34 @@ def _add_columns(table, verbose):
 
 def _add_rows(table, ranked_books, start, end, books, verbose):
     for rank, b in ranked_books[start:end]:
-        con_score = confidence_score(b, books)
-        confidence = _confidence_label(con_score)
-
         if verbose:
-            table.add_row(
-                str(rank),
-                b.title,
-                b.author,
-                f"{con_score:.2f}",
-                str(b.elo),
-                str(get_k(b, books)),
-                f"{absolute_score(b, books):.2f}",
-                f"{local_score(b, books):.2f}",
-                f"{stability_score(b, books):.2f}",
-                f"{sampling_weight(b, books):.2f}",
-            )
+            _verbose_row(table, b, rank, books)
         else:
+            con_score = confidence_score(b, books)
+            confidence = _confidence_label(con_score)
+
             table.add_row(str(rank), b.title, b.author, confidence)
 
 
 def _confidence_label(confidence):
     return next(label for tier, label in ACCURACY_LABELS if confidence <= tier)
+
+
+def _verbose_row(table, b, rank, books):
+    score_detailed = score_breakdown(b, books)
+
+    table.add_row(
+        str(rank),
+        b.title,
+        b.author,
+        f"{score_detailed['confidence']:.2f}",
+        str(b.elo),
+        str(score_detailed["k"]),
+        f"{score_detailed['absolute']:.2f}",
+        f"{score_detailed['local']:.2f}",
+        f"{score_detailed['stability']:.2f}",
+        f"{score_detailed['sampling_weight']:.2f}",
+    )
 
 
 def _table_menu(batch_end, book_count):

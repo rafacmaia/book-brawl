@@ -35,19 +35,19 @@ def confidence_score(book, books):
         return 1
 
     # Absolute score boosts the first batch of matches to speed overall placement.
-    abs_score_weighted = absolute_score(book, books) * ABS_SCORE_WEIGHT
+    abs_score_weighted = _absolute_score(book, books) * ABS_SCORE_WEIGHT
 
     # Local score boosts matches against books with similar Elo to refine placement.
-    loc_score_weighted = local_score(book, books) * LOC_SCORE_WEIGHT
+    loc_score_weighted = _local_score(book, books) * LOC_SCORE_WEIGHT
 
     # Density score boosts books with few neighbors with similar Elo, meaning
     # more stability. High density indicates a high chance of ranks shifting.
-    den_score_weighted = stability_score(book, books) * DEN_SCORE_WEIGHT
+    den_score_weighted = _stability_score(book, books) * DEN_SCORE_WEIGHT
 
     return abs_score_weighted + loc_score_weighted + den_score_weighted
 
 
-def absolute_score(book, books):
+def _absolute_score(book, books):
     """Calculates a book's absolute score.
 
     Measures if a book has faced a minimum number of opponents, scaling with
@@ -62,7 +62,7 @@ def absolute_score(book, books):
     return min(len(book.opponents) / absolute_cap, 1)
 
 
-def local_score(book, books):
+def _local_score(book, books):
     """Calculates a book's local score.
 
     Measures how many opponents a book has faced that are similar to the book's Elo.
@@ -80,7 +80,7 @@ def local_score(book, books):
     return relevant_opp_faced / relevant_opponents if relevant_opponents else 1
 
 
-def stability_score(book, books):
+def _stability_score(book, books):
     """Calculates a book's stability score.
 
     Measures how many books have a close Elo to the book. High score density implies a
@@ -101,6 +101,36 @@ def stability_score(book, books):
     return 1 - density
 
 
+def score_breakdown(book, books):
+    """Return a dictionary of detailed calculations pertaining to a given book.
+
+    Calculate absolute, local, and density scores and use those to derive, inline
+    for efficiency, confidence score, K value, and sampling weight.
+    """
+    abs_score = _absolute_score(book, books)
+    loc_score = _local_score(book, books)
+    sta_score = _stability_score(book, books)
+    con_score = (
+        abs_score * ABS_SCORE_WEIGHT
+        + loc_score * LOC_SCORE_WEIGHT
+        + sta_score * DEN_SCORE_WEIGHT
+    )
+
+    k_value = next(k for threshold, k in K_TIERS if con_score <= threshold)
+
+    early_boost = (len(books) * 0.1) * (1 - abs_score)
+    selection_weight = max(0.1, 1 - con_score, early_boost)
+
+    return {
+        "k": k_value,
+        "confidence": con_score,
+        "absolute": abs_score,
+        "local": loc_score,
+        "stability": sta_score,
+        "sampling_weight": selection_weight,
+    }
+
+
 # ====== ELO CALCULATION
 
 
@@ -119,7 +149,7 @@ def _expected_score(elo_a, elo_b):
     return 1 / (1 + 10 ** ((elo_b - elo_a) / 400))
 
 
-def get_k(book, books):
+def _get_k(book, books):
     """Calculates and returns k value.
 
     Calculation is based on the percentage of unique opponents, i.e., confidence level.
