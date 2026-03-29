@@ -25,15 +25,15 @@ favorite book of all time is. Those days are over!
 <summary><b>&nbsp;Screenshots of latest version</b></summary>
 
 <h3>First Run:</h3>
-<img src="screenshots/onboarding-csv-1.png" alt="Main Menu">
+<img src="screenshots/onboarding-csv-1.png" alt="First run with CSV import">
 
 <h3>Main Menu:</h3>
 <img src="screenshots/main-menu-1.png" alt="Main Menu">
 
 <h3>Brawl Pit:</h3>
-<img src="screenshots/brawl-pit-1.png" alt="Game Arena Start">
-<img src="screenshots/brawl-pit-2.png" alt="Game Arena ongoing comparisons">
-<img src="screenshots/brawl-pit-3.png" alt="Game Arena ongoing comparisons">
+<img src="screenshots/brawl-pit-1.png" alt="Brawl Pit Start">
+<img src="screenshots/brawl-pit-2.png" alt="Brawl Pit ongoing comparisons">
+<img src="screenshots/brawl-pit-3.png" alt="Brawl Pit ongoing comparisons">
 
 <h3>View Leaderboard:</h3>
 <img src="screenshots/rankings-1.png" alt="Rankings display 1">
