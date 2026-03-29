@@ -3,6 +3,7 @@
 ![Status](https://img.shields.io/badge/status-in--development-yellow)
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-003B57?logo=sqlite&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
 ![Last commit](https://img.shields.io/github/last-commit/rafacmaia/book-brawl)
 
 You've read dozens (hundreds?) of books and vaguely know you like some better than
@@ -23,20 +24,23 @@ favorite book of all time is. Those days are over!
 <details>
 <summary><b>&nbsp;Screenshots of latest version</b></summary>
 
+<h3>First Run:</h3>
+<img src="screenshots/onboarding-csv-1.png" alt="Main Menu">
+
 <h3>Main Menu:</h3>
 <img src="screenshots/main-menu-1.png" alt="Main Menu">
 
 <h3>Brawl Pit:</h3>
-<img src="screenshots/game-arena-1.png" alt="Game Arena Start">
-<img src="screenshots/game-arena-2.png" alt="Game Arena ongoing comparisons">
-<img src="screenshots/game-arena-3.png" alt="Game Arena ongoing comparisons">
+<img src="screenshots/brawl-pit-1.png" alt="Game Arena Start">
+<img src="screenshots/brawl-pit-2.png" alt="Game Arena ongoing comparisons">
+<img src="screenshots/brawl-pit-3.png" alt="Game Arena ongoing comparisons">
 
 <h3>View Leaderboard:</h3>
 <img src="screenshots/rankings-1.png" alt="Rankings display 1">
 <img src="screenshots/rankings-2.png" alt="Rankings display 2">
 
 <h3>Export Rankings:</h3>
-<img src="screenshots/export-rankings-1.png" alt="Export Rankings">
+<img src="screenshots/export-rankings.png" alt="Export Rankings">
 
 
 </details>
@@ -54,7 +58,7 @@ favorite book of all time is. Those days are over!
   of rankings
 - Persistent rankings via SQLite to build accurate data over time
 - Accuracy and matchmaking algorithms are optimized to avoid full pairwise comparisons,
-  allowing the system to scale efficiently to libraries of 2500+ books.
+  allowing the system to scale efficiently to libraries of 2000+ books.
 - Tied rankings are broken by head-to-head wins, then by initial rating, with a visual
   indicator (`~`) for unresolvable ties.
 - Export the leaderboard to CSV
@@ -63,8 +67,9 @@ _See the [How it Works](#-how-it-works) section below for more details._
 
 ## 📋 Requirements
 
-- Python 3.x
-- [Rich](https://github.com/Textualize/rich) — terminal formatting
+- Python 3.12
+- Dependencies listed in [`requirements.txt`](requirements.txt) (FastAPI, SQLite, Rich,
+  PyJWT, and more)
 
 ## ⚙️ Setup
 
@@ -73,31 +78,22 @@ _See the [How it Works](#-how-it-works) section below for more details._
    git clone https://github.com/rafacmaia/book-brawl.git
    cd book-brawl
    ```
-
-
 2. Create a virtual environment and activate it:
    ```bash
    python -m venv .venv
    ```
-
 3. Activate the virtual environment:
    ```bash
    source .venv/bin/activate
    ```
-
 4. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-
-
 5. Run the app:
    ```bash
    python main.py
    ```
-   In the first run, you'll be prompted to import your book log from a CSV file.
-
-
 6. (Optional) Run in test mode to experiment on a separate database:
    ```bash
    python main.py --test
@@ -183,7 +179,7 @@ and accelerate ranking convergence.
 
 Pair selection prioritizes:
 
-- Books with very few matches (to quickly obtain some baseline data on every book)
+- Books with very few matches (to quickly get some baseline data on every book)
 - Rare or unmatched pairings
 - Matchups between books with similar Elo score (where outcomes are most informative)
 - Books with lower accuracy (to maximize overall ranking accuracy/progress)
@@ -206,22 +202,69 @@ mathematically robust, way to reflect on their books.
 
 ## 🗂️ Project Structure
 
-| File                                | Description                          |
-|-------------------------------------|--------------------------------------|
-| [`main.py`](main.py)                | Entry point and main menu            |
-| [`game.py`](game.py)                | Game loop and matchmaking logic      |
-| [`scoring.py`](scoring.py)          | Elo and accuracy level calculations  |
-| [`leaderboard.py`](leaderboard.py)  | Rankings display and table rendering |
-| [`models.py`](models.py)            | Book class                           |
-| [`connection.py`](db/connection.py) | Database setup and queries           |
-| [`csv_handler.py`](csv_handler.py)  | CSV import and export handling       |
-| [`utils.py`](utils.py)              | Styling utilities                    |
-| [`constants.py`](ui.py)             | UI strings and layout values         |
-| [`state.py`](state.py)              | Global state management              |
+The backend follows a classic layered architecture: the **API layer** handles HTTP and
+request validation, the **service layer** holds all business logic, and the **database
+layer** handles every SQL query.
+
+This keeps each layer independently testable and replaceable (a migration to PostgreSQL,
+for instance, would only require touching the database layer).
+
+**Shared Files**
+
+| File                     | Description                                 |
+|--------------------------|---------------------------------------------|
+| [`models.py`](models.py) | `Book` data class, shared across all layers |
+| [`state.py`](state.py)   | In-memory book cache and global state       |
+| [`config.py`](config.py) | Environment variable loading                |
+
+**API & Auth**
+
+| File                 | Description                                           |
+|----------------------|-------------------------------------------------------|
+| [`api.py`](api.py)   | FastAPI endpoints: HTTP layer only, no business logic |
+| [`auth.py`](auth.py) | Clerk JWT verification via PyJWT + JWKS               |
+
+**Services**
+
+| File                                                         | Description                                              |
+|--------------------------------------------------------------|----------------------------------------------------------|
+| [`services/game_service.py`](services/game_service.py)       | Matchmaking and match resolution                         |
+| [`services/scoring_service.py`](services/scoring_service.py) | Elo calculation, confidence scoring, matchmaking weights |
+| [`services/ranking_service.py`](services/ranking_service.py) | Book ranking and tiebreaking logic                       |
+| [`services/library_service.py`](services/library_service.py) | CSV import and book validation                           |
+
+**Database**
+
+| File                                               | Description                                     |
+|----------------------------------------------------|-------------------------------------------------|
+| [`db/connection.py`](db/connection.py)             | Connection management and schema initialization |
+| [`db/books_repo.py`](db/books_repo.py)             | Book queries                                    |
+| [`db/comparisons_repo.py`](db/comparisons_repo.py) | Match history queries                           |
+| [`db/users_repo.py`](db/users_repo.py)             | User queries                                    |
+| [`db/schema.sql`](db/schema.sql)                   | Canonical schema reference                      |
+| [`db/migrate.py`](db/migrate.py)                   | Migration script                                |
+
+**CLI (Legacy)**
+
+The original terminal interface, still fully functional. Being retired as the web UI
+rolls out.
+
+| File                                             | Description                               |
+|--------------------------------------------------|-------------------------------------------|
+| [`main.py`](main.py)                             | Entry point and main menu                 |
+| [`game.py`](game.py)                             | Brawl Pit game loop                       |
+| [`leaderboard.py`](leaderboard.py)               | Rankings display and table rendering      |
+| [`library_management.py`](library_management.py) | Book entry and import flows               |
+| [`csv_handler.py`](csv_handler.py)               | CSV import and export                     |
+| [`ui.py`](ui.py)                                 | UI strings, layout constants, and styling |
+| [`utils.py`](utils.py)                           | Shared formatting and input utilities     |
 
 ## 🗺️ Roadmap
 
+- [x] REST API (FastAPI) with Clerk authentication
+- [ ] Web UI — React frontend, in progress
+- [ ] Per-user data isolation (multi-user support)
+- [ ] PostgreSQL migration
 - [ ] Support for removing individual books
-- [ ] Web UI, full browser-based interface
 - [ ] Filter rankings by genre, author, or year read (e.g., "2021" or "Fantasy")
   

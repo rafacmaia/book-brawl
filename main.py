@@ -44,6 +44,8 @@ def startup():
     state.books = get_all()
 
     os.system("cls" if os.name == "nt" else "clear")
+    print("\033]1;Book Brawl\007", end="", flush=True)
+
     print("\n" + TITLE)
 
     # Warn if running in test mode (i.e., running on a test database)

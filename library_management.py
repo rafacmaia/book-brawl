@@ -90,8 +90,7 @@ def add_books(books):
             )
 
             if filepath == "b":
-                print(f"\n {rule(LINE_WIDTH - 1, DIVIDER)}")
-                continue
+                return
 
             print(f"\n {style('Processing file...', SECONDARY)}")
             new_books, interrupted = import_from_csv(filepath, books)
