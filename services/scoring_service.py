@@ -105,7 +105,9 @@ def _stability_score(book, books):
     lower_proximity = max(0, 1 - (book.elo - Book.elo_min) / DENSITY_WINDOW)
     edge_factor = 1 + max(upper_proximity, lower_proximity)
 
-    density = min((tight_neighbors * edge_factor) / 10, 1)
+    max_neighbors = min(10, len(books) - 1)
+
+    density = min((tight_neighbors * edge_factor) / max_neighbors, 1)
 
     return 1 - density
 

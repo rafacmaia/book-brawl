@@ -31,7 +31,9 @@ def rank_books(books):
 def _tiebreak(tied_group, rank):
     """Sort a tied group by head-to-head wins, then initial user rating"""
     tiebreak_scores = {b.id: _head_to_head_score(b, tied_group) for b in tied_group}
-    tied_group.sort(key=lambda b: (tiebreak_scores[b.id], b.rating), reverse=True)
+    tied_group.sort(
+        key=lambda b: (tiebreak_scores[b.id], b.rating if b.rating else 0), reverse=True
+    )
 
     ranked = []
     current_rank = rank

@@ -1,5 +1,6 @@
 import random
 
+from db.books_repo import update_elo as save_elo
 from db.comparisons_repo import insert as insert_comparison
 from services.scoring_service import calculate_elo, opponent_weights, sampling_weight
 
@@ -38,9 +39,10 @@ def resolve_comparison(book_a, book_b, books, selection=1):
     insert_comparison(winner.id, loser.id)
 
     winner.update_elo(new_winner_elo)
-    loser.update_elo(new_loser_elo)
-
     winner.record_opponent(loser.id)
-    loser.record_opponent(winner.id)
-
     winner.record_won_over(loser.id)
+    save_elo(winner)
+
+    loser.update_elo(new_loser_elo)
+    loser.record_opponent(winner.id)
+    save_elo(loser)

@@ -36,6 +36,8 @@ def get_all():
             book_map[l_id].record_opponent(w_id)
             book_map[w_id].record_won_over(l_id)
 
+    Book.is_empty = len(books) == 0
+
     return books
 
 
@@ -53,3 +55,13 @@ def update_elo(book):
     """Update the Elo score for a book."""
     with get_connection() as conn:
         conn.execute("UPDATE book SET elo = ? WHERE id = ?", (book.elo, book.id))
+
+
+def get_elo_range():
+    """Return min, max, and median Elo across all books."""
+    with get_connection() as conn:
+        result = conn.execute(
+            "SELECT MIN(elo) as elo_min, MAX(elo) as elo_max FROM book"
+        ).fetchone()
+
+        return dict(result) if result and result["elo_min"] is not None else None

@@ -4,6 +4,7 @@ from config import BOOK_LIMIT
 from csv_handler import csv_reader, export_to_csv, import_from_csv
 from db.books_repo import insert
 from models import Book
+from services.library_service import rating_to_elo
 from ui import (
     CSV_INSTRUCTIONS,
     DIVIDER,
@@ -149,7 +150,8 @@ def _manual_entry(books):
 
             break
 
-        book = Book(title, author, rating)
+        elo = rating_to_elo(rating, first_run=len(books) == 0)
+        book = Book(title, author, rating, elo)
 
         print(style("\n Adding:", SECONDARY), format_book(book, LINE_WIDTH - 9))
         if rating is not None:
