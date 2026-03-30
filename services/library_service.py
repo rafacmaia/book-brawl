@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from config import BOOK_LIMIT, DEFAULT_RATING
+from config import BOOK_LIMIT
 from db.books_repo import insert
 from models import Book
 
@@ -49,15 +49,18 @@ def _process_row(row, i, existing_books, result):
         )
         return
 
-    try:
-        rating = float(raw_rating) if raw_rating else DEFAULT_RATING
-        if not 0 <= rating <= 10:
-            raise ValueError
-    except ValueError:
-        result.errors.append(
-            f"Skipped row {i}: '{title}' by '{author}' – invalid rating: '{raw_rating}'"
-        )
-        return
+    if not raw_rating:
+        rating = None
+    else:
+        try:
+            rating = float(raw_rating)
+            if not (1 <= rating <= 10):
+                raise ValueError
+        except ValueError:
+            result.errors.append(
+                f"Skipped row {i}: '{title}' by '{author}' – invalid rating: '{raw_rating}'"
+            )
+            return
 
     if (title.lower(), author.lower()) in existing_books:
         result.skipped += 1

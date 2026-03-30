@@ -1,6 +1,6 @@
 import os
 
-from config import BOOK_LIMIT, DEFAULT_RATING
+from config import BOOK_LIMIT
 from csv_handler import csv_reader, export_to_csv, import_from_csv
 from db.books_repo import insert
 from models import Book
@@ -134,23 +134,25 @@ def _manual_entry(books):
         while True:
             raw_rating = input(style(" Rating (1-10, ↵ to skip): ", SECONDARY)).strip()
 
-            try:
-                if raw_rating:
-                    rating = float(raw_rating)
-                    if not 1 <= rating <= 10:
+            if raw_rating:
+                try:
+                    value = float(raw_rating)
+                    if not (1 <= value <= 10):
                         raise ValueError()
-            except ValueError:
-                error_message = "Nope, rating must be between 1 and 10 (decimals allowed), or blank."
-                print(f"{PROMPT}{error_message}")
-                continue
+                    rating = value
+                except ValueError:
+                    print(
+                        f"{PROMPT}Nope, rating must be between 1 and 10 "
+                        f"(decimals allowed), or left blank."
+                    )
+                    continue
 
             break
 
-        rating = rating if raw_rating else DEFAULT_RATING
         book = Book(title, author, rating)
 
         print(style("\n Adding:", SECONDARY), format_book(book, LINE_WIDTH - 9))
-        if raw_rating:
+        if rating is not None:
             print(f" {style('Rating:', SECONDARY)} {rating}")
 
         print()
