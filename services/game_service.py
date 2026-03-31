@@ -2,7 +2,12 @@ import random
 
 from db.books_repo import update_elo as save_elo
 from db.comparisons_repo import insert as insert_comparison
-from services.scoring_service import calculate_elo, opponent_weights, sampling_weight
+from services.scoring_service import (
+    calculate_elo,
+    confidence_score,
+    opponent_weights,
+    sampling_weight,
+)
 
 
 def select_opponents(books):
@@ -13,12 +18,14 @@ def select_opponents(books):
     scores, to maximize information gained from each match.
     """
     # Calculate weights based on confidence level.
-    weights = [sampling_weight(book, books) for book in books]
+    confidence_scores = {b.id: confidence_score(b, books) for b in books}
+
+    weights = [sampling_weight(b, confidence_scores[b.id], books) for b in books]
 
     book_a = random.choices(books, weights=weights, k=1)[0]
 
     # Calculate weights for book_b candidates based on the selected book_a
-    candidates = opponent_weights(book_a, books)
+    candidates = opponent_weights(book_a, confidence_scores, books)
     candidate_books = [b for b, w in candidates]
     candidate_weights = [w for b, w in candidates]
 
