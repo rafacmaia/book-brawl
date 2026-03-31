@@ -19,7 +19,7 @@ PRIMARY = "bold green"
 SECONDARY = "bold yellow"
 ACCENT = "blue"
 ERROR = "bold red"
-DIVIDER = "cyan"
+DIVIDER = "bold cyan"
 REDO = "bold magenta"
 
 
