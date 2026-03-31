@@ -43,3 +43,18 @@ def init_db(path):
                 timestamp  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
             )
         """)
+
+        # Create indexes for faster lookups on foreign keys and commonly queried fields
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_comparison_winner ON comparison(winner_id)"
+        )
+
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_comparison_loser ON comparison(loser_id)"
+        )
+
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_book_user ON book(user_id)")
+
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_comparison_user ON comparison(user_id)"
+        )
