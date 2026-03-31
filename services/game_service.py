@@ -27,13 +27,11 @@ def select_opponents(books):
     return book_a, book_b
 
 
-def resolve_comparison(book_a, book_b, books, selection=1):
+def resolve_comparison(winner, loser, books):
     """Update book records after a match is resolved.
 
     Update Elo scores, persist match, and update book opponents and wins.
     """
-    winner = book_a if selection == "1" else book_b
-    loser = book_b if selection == "1" else book_a
 
     new_winner_elo, new_loser_elo = calculate_elo(winner, loser, books)
     insert_comparison(winner.id, loser.id)

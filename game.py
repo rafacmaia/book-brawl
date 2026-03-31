@@ -57,8 +57,7 @@ def run_game(books):
             previous = _rematch(previous)
             continue
 
-        if previous:
-            resolve_comparison(previous.a, previous.b, previous.choice, books)
+        _resolve_pending_match(previous_match, books)
 
         if choice in ["q", "b"]:
             return choice
@@ -103,6 +102,18 @@ def _print_match(match_count, book_a, book_b, redo=False):
     divider = match_divider if not redo else redo_divider
 
     print("\n" + divider + "\n" + match)
+
+
+def _resolve_pending_match(match, books):
+    if match is None:
+        return
+
+    if match.choice == "1":
+        winner, loser = match.a, match.b
+    else:
+        winner, loser = match.b, match.a
+
+    resolve_comparison(winner, loser, books)
 
 
 def _rematch(previous):
