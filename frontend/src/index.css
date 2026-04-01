@@ -4,9 +4,12 @@
 
 @theme {
     --color-primary: oklch(0.905 0.182 98.111);
-    --color-button: oklch(0.905 0.182 98.111);
+    /*--color-primary: oklch(0.849 0.158 97.399);*/
+    --color-button: oklch(0.849 0.158 97.399);
     --color-background: var(--color-sky-800);
     --color-accent: #ff4e30;
+    --color-green: oklch(0.766 0.118 145.295);
+    --color-footer: var(--color-primary);
 
     --font-gaegu: 'Gaegu', sans-serif;
     --font-zain: 'Zain', sans-serif;
@@ -20,19 +23,18 @@
 
 
 * {
+    @apply box-border
     /*border: red 1px solid;*/
-    box-sizing: border-box;
-    margin: 0;
 }
 
 html {
-    @apply h-full
+    @apply h-full p-0 m-0
 }
 
 body {
-    @apply h-full bg-background;
+    @apply h-full bg-background p-0 m-0 ;
 }
 
 #root {
-    @apply h-screen overflow-hidden;
+    @apply h-screen overflow-hidden p-0 m-0 ;
 }
