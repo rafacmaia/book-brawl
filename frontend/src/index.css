@@ -1,12 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Calistoga&family=Gaegu&family=Quicksand:wght@300..700&family=Zain:ital,wght@0,200;0,300;0,400;0,700;0,800;0,900;1,300;1,400&display=swap');
+@import "tailwindcss";
+
+
+@theme {
+    --color-primary: oklch(0.905 0.182 98.111);
+    --color-button: oklch(0.905 0.182 98.111);
+    --color-background: var(--color-sky-800);
+    --color-accent: #ff4e30;
+
+    --font-gaegu: 'Gaegu', sans-serif;
+    --font-zain: 'Zain', sans-serif;
+    --font-calistoga: 'Calistoga', serif;
+}
+
 :root {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
 
 * {
     /*border: red 1px solid;*/

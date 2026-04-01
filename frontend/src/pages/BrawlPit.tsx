@@ -13,6 +13,34 @@ interface Match {
   book_b: Book
 }
 
+function BookButton({ book, onClick }: { book: Book; onClick: () => void }) {
+  return (
+    <button
+      className={
+        'flex h-36 min-h-28 w-80 cursor-pointer flex-col items-center justify-center gap-2 rounded-md border-3 border-accent bg-button p-6 px-6 py-4 font-calistoga text-slate-800 shadow-md transition-all duration-200 hover:-translate-y-1 hover:border-primary hover:bg-background hover:text-primary hover:shadow-lg hover:brightness-120'
+      }
+      onClick={onClick}
+    >
+      <p className={'line-clamp-2 text-xl font-bold wrap-break-word'}>
+        {book.title}
+      </p>
+      <p className={'line-clamp-2 font-gaegu text-xl wrap-break-word'}>
+        by <span>{book.author}</span>
+      </p>
+    </button>
+  )
+}
+
+function Placeholder({ message }: { message: string }) {
+  return (
+    <div className={'flex grow items-center justify-center'}>
+      <h1 className={'font-gaegu text-4xl font-medium text-primary'}>
+        {message}
+      </h1>
+    </div>
+  )
+}
+
 export default function BrawlPit() {
   const { getToken } = useAuth()
 
@@ -47,31 +75,34 @@ export default function BrawlPit() {
         method: 'POST',
         body: JSON.stringify({ winner_id: winnerId, loser_id: loserId }),
       })
-      fetchMatch()
+      await fetchMatch()
     } catch (error) {
       setError('Failed to submit choice. Please try again.')
     }
   }
 
-  if (loading) return <h1>Loading...</h1>
-  if (error) return <h1>{error}</h1>
+  if (loading) return <Placeholder message={'Loading...'} />
+  if (error) return <Placeholder message={error} />
   if (!match) return null
 
   return (
-    <main>
-      <h1>Which means more to you?</h1>
-      <div>
-        <br />
-        <button onClick={() => handleChoice(match.book_a.id, match.book_b.id)}>
-          <p>{match.book_a.title}</p>
-          <p>{match.book_a.author}</p>
-        </button>
-        <br />
-        <br />
-        <button onClick={() => handleChoice(match.book_b.id, match.book_a.id)}>
-          <p>{match.book_b.title}</p>
-          <p>{match.book_b.author}</p>
-        </button>
+    <main className="flex grow flex-col items-center justify-center gap-16">
+      <h1
+        className={
+          'font-zain text-6xl font-extrabold tracking-wide text-primary underline decoration-accent/60 decoration-wavy decoration-4 underline-offset-9 drop-shadow-md'
+        }
+      >
+        Which means more to you?
+      </h1>
+      <div className="flex items-center gap-20">
+        <BookButton
+          book={match.book_a}
+          onClick={() => handleChoice(match.book_a.id, match.book_b.id)}
+        />
+        <BookButton
+          book={match.book_b}
+          onClick={() => handleChoice(match.book_b.id, match.book_a.id)}
+        />
       </div>
     </main>
   )

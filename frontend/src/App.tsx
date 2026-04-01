@@ -20,6 +20,16 @@ export default function App() {
                 <Route path={'/brawl'} element={<BrawlPit />} />
                 <Route path={'/leaderboard'} element={<Leaderboard />} />
               </Routes>
+              <div className={'flex min-h-screen flex-col'}>
+                <Routes>
+                  <Route
+                    path={'/'}
+                    element={<Navigate to="/brawl" replace />}
+                  />
+                  <Route path={'/brawl'} element={<BrawlPit />} />
+                  <Route path={'/leaderboard'} element={<Leaderboard />} />
+                </Routes>
+              </div>
             </Show>
           </>
         }
