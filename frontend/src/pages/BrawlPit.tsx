@@ -14,18 +14,23 @@ interface Match {
 }
 
 function BookButton({ book, onClick }: { book: Book; onClick: () => void }) {
+  const long_title = book.title.length >= 48
+  const long_author = book.author.length > 28
+  const various = book.author.trim().toLowerCase() === 'various'
   return (
     <button
-      className={
-        'flex h-36 min-h-28 w-80 cursor-pointer flex-col items-center justify-center gap-2 rounded-md border-3 border-accent bg-button p-6 px-6 py-4 font-calistoga text-slate-800 shadow-md transition-all duration-200 hover:-translate-y-1 hover:border-primary hover:bg-background hover:text-primary hover:shadow-lg hover:brightness-120'
-      }
+      className={`flex h-44 min-h-28 w-82 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-md border-3 border-accent bg-button font-calistoga wrap-break-word text-slate-800 shadow-md transition-all duration-200 hover:-translate-y-1 hover:border-primary hover:bg-background hover:text-primary hover:shadow-lg hover:brightness-120 ${long_title || long_author ? 'gap-2 px-4 py-2' : 'gap-4 px-6 py-4'}`}
       onClick={onClick}
     >
-      <p className={'line-clamp-2 text-xl font-bold wrap-break-word'}>
+      <p
+        className={`w-ful line-clamp-3 font-medium ${long_title && long_author ? 'text-[22px]' : long_title ? 'text-[22px]' : 'text-2xl'}`}
+      >
         {book.title}
       </p>
-      <p className={'line-clamp-2 font-gaegu text-xl wrap-break-word'}>
-        by <span>{book.author}</span>
+      <p
+        className={`line-clamp-2 w-full font-zain font-light ${long_title && long_author ? 'text-[-15px]' : long_author ? 'text-[17px]' : 'text-lg'}`}
+      >
+        by <span className={various ? 'italic' : ''}>{book.author}</span>
       </p>
     </button>
   )
@@ -86,10 +91,10 @@ export default function BrawlPit() {
   if (!match) return null
 
   return (
-    <main className="flex grow flex-col items-center justify-center gap-16">
+    <main className="flex grow flex-col items-center justify-center gap-20">
       <h1
         className={
-          'font-zain text-6xl font-extrabold tracking-wide text-primary underline decoration-accent/60 decoration-wavy decoration-4 underline-offset-9 drop-shadow-md'
+          'font-calistoga text-6xl font-extrabold tracking-wide text-primary underline decoration-accent/60 decoration-wavy decoration-4 underline-offset-9 drop-shadow-md'
         }
       >
         Which means more to you?
