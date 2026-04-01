@@ -2,7 +2,7 @@ import { RedirectToSignIn, Show } from '@clerk/react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import BrawlPit from './pages/BrawlPit.tsx'
 import Leaderboard from './pages/Leaderboard.tsx'
-import './App.css'
+import Footer from './components/Footer.tsx'
 
 export default function App() {
   return (
@@ -15,11 +15,6 @@ export default function App() {
               <RedirectToSignIn />
             </Show>
             <Show when={'signed-in'}>
-              <Routes>
-                <Route path={'/'} element={<Navigate to="/brawl" replace />} />
-                <Route path={'/brawl'} element={<BrawlPit />} />
-                <Route path={'/leaderboard'} element={<Leaderboard />} />
-              </Routes>
               <div className={'flex min-h-screen flex-col'}>
                 <Routes>
                   <Route
@@ -29,6 +24,7 @@ export default function App() {
                   <Route path={'/brawl'} element={<BrawlPit />} />
                   <Route path={'/leaderboard'} element={<Leaderboard />} />
                 </Routes>
+                <Footer />
               </div>
             </Show>
           </>
