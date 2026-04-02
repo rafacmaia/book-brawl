@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 import state
 from auth import get_current_user
+from config import ACCURACY_TIERS
 from db import books_repo, users_repo
 from db.connection import init_db
 from models import Book
@@ -104,16 +105,28 @@ def get_progress(_user_id: str = Depends(get_current_user)):
 
 @app.get("/leaderboard")
 def get_leaderboard(_user_id: str = Depends(get_current_user)):
-    ranked_books = rank_books(state.books)
-    return [
-        {
-            "rank": rank,
-            "title": book.title,
-            "author": book.author,
-            "accuracy": round(confidence_score(book, state.books), 4),
-        }
-        for rank, book in ranked_books
-    ]
+    ranked_books = []
+
+    for rank, book in rank_books(state.books):
+        accuracy_score = confidence_score(book, state.books)
+
+        accuracy_tier = len(ACCURACY_TIERS)
+        for index, threshold in enumerate(ACCURACY_TIERS, start=1):
+            if accuracy_score < threshold:
+                accuracy_tier = index
+                break
+
+        ranked_books.append(
+            {
+                "rank": rank,
+                "title": book.title,
+                "author": book.author,
+                "accuracy": round(accuracy_score, 4),
+                "accuracy_tier": accuracy_tier,
+            }
+        )
+
+    return ranked_books
 
 
 # ====== BOOK INSERTIONS
