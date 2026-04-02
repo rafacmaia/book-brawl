@@ -37,8 +37,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "https://web-production-15b98.up.railway.app/",
-        "https://book-brawl.vercel.app/",
+        "https://web-production-15b98.up.railway.app",
+        "https://book-brawl.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
