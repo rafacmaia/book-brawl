@@ -27,44 +27,43 @@ def run_game(books):
     print(header("BRAWL PIT", new_line=True))
 
     if len(books) <= 1:
-        print(
-            f" {style('Not enough books in the pit.', ERROR)}"
-            f" Add some more and try again."
-        )
-        press_enter()
+        _print_empty_warning()
         return None
 
     _print_instructions(len(books))
 
     match_count = 1
     book_a, book_b = select_opponents(books)
-    previous = None
+    previous_match = None
     opponents_selected = True
+
     while True:
         if not opponents_selected:
             match_count += 1
             book_a, book_b = select_opponents(books)
 
         _print_match(match_count, book_a, book_b)
-        choice = prompt(options=PIT_OPTIONS)
-
-        while choice == "u" and previous is None:
-            print(f"{PROMPT}No previous match to undo.")
-            choice = prompt(options=PIT_OPTIONS)
+        choice = _prompt_choice(first_match=(previous_match is None))
 
         if choice == "u":
             opponents_selected = True  # Makes sure the interrupted match gets reprinted
-            previous = _rematch(previous)
+            previous_match = _rematch(previous_match)
             continue
 
-        if previous:
-            resolve_comparison(previous.a, previous.b, previous.choice, books)
+        _resolve_pending_match(previous_match, books)
 
         if choice in ["q", "b"]:
             return choice
 
-        previous = PendingMatch(match_count, book_a, book_b, choice)
+        previous_match = PendingMatch(match_count, book_a, book_b, choice)
         opponents_selected = False
+
+
+def _print_empty_warning():
+    print(
+        f" {style('Not enough books in the pit.', ERROR)} Add some more and try again."
+    )
+    press_enter()
 
 
 def _print_instructions(book_count):
@@ -77,6 +76,15 @@ def _print_instructions(book_count):
 
     print(instructions, end="")
     input()
+
+
+def _prompt_choice(first_match):
+    choice = prompt(options=PIT_OPTIONS)
+    while choice == "u" and first_match:
+        print(f"{PROMPT}No previous match to undo.")
+        choice = prompt(options=PIT_OPTIONS)
+
+    return choice
 
 
 def _print_match(match_count, book_a, book_b, redo=False):
@@ -103,6 +111,18 @@ def _print_match(match_count, book_a, book_b, redo=False):
     divider = match_divider if not redo else redo_divider
 
     print("\n" + divider + "\n" + match)
+
+
+def _resolve_pending_match(match, books):
+    if match is None:
+        return
+
+    if match.choice == "1":
+        winner, loser = match.a, match.b
+    else:
+        winner, loser = match.b, match.a
+
+    resolve_comparison(winner, loser, books)
 
 
 def _rematch(previous):

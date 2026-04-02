@@ -173,10 +173,10 @@ def _get_k(book, books):
     return next(k for threshold, k in K_TIERS if confidence <= threshold)
 
 
-# --- SELECTION WEIGHT SCORING ---
+# ====== SELECTION WEIGHT SCORING
 
 
-def sampling_weight(book, books):
+def sampling_weight(book, b_confidence, books):
     """Calculate selection weight based on confidence level and absolute_score.
 
     Ensures a minimum weight of 0.1. Absolute_score is used to highly prioritize newer
@@ -189,12 +189,12 @@ def sampling_weight(book, books):
     # require higher boosts to make a difference, and lower absolute_score
     # requires a higher boost to get early data in.
     early_boost = (len(books) * ABS_MIN_PERCENTAGE) * (1 - _absolute_score(book, books))
-    confidence_weight = 1 - confidence_score(book, books)
+    confidence_weight = 1 - b_confidence
 
     return max(0.1, confidence_weight, early_boost)
 
 
-def opponent_weights(book_a, books):
+def opponent_weights(book_a, con_scores, books):
     """Adjust weights for book_b selection based on the selected book_a.
 
     Prioritize rarer pairings and books with similar Elo scores.
@@ -209,7 +209,7 @@ def opponent_weights(book_a, books):
             elo_gap_penalty = 1 + abs(book_a.elo - b.elo) / 150
 
             # Calculate the base weight based on confidence level
-            w = max(0.1, 1 - confidence_score(b, books))
+            w = max(0.1, 1 - con_scores[b.id])
             adjusted_weight = max(0.1, w / rematch_penalty / elo_gap_penalty)
 
             candidates.append((b, adjusted_weight))

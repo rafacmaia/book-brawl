@@ -29,9 +29,19 @@ build/
 
 # Environment variables
 .env
+.env.local
+.enc.*local
 
 # Mac Metadata
 .DS_Store
+
+# Frontend
+node_modules/
+dist/
+
+# Claude Code
+CLAUDE.md
+.claude/
 
 # Web terminal deployment
 deploy.sh

@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Calistoga&family=Gaegu&family=Quicksand:wght@300..700&family=Zain:ital,wght@0,200;0,300;0,400;0,700;0,800;0,900;1,300;1,400&display=swap');
+@import "tailwindcss";
+
+
+@theme {
+    --color-primary: oklch(0.905 0.182 98.111);
+    /*--color-primary: oklch(0.849 0.158 97.399);*/
+    --color-button: oklch(0.849 0.158 97.399);
+    --color-background: var(--color-sky-800);
+    --color-accent: #ff4e30;
+    --color-green: oklch(0.766 0.118 145.295);
+    --color-footer: var(--color-primary);
+
+    --font-gaegu: 'Gaegu', sans-serif;
+    --font-zain: 'Zain', sans-serif;
+    --font-calistoga: 'Calistoga', serif;
+}
+
+:root {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+
+* {
+    @apply box-border;
+    /*border: red 1px solid;*/
+}
+
+html {
+    @apply h-full p-0 m-0;
+}
+
+body {
+    @apply h-full bg-background p-0 m-0;
+}
+
+#root {
+    @apply h-full p-0 m-0;
+}
