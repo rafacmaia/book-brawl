@@ -14,31 +14,31 @@ interface Match {
 }
 
 function BookButton({ book, onClick }: { book: Book; onClick: () => void }) {
-  const longTitle = book.title.length > 38
-  const veryLongTitle = book.title.length > 76
-  const longAuthor = book.author.length > 28
+  const longTitle = book.title.length >= 38
+  const veryLongTitle = book.title.length >= 76
+  const longAuthor = book.author.length >= 30
   const various = book.author.trim().toLowerCase() === 'various'
 
   const longTextStyling =
     (longTitle && longAuthor) || veryLongTitle
-      ? 'gap-4 px-6 py-3'
+      ? 'gap-3 px-6 py-4'
       : longTitle || longAuthor
-        ? 'gap-5 px-7 py-4'
-        : 'gap-7 px-8 py-4'
+        ? 'gap-4 px-8 py-4'
+        : 'gap-6 px-8 py-4'
 
   const longTitleStyling =
     (longTitle && longAuthor) || veryLongTitle
-      ? 'text-[36px]/12'
+      ? 'text-[40px]/13'
       : longTitle
-        ? 'text-[40px]/14'
+        ? 'text-[42px]/14'
         : 'text-[44px]/16'
 
   const longAuthorStyling =
     longTitle && longAuthor
-      ? 'text-[28px]'
+      ? 'text-[26px]'
       : longAuthor
         ? 'text-[28px]'
-        : 'text-3xl'
+        : 'text-[30px]'
 
   const hoverStyling =
     'hover:-translate-y-2 hover:scale-[1.02] hover:border-primary/80 hover:bg-background hover:text-primary hover:shadow-2xl hover:brightness-110'
@@ -48,7 +48,7 @@ function BookButton({ book, onClick }: { book: Book; onClick: () => void }) {
       className={`flex h-72 w-134 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-md border-3 border-accent/80 bg-button/90 font-calistoga wrap-break-word text-sky-900 shadow-lg transition-all duration-250 ${hoverStyling} ${longTextStyling}`}
       onClick={onClick}
     >
-      <p className={`w-ful line-clamp-3 font-medium ${longTitleStyling}`}>
+      <p className={`w-ful line-clamp-3 p-1 font-medium ${longTitleStyling}`}>
         {book.title}
       </p>
       <p
@@ -133,7 +133,7 @@ export default function BrawlPit() {
       >
         ich means more to yo
       </h1>
-      <div className="flex w-full grow items-center justify-center gap-25">
+      <div className="flex w-full grow items-center justify-center gap-26">
         <BookButton
           book={match.book_a}
           onClick={() => handleChoice(match.book_a.id, match.book_b.id)}
