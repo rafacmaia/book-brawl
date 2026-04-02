@@ -121,7 +121,7 @@ def get_leaderboard(_user_id: str = Depends(get_current_user)):
                 "rank": rank,
                 "title": book.title,
                 "author": book.author,
-                "accuracy": round(accuracy_score, 4),
+                "accuracy_score": round(accuracy_score, 4),
                 "accuracy_tier": accuracy_tier,
             }
         )

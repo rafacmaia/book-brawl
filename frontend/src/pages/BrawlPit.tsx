@@ -49,7 +49,7 @@ function BookButton({ book, onClick }: { book: Book; onClick: () => void }) {
       className={`flex h-72 w-134 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-md border-3 border-accent/80 bg-button/90 font-calistoga wrap-break-word text-sky-900 shadow-lg transition-all duration-250 ${hoverStyling} ${longTextStyling}`}
       onClick={onClick}
     >
-      <p className={`w-ful line-clamp-3 p-1 font-medium ${longTitleStyling}`}>
+      <p className={`line-clamp-3 w-full p-1 font-medium ${longTitleStyling}`}>
         {book.title}
       </p>
       <p

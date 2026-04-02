@@ -23,18 +23,18 @@
 
 
 * {
-    @apply box-border
+    @apply box-border;
     /*border: red 1px solid;*/
 }
 
 html {
-    @apply h-full p-0 m-0
+    @apply h-full p-0 m-0;
 }
 
 body {
-    @apply h-full bg-background p-0 m-0 ;
+    @apply h-full bg-background p-0 m-0;
 }
 
 #root {
-    @apply h-full overflow-hidden p-0 m-0 ;
+    @apply h-full p-0 m-0;
 }

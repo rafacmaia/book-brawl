@@ -8,11 +8,11 @@ export default function Footer() {
           className="cursor-pointer font-bold hover:text-footer hover:brightness-125"
           href="https://github.com/rafacmaia"
           target="_blank"
-          rel="noopener"
+          rel="noopener noreferrer"
         >
           Zou Labs
           <img
-            src={'cat-icon-1.svg'}
+            src={'/cat-icon-1.svg'}
             alt={'cat icon'}
             className={'inline h-6 w-6 brightness-110'}
           />
