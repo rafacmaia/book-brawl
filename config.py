@@ -15,3 +15,7 @@ ACCURACY_TIERS = [0.10, 0.30, 0.65, 0.85, 1.00]
 
 CLERK_SECRET_KEY = os.getenv("CLERK_SECRET_KEY")
 CLERK_JWKS_URL = os.getenv("CLERK_JWKS_URL")
+
+# ====== DATABASE
+
+DB_PATH = os.getenv("DB_PATH", "data/test.db")
