@@ -1,6 +1,7 @@
 import { useAuth } from '@clerk/react'
 import { useEffect, useState } from 'react'
 import { apiFetch } from '../api.tsx'
+import { Placeholder } from '../components/Placeholder.tsx'
 
 interface Book {
   id: number
@@ -60,20 +61,6 @@ function BookButton({ book, onClick }: { book: Book; onClick: () => void }) {
   )
 }
 
-function Placeholder({ message }: { message: string }) {
-  return (
-    <div className={'flex grow items-center justify-center'}>
-      <h1
-        className={
-          'font-gaegu text-5xl font-bold tracking-wide text-primary/90'
-        }
-      >
-        {message}
-      </h1>
-    </div>
-  )
-}
-
 export default function BrawlPit() {
   const { getToken } = useAuth()
 
@@ -91,6 +78,7 @@ export default function BrawlPit() {
 
     try {
       const token = await getToken()
+
       const response = await apiFetch('/brawl', token!)
       const data = await response.json()
       setMatch(data)

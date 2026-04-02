@@ -15,7 +15,7 @@ export default function App() {
               <RedirectToSignIn />
             </Show>
             <Show when={'signed-in'}>
-              <div className={'flex min-h-screen flex-col'}>
+              <div className={'flex h-full min-h-screen flex-col font-zain'}>
                 <Routes>
                   <Route
                     path={'/'}

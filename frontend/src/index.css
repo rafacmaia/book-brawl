@@ -36,5 +36,5 @@ body {
 }
 
 #root {
-    @apply h-screen overflow-hidden p-0 m-0 ;
+    @apply h-full overflow-hidden p-0 m-0 ;
 }
