@@ -1,6 +1,6 @@
 import { useAuth } from '@clerk/react'
 import { useEffect, useState } from 'react'
-import { apiFetch } from '../api.ts'
+import { apiFetch } from '../api'
 import { Placeholder } from '../components/Placeholder.tsx'
 
 interface Book {
@@ -18,24 +18,24 @@ function BookButton({ book, onClick }: { book: Book; onClick: () => void }) {
   const longTitle = book.title.length >= 38
   const veryLongTitle = book.title.length >= 76
   const longAuthor = book.author.length >= 30
+
   const various = book.author.trim().toLowerCase() === 'various'
 
-  const longTextStyling =
-    (longTitle && longAuthor) || veryLongTitle
-      ? 'gap-3 px-6 py-4'
-      : longTitle || longAuthor
-        ? 'gap-4 px-8 py-4'
-        : 'gap-6 px-8 py-4'
+  let longTextStyling: string, longTitleStyling: string, longAuthorStyling: string
 
-  const longTitleStyling =
-    (longTitle && longAuthor) || veryLongTitle
-      ? 'text-[40px]/13'
-      : longTitle
-        ? 'text-[42px]/14'
-        : 'text-[44px]/16'
-
-  const longAuthorStyling =
-    longTitle && longAuthor ? 'text-[26px]' : longAuthor ? 'text-[28px]' : 'text-[30px]'
+  if ((longTitle && longAuthor) || veryLongTitle) {
+    longTextStyling = 'gap-3 px-6 py-4'
+    longTitleStyling = 'text-[40px]/13'
+    longAuthorStyling = 'text-[26px]'
+  } else if (longTitle || longAuthor) {
+    longTextStyling = 'gap-4 px-8 py-4'
+    longTitleStyling = longTitle ? 'text-[42px]/14' : 'text-[44px]/16'
+    longAuthorStyling = longAuthor ? 'text-[28px]' : 'text-[30px]'
+  } else {
+    longTextStyling = 'gap-6 px-8 py-4'
+    longTitleStyling = 'text-[44px]/16'
+    longAuthorStyling = 'text-[30px]'
+  }
 
   const hoverStyling =
     'hover:-translate-y-2 hover:scale-[1.02] hover:border-primary/80 hover:bg-background hover:text-primary hover:shadow-2xl hover:brightness-110'
@@ -94,10 +94,6 @@ export default function BrawlPit() {
     }
   }
 
-  if (loading) return <Placeholder message={'Loading...'} />
-  if (error) return <Placeholder message={error} />
-  if (!match) return null
-
   const wavyUnderline =
     'underline decoration-accent/80 decoration-wavy decoration-8 underline-offset-42'
 
@@ -113,16 +109,24 @@ export default function BrawlPit() {
       >
         ===============
       </h1>
-      <div className="flex w-full grow items-center justify-center gap-26">
-        <BookButton
-          book={match.book_a}
-          onClick={() => handleChoice(match.book_a.id, match.book_b.id)}
-        />
-        <BookButton
-          book={match.book_b}
-          onClick={() => handleChoice(match.book_b.id, match.book_a.id)}
-        />
-      </div>
+      {loading ? (
+        <Placeholder message={'Loading...'} />
+      ) : error ? (
+        <Placeholder message={error} />
+      ) : (
+        match && (
+          <div className="flex w-full grow items-center justify-center gap-26">
+            <BookButton
+              book={match.book_a}
+              onClick={() => handleChoice(match.book_a.id, match.book_b.id)}
+            />
+            <BookButton
+              book={match.book_b}
+              onClick={() => handleChoice(match.book_b.id, match.book_a.id)}
+            />
+          </div>
+        )
+      )}
     </main>
   )
 }
