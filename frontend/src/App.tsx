@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import BrawlPit from './pages/BrawlPit.tsx'
 import Leaderboard from './pages/Leaderboard.tsx'
 import Footer from './components/Footer.tsx'
+import { Nav } from './components/Nav.tsx'
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
             </Show>
             <Show when={'signed-in'}>
               <div className={'flex h-full min-h-screen flex-col font-zain'}>
+                <Nav />
                 <Routes>
                   <Route
                     path={'/'}

@@ -68,35 +68,34 @@ export default function Leaderboard() {
   return (
     <main className="flex h-full min-h-0 grow flex-col items-center gap-6 overflow-y-auto p-4 text-primary/95">
       <h1
-        className={`mt-6 text-center font-calistoga text-5xl font-extrabold tracking-widest drop-shadow-xs ${wavyUnderline}`}
+        className={`text-center font-calistoga text-6xl font-extrabold tracking-widest drop-shadow-xs ${wavyUnderline}`}
       >
         The Leaderboard
       </h1>
-      <h2 className={'mt-2 text-center text-[26px] font-bold tracking-wide'}>
-        {bookCount} Books • {Math.round(progress * 100)}% Complete
+      <h2
+        className={
+          'mt-2 rounded-full bg-button px-10 py-2 text-center font-calistoga text-[22px] font-bold tracking-wide text-sky-900 shadow-2xl'
+        }
+      >
+        {bookCount} Books{'\u00A0\u00A0\u00A0\u00A0•\u00A0\u00A0\u00A0\u00A0'}
+        {Math.round(progress * 100)}% Complete
       </h2>
-      <table className="w-3/5 table-fixed border-collapse rounded-lg bg-button text-sky-900 shadow-lg">
-        <thead className={'text-left text-[22px] text-accent'}>
+      <table className="w-2/3 table-fixed border-collapse rounded-sm bg-button text-sky-900 shadow-xl">
+        <thead className={'text-left text-[20px] text-accent'}>
           <tr className={'border-b-3 border-accent'}>
-            <th className={`w-1/13 pt-3 pr-4 pb-2 pl-7 font-extrabold`}>#</th>
-            <th className={`w-6/13 px-4 pt-3 pb-2 font-extrabold`}>Title</th>
-            <th className={`w-4/13 px-4 pt-3 pb-2 font-extrabold`}>Author</th>
-            <th className={`w-2/13 pt-3 pr-7 pb-2 pl-4 font-extrabold`}>
-              Accuracy
-            </th>
+            <th className={`w-1/13 pt-2 pr-4 pb-1 pl-7 font-extrabold`}>#</th>
+            <th className={`w-6/13 px-4 pt-2 pb-1 font-extrabold`}>Title</th>
+            <th className={`w-4/13 px-4 pt-2 pb-1 font-extrabold`}>Author</th>
+            <th className={`w-2/13 pt-2 pr-7 pb-1 pl-4 font-extrabold`}>Accuracy</th>
           </tr>
         </thead>
-        <tbody className={'text-[20px]'}>
+        <tbody className={'text-[18px]'}>
           {rankings.map((book) => (
             <tr key={book.rank} className={'border-b-2 border-background'}>
-              <td className={`py-1 pr-4 pl-7 font-bold text-accent`}>
-                {book.rank}
-              </td>
+              <td className={`py-1 pr-4 pl-7 font-bold text-accent`}>{book.rank}</td>
               <td className={`px-4 py-1`}>{book.title}</td>
               <td className={`px-4 py-1`}>{book.author}</td>
-              <td className={`py-1 pr-7 pl-4`}>
-                {TIER_LABELS[book.accuracy_tier]}
-              </td>
+              <td className={`py-1 pr-7 pl-4`}>{TIER_LABELS[book.accuracy_tier]}</td>
             </tr>
           ))}
         </tbody>

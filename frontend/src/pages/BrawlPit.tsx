@@ -35,11 +35,7 @@ function BookButton({ book, onClick }: { book: Book; onClick: () => void }) {
         : 'text-[44px]/16'
 
   const longAuthorStyling =
-    longTitle && longAuthor
-      ? 'text-[26px]'
-      : longAuthor
-        ? 'text-[28px]'
-        : 'text-[30px]'
+    longTitle && longAuthor ? 'text-[26px]' : longAuthor ? 'text-[28px]' : 'text-[30px]'
 
   const hoverStyling =
     'hover:-translate-y-2 hover:scale-[1.02] hover:border-primary/80 hover:bg-background hover:text-primary hover:shadow-2xl hover:brightness-110'
@@ -49,12 +45,8 @@ function BookButton({ book, onClick }: { book: Book; onClick: () => void }) {
       className={`flex h-72 w-134 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-md border-3 border-accent/80 bg-button/90 font-calistoga wrap-break-word text-sky-900 shadow-lg transition-all duration-250 ${hoverStyling} ${longTextStyling}`}
       onClick={onClick}
     >
-      <p className={`line-clamp-3 w-full p-1 font-medium ${longTitleStyling}`}>
-        {book.title}
-      </p>
-      <p
-        className={`line-clamp-2 w-full font-zain font-light ${longAuthorStyling}`}
-      >
+      <p className={`line-clamp-3 w-full p-1 font-medium ${longTitleStyling}`}>{book.title}</p>
+      <p className={`line-clamp-2 w-full font-zain font-light ${longAuthorStyling}`}>
         by <span className={various ? 'italic' : ''}>{book.author}</span>
       </p>
     </button>
@@ -107,19 +99,19 @@ export default function BrawlPit() {
   if (!match) return null
 
   const wavyUnderline =
-    'underline decoration-accent/80 decoration-wavy decoration-6 underline-offset-42'
+    'underline decoration-accent/80 decoration-wavy decoration-8 underline-offset-42'
 
   return (
     <main className="relative flex grow flex-col items-center">
       <h1
-        className={`z-100 mt-36 text-center font-calistoga text-8xl font-extrabold tracking-wide text-primary/95 drop-shadow-md`}
+        className={`z-100 mt-24 text-center font-calistoga text-7xl font-extrabold tracking-wide text-primary/95 drop-shadow-md`}
       >
         Which means more to you?
       </h1>
       <h1
-        className={`absolute z-0 mt-38 text-center font-calistoga text-8xl font-extrabold tracking-wide text-background ${wavyUnderline}`}
+        className={`absolute z-0 mt-24 text-center font-calistoga text-7xl font-extrabold tracking-wide text-background ${wavyUnderline}`}
       >
-        ich means more to yo
+        ===============
       </h1>
       <div className="flex w-full grow items-center justify-center gap-26">
         <BookButton
