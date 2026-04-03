@@ -21,9 +21,8 @@ reflects your ultimate breakdown. No more stuttering when someone asks you what 
 favorite book of all time is. Those days are over!
 
 > _**😈 TL;DR:** Book Brawl is a ranking system that becomes more reliable over time,
-without ever fully freezing into rigidity, and adjusting to new reads. Giving book lovers
-and
-ranking enthusiasts a fun **and** mathematically robust way to reflect on their books._
+without ever fully freezing into rigidity. Giving book lovers and ranking enthusiasts a
+fun **and** mathematically robust way to reflect on their books._
 
 ## 🪩 Live Demo (in development) > **[book-brawl.app](https://book-brawl.vercel.app)**
 
@@ -83,83 +82,83 @@ for more details._
 
 ## ⚙️ Setup
 
-### Web App (Frontend + API)
+### 🖼️ Web App (Frontend + API)
 
-**Prerequisites:** Python 3.10+, Node.js 18+
+> **Prerequisites:** Python 3.10+, Node.js 18+
 
 > Auth is handled via [Clerk](https://clerk.com). To run the web app locally, you'll need
 > to create a free Clerk application and add your API keys to `.env` and
 `frontend/.env.local` as described below.
 
-#### 1. Clone Repo and Set Up Python Environment
+1. **Clone Repo and Set Up Python Environment**
 
-- Clone the repo:
-   ```bash
-   git clone https://github.com/rafacmaia/book-brawl.git
-   cd book-brawl
-   ```
-- Set up the Python virtual environment and activate it:
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate
-   ```
-- Install dependencies (listed in [`requirements.txt`](requirements.txt): FastAPI,
-  SQLite, Rich,
-  PyJWT, and more):
-   ```bash
-   pip install -r requirements.txt
-   ```
+    - Clone the repo:
+       ```bash
+       git clone https://github.com/rafacmaia/book-brawl.git
+       cd book-brawl
+       ```
+    - Set up the Python virtual environment, activate it, and install dependencies (
+      listed
+      in [`requirements.txt`](requirements.txt): FastAPI, SQLite, Rich, PyJWT, and more):
+       ```bash
+       python -m venv .venv
+       source .venv/bin/activate
+       pip install -r requirements.txt
+       ```
 
-#### 2. Set Up Clerk Auth and Launch the Backend API
+2. **Set Up Clerk Auth and Launch the Backend API**
 
-- Create a `.env` file at root level and add the following from your Clerk application:
-    ```env
-    CLERK_JWKS_URL=your_clerk_jwks_url_here
-    CLERK_SECRET_KEY=your_clerk_jwt_secret_key_here
-    ```
-- Launch the API:
-  ```bash
-  uvicorn api:app --reload
-  ```
+    - Create a `.env` file at root level and add the following from your Clerk
+      application:
+        ```env
+        CLERK_JWKS_URL=your_clerk_jwks_url_here
+        CLERK_SECRET_KEY=your_clerk_jwt_secret_key_here
+        ```
+    - Launch the API:
+      ```bash
+      uvicorn api:app --reload
+      ```
 
-#### 3. Set Up the Frontend
+3. **Set Up the Frontend**
 
-- In a separate terminal, set up the frontend and its dependencies:
-    ```
-    cd frontend
-    npm install
-    ```
-- Inside `frontend/`, create a `.env.local` file with your Clerk publishable key:
-    ```env
-    VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key_here
-    ```
-- Launch the frontend dev server:
-    ```bash
-    npm run dev
-    ```
+    - In a separate terminal, set up the frontend and its dependencies:
+        ```
+        cd frontend
+        npm install
+        ```
+    - Inside `frontend/`, create a `.env.local` file with your Clerk publishable key:
+        ```env
+        VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key_here
+        ```
+    - Launch the frontend dev server:
+        ```bash
+        npm run dev
+        ```
 
-#### 4. (Optional) Have Fun with It 🕺🏻
+4. **(Optional) Have Fun with It**
 
-### CLI (Terminal App)
+### 💾 CLI (Terminal App)
 
-#### 1. Clone Repo and Set Up Python Environment as with the Web App above
+1. **Clone Repo and Set Up Python Environment as with the Web App above**
 
-#### 2. Launch the app:
+
+2. **Launch the app**
 
    ```bash
    python main.py
    ```
 
-#### Observations
+   #### Observations
 
-- A sample CSV with 25 books is included at [`data/sample.csv`](data/sample.csv) to get
-  you started.
+    - A sample CSV with 25 books is included at [`data/sample.csv`](data/sample.csv) to
+      get
+      you started.
 
-- CLI Optional Launch Flags:
-  ```bash
-   python main.py --test  # Uses a separate test database
-   python main.py --beta  # Uses the beta database (simply an extra copy of the main db)
-  ```
+    - CLI Optional Launch Flags:
+      ```bash
+       python main.py --test  # Uses a separate test database
+       python main.py --beta  # Uses the beta database (simply an extra copy of the main db)
+      ```
 
 ## 📃 CSV Format
 
