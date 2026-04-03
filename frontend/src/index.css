@@ -32,9 +32,9 @@ html {
 }
 
 body {
-    @apply h-full bg-background p-0 m-0;
+    @apply h-full bg-background p-0 m-0 overflow-x-hidden;
 }
 
 #root {
-    @apply h-full p-0 m-0;
+    @apply min-h-screen p-0 m-0;
 }

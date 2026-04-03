@@ -80,13 +80,13 @@ export default function Leaderboard() {
         {bookCount} Books{'\u00A0\u00A0\u00A0\u00A0•\u00A0\u00A0\u00A0\u00A0'}
         {Math.round(progress * 100)}% Complete
       </h2>
-      <table className="w-2/3 table-fixed border-collapse rounded-sm bg-button text-sky-900 shadow-xl">
+      <table className="w-2/3 table-fixed border-collapse rounded-md bg-button text-sky-900 shadow-xl">
         <thead className={'text-left text-[20px] text-accent'}>
           <tr className={'border-b-3 border-accent'}>
-            <th className={`w-1/13 pt-2 pr-4 pb-1 pl-7 font-extrabold`}>#</th>
+            <th className={`w-1/13 pt-2 pr-4 pb-1 pl-6 font-extrabold`}>#</th>
             <th className={`w-6/13 px-4 pt-2 pb-1 font-extrabold`}>Title</th>
             <th className={`w-4/13 px-4 pt-2 pb-1 font-extrabold`}>Author</th>
-            <th className={`w-2/13 pt-2 pr-7 pb-1 pl-4 font-extrabold`}>Accuracy</th>
+            <th className={`w-2/13 pt-2 pr-6 pb-1 pl-4 font-extrabold`}>Accuracy</th>
           </tr>
         </thead>
         <tbody className={'text-[18px]'}>
