@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { apiFetch } from '../api.tsx'
+import { apiFetch } from '../api.ts'
 import { Placeholder } from '../components/Placeholder.tsx'
 import { useAuth } from '@clerk/react'
 

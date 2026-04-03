@@ -18,4 +18,4 @@ CLERK_JWKS_URL = os.getenv("CLERK_JWKS_URL")
 
 # ====== DATABASE
 
-DB_PATH = os.getenv("DB_PATH", "data/test.db")
+DB_PATH = os.getenv("DB_PATH", "data/book_brawl_v1.db")
