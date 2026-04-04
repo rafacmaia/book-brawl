@@ -3,14 +3,24 @@
 
 
 @theme {
+    /* THEME 1: Blue / Yellow / Red*/
     --color-primary: oklch(0.905 0.182 98.111);
-    /*--color-primary: oklch(0.849 0.158 97.399);*/
     --color-button: oklch(0.849 0.158 97.399);
-    --color-background: var(--color-sky-800);
+    --color-background: var(--color-sky-900);
     --color-accent: #ff4e30;
     --color-green: oklch(0.766 0.118 145.295);
     --color-footer: var(--color-primary);
-
+    --color-text: var(--color-background);
+    /**/
+    /* THEME 2: Green / Yellow / Red*/
+    /*--color-primary: #ffab00;*/
+    /*--color-button: var(--color-primary);*/
+    /*--color-background: #008aa1;*/
+    /*--color-accent: #00592e;*/
+    /*--color-footer: var(--color-sky-950);*/
+    /*--color-text: var(--color-sky-900);*/
+    /**/
+    /* FONTS */
     --font-gaegu: 'Gaegu', sans-serif;
     --font-zain: 'Zain', sans-serif;
     --font-calistoga: 'Calistoga', serif;
@@ -28,11 +38,12 @@
 }
 
 html {
+    scrollbar-gutter: stable;
     @apply h-full p-0 m-0;
 }
 
 body {
-    @apply h-full bg-background p-0 m-0 overflow-x-hidden;
+    @apply h-full bg-background p-0 m-0;
 }
 
 #root {

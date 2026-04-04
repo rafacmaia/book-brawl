@@ -24,13 +24,13 @@ function BookButton({ book, onClick }: { book: Book; onClick: () => void }) {
   let longTextStyling: string, longTitleStyling: string, longAuthorStyling: string
 
   if ((longTitle && longAuthor) || veryLongTitle) {
-    longTextStyling = 'gap-3 px-6 py-4'
-    longTitleStyling = 'text-[40px]/13'
-    longAuthorStyling = 'text-[26px]'
+    longTextStyling = 'gap-4 px-6 py-3'
+    longTitleStyling = 'text-[40px]/14'
+    longAuthorStyling = 'text-[26px]/9'
   } else if (longTitle || longAuthor) {
-    longTextStyling = 'gap-4 px-8 py-4'
-    longTitleStyling = longTitle ? 'text-[42px]/14' : 'text-[44px]/16'
-    longAuthorStyling = longAuthor ? 'text-[28px]' : 'text-[30px]'
+    longTextStyling = 'gap-4 px-8 py-3'
+    longTitleStyling = longTitle ? 'text-[42px]/14' : 'text-[44px]/14'
+    longAuthorStyling = longAuthor ? 'text-[28px]/10' : 'text-[30px]'
   } else {
     longTextStyling = 'gap-6 px-8 py-4'
     longTitleStyling = 'text-[44px]/16'
@@ -42,7 +42,7 @@ function BookButton({ book, onClick }: { book: Book; onClick: () => void }) {
 
   return (
     <button
-      className={`flex h-72 w-134 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-md border-3 border-accent/80 bg-button/90 font-calistoga wrap-break-word text-sky-900 shadow-lg transition-all duration-250 ${hoverStyling} ${longTextStyling}`}
+      className={`flex h-72 w-134 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-md border-3 border-accent/80 bg-button/95 font-calistoga wrap-break-word text-text shadow-lg transition-all duration-250 ${hoverStyling} ${longTextStyling}`}
       onClick={onClick}
     >
       <p className={`line-clamp-3 w-full p-1 font-medium ${longTitleStyling}`}>{book.title}</p>

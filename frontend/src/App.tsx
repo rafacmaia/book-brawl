@@ -19,10 +19,7 @@ export default function App() {
               <div className={'flex h-full min-h-screen flex-col font-zain'}>
                 <Nav />
                 <Routes>
-                  <Route
-                    path={'/'}
-                    element={<Navigate to="/brawl" replace />}
-                  />
+                  <Route path={'/'} element={<Navigate to="/brawl" replace />} />
                   <Route path={'/brawl'} element={<BrawlPit />} />
                   <Route path={'/leaderboard'} element={<Leaderboard />} />
                 </Routes>
