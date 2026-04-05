@@ -93,7 +93,7 @@ export default function Leaderboard() {
           {rankings.map((book) => (
             <tr key={book.rank} className={'border-b-2 border-background'}>
               <td className={`py-1 pr-4 pl-7 font-extrabold text-accent`}>{book.rank}</td>
-              <td className={`px-4 py-1`}>{book.title}</td>
+              <td className={`px-4 py-1 font-bold`}>{book.title}</td>
               <td className={`px-4 py-1`}>{book.author}</td>
               <td className={`py-1 pr-7 pl-4`}>{TIER_LABELS[book.accuracy_tier]}</td>
             </tr>

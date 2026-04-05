@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 
 from config import BOOK_LIMIT
-from db.books_repo import get_elo_range, insert
+from db.books_repo import get_elo_range, insert, insert_many
 from models import Book
 from services.scoring_service import K_TIERS
 
@@ -49,10 +49,15 @@ def import_books(reader, books):
             # for every row in a first-time import
             elo = rating_to_elo(book_data.rating, first_run=len(books) == 0)
             book = Book(book_data.title, book_data.author, book_data.rating, elo)
-
-            insert(book)
             result.new_books.append(book)
             existing_books.add((book_data.title.lower(), book_data.author.lower()))
+
+    try:
+        insert_many(result.new_books)
+    except Exception as e:
+        result.errors.append(f"Database error during import: {str(e)}")
+        result.interrupted = True
+        result.new_books = []
 
     return result
 
@@ -99,9 +104,15 @@ def rating_to_elo(rating, first_run=False):
     if rating is None:
         return ELO_DEFAULT
 
+    # 1. rating - 1 = 8.5
+    # 2. ELO_MIN_DEFAULT / 1 = 88.9
+    # 3. ELO_MAX_DEFAULT - (2) = 1111.1
+    # 4. (3) * (1) = 9444.4
+    # 5. 800 + (4) = 10800
+
     if first_run:
         # Map rating to the starting 800-1200 Elo range
-        elo = ELO_MIN_DEFAULT + (rating - 1) * (ELO_MAX_DEFAULT - ELO_MIN_DEFAULT / 9)
+        elo = ELO_MIN_DEFAULT + (rating - 1) * ((ELO_MAX_DEFAULT - ELO_MIN_DEFAULT) / 9)
         return round(elo)
     else:
         stats = get_elo_range() or {

@@ -26,7 +26,7 @@ from services.scoring_service import (
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    init_db(state.db_path)
+    init_db()
     state.books = books_repo.get_all()
     yield
 

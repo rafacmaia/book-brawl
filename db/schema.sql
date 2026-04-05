@@ -1,34 +1,32 @@
 -- Book Brawl Database Schema
--- Last updated: 2026-03-22
+-- Last updated: 2026-04-05
 --
--- To recreate the database from scratch:
---   sqlite3 data/book_brawl.db < db/schema.sql
---
--- For incremental changes to an existing database, use db/migrate.py instead.
+-- To recreate the database from scratch, run this via psql:
+--   psql $DATABASE_URL < db/schema.sql
+-- Or paste into Railway's database query console.
 
-
-CREATE TABLE IF NOT EXISTS user (
-    id        INTEGER PRIMARY KEY AUTOINCREMENT,
-    username  TEXT    NOT NULL UNIQUE,
-    email     TEXT    NOT NULL UNIQUE,
-    clerk_id  TEXT    NOT NULL UNIQUE
+CREATE TABLE IF NOT EXISTS reader (
+    id          SERIAL  PRIMARY KEY,
+    username    TEXT    NOT NULL UNIQUE,
+    email       TEXT    NOT NULL UNIQUE,
+    clerk_id    TEXT    NOT NULL UNIQUE
 );
 
 
 CREATE TABLE IF NOT EXISTS book (
-    id       INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id  INTEGER NOT NULL REFERENCES user(id),
-    title    TEXT    NOT NULL,
-    author   TEXT    NOT NULL,
-    rating   REAL    DEFAULT NULL,
-    elo      INTEGER DEFAULT 1000,
-    UNIQUE (user_id, title, author)   -- same book can exist for different users
+    id          SERIAL  PRIMARY KEY,
+    reader_id   INTEGER NOT NULL REFERENCES reader(id),
+    title       TEXT    NOT NULL,
+    author      TEXT    NOT NULL,
+    rating      REAL    DEFAULT NULL,
+    elo         INTEGER DEFAULT 1000,
+    UNIQUE (reader_id, title, author)
 );
 
 
 CREATE TABLE IF NOT EXISTS comparison (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id    INTEGER   NOT NULL REFERENCES user(id),
+    id         SERIAL    PRIMARY KEY,
+    reader_id  INTEGER   NOT NULL REFERENCES reader(id),
     winner_id  INTEGER   NOT NULL REFERENCES book(id),
     loser_id   INTEGER   NOT NULL REFERENCES book(id),
     timestamp  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -36,7 +34,7 @@ CREATE TABLE IF NOT EXISTS comparison (
 
 
 -- Indexes to speed up the frequent queries.
-CREATE INDEX IF NOT EXISTS idx_book_user            ON book(user_id);
-CREATE INDEX IF NOT EXISTS idx_comparison_user      ON comparison(user_id);
+CREATE INDEX IF NOT EXISTS idx_book_user            ON book(reader_id);
+CREATE INDEX IF NOT EXISTS idx_comparison_user      ON comparison(reader_id);
 CREATE INDEX IF NOT EXISTS idx_comparison_winner    ON comparison(winner_id);
 CREATE INDEX IF NOT EXISTS idx_comparison_loser     ON comparison(loser_id);

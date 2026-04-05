@@ -293,9 +293,9 @@ full pairwise comparisons
 
 ## 🗺️ Roadmap
 
+- [X] PostgreSQL migration (Railway)
 - [ ] Per-user data isolation (multi-user support!)
 - [ ] Book intake via the web API
-- [ ] PostgreSQL migration (Railway)
 - [ ] Support for removing individual books
 - [ ] Filter rankings by genre, author, or year read (e.g., "2021" or "Fantasy")
 
