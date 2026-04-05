@@ -1,16 +1,32 @@
 # import sqlite3
 
+from contextlib import contextmanager
+
 import psycopg2
-import psycopg2.extras
+import psycopg2.pool
 
 # import state
 from config import DATABASE_URL
 
+_pool = None
 
+
+def get_pool():
+    global _pool
+    if _pool is None:
+        _pool = psycopg2.pool.SimpleConnectionPool(1, 10, DATABASE_URL)
+    return _pool
+
+
+@contextmanager
 def get_connection():
-    conn = psycopg2.connect(DATABASE_URL)
-    conn.set_session(autocommit=True)
-    return conn
+    pool = get_pool()
+    conn = pool.getconn()
+    conn.autocommit = True
+    try:
+        yield conn
+    finally:
+        pool.putconn(conn)
 
 
 def init_db():
