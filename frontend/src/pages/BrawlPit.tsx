@@ -61,36 +61,38 @@ export default function BrawlPit() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    void fetchMatch()
+    void fetchMatch().finally(() => setLoading(false))
   }, [])
 
-  async function fetchMatch() {
-    setLoading(true)
-    setError(null)
-
+  async function fetchMatch(token: string | null = null) {
     try {
-      const token = await getToken()
+      if (!token) {
+        token = await getToken()
+      }
 
       const response = await apiFetch('/brawl', token!)
       const data = await response.json()
       setMatch(data)
     } catch (error) {
       setError('Failed to load match. Please try again.')
-    } finally {
-      setLoading(false)
     }
   }
 
   async function handleChoice(winnerId: number, loserId: number) {
+    setError(null)
+
     try {
       const token = await getToken()
-      await apiFetch('/brawl/resolve', token!, {
-        method: 'POST',
-        body: JSON.stringify({ winner_id: winnerId, loser_id: loserId }),
-      })
-      await fetchMatch()
+
+      await Promise.all([
+        apiFetch('/brawl/resolve', token!, {
+          method: 'POST',
+          body: JSON.stringify({ winner_id: winnerId, loser_id: loserId }),
+        }),
+        fetchMatch(token!),
+      ])
     } catch (error) {
-      setError('Failed to submit choice. Please try again.')
+      setError('Something went wrong. Please try again.')
     }
   }
 
