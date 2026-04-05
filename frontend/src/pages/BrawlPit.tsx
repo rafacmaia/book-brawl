@@ -42,7 +42,7 @@ function BookButton({ book, onClick }: { book: Book; onClick: () => void }) {
 
   return (
     <button
-      className={`flex h-72 w-134 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-md border-3 border-accent/80 bg-button/95 font-calistoga wrap-break-word text-text shadow-lg transition-all duration-250 ${hoverStyling} ${longTextStyling}`}
+      className={`flex h-72 w-134 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-md border-3 border-accent/80 bg-button/95 font-calistoga wrap-break-word text-text shadow-lg transition-all duration-250 active:scale-99 ${hoverStyling} ${longTextStyling}`}
       onClick={onClick}
     >
       <p className={`line-clamp-3 w-full p-1 font-medium ${longTitleStyling}`}>{book.title}</p>
@@ -59,6 +59,7 @@ export default function BrawlPit() {
   const [match, setMatch] = useState<Match | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [visible, setVisible] = useState(true)
 
   useEffect(() => {
     void fetchMatch().finally(() => setLoading(false))
@@ -72,7 +73,10 @@ export default function BrawlPit() {
 
       const response = await apiFetch('/brawl', token!)
       const data = await response.json()
+      setVisible(false)
+      await new Promise((resolve) => setTimeout(resolve, 250))
       setMatch(data)
+      setVisible(true)
     } catch (error) {
       setError('Failed to load match. Please try again.')
     }
@@ -117,7 +121,9 @@ export default function BrawlPit() {
         <Placeholder message={error} />
       ) : (
         match && (
-          <div className="flex w-full grow items-center justify-center gap-26">
+          <div
+            className={`${visible ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-1 scale-95 opacity-0'} flex w-full grow items-center justify-center gap-26 transition-all duration-250 ease-in-out`}
+          >
             <BookButton
               book={match.book_a}
               onClick={() => handleChoice(match.book_a.id, match.book_b.id)}
