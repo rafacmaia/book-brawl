@@ -15,11 +15,14 @@ interface Match {
 }
 
 function BookButton({ book, onClick }: { book: Book; onClick: () => void }) {
-  const longTitle = book.title.length >= 38
-  const veryLongTitle = book.title.length >= 76
-  const longAuthor = book.author.length >= 30
+  const title = book.title.trim()
+  const author = book.author.trim()
 
-  const various = book.author.trim().toLowerCase() === 'various'
+  const longTitle = title.length >= 38
+  const veryLongTitle = title.length >= 76
+  const longAuthor = author.length >= 30
+
+  const italic = /anonymous|various/i.test(author)
 
   let longTextStyling: string, longTitleStyling: string, longAuthorStyling: string
 
@@ -45,9 +48,9 @@ function BookButton({ book, onClick }: { book: Book; onClick: () => void }) {
       className={`flex h-72 w-134 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-md border-3 border-accent/80 bg-button/95 font-calistoga wrap-break-word text-text shadow-lg transition-all duration-250 active:scale-99 ${hoverStyling} ${longTextStyling}`}
       onClick={onClick}
     >
-      <p className={`line-clamp-3 w-full p-1 font-medium ${longTitleStyling}`}>{book.title}</p>
+      <p className={`line-clamp-3 w-full p-1 font-medium ${longTitleStyling}`}>{title}</p>
       <p className={`line-clamp-2 w-full font-zain font-light ${longAuthorStyling}`}>
-        by <span className={various ? 'italic' : ''}>{book.author}</span>
+        by <span className={italic ? 'italic' : ''}>{author}</span>
       </p>
     </button>
   )
