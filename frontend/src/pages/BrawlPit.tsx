@@ -19,7 +19,7 @@ function BookButton({ book, onClick }: { book: Book; onClick: () => void }) {
   const author = book.author.trim()
 
   const longTitle = title.length >= 38
-  const veryLongTitle = title.length >= 76
+  const veryLongTitle = title.length >= 69
   const longAuthor = author.length >= 30
 
   const italic = /anonymous|various/i.test(author)
@@ -27,9 +27,9 @@ function BookButton({ book, onClick }: { book: Book; onClick: () => void }) {
   let longTextStyling: string, longTitleStyling: string, longAuthorStyling: string
 
   if ((longTitle && longAuthor) || veryLongTitle) {
-    longTextStyling = 'gap-4 px-6 py-3'
-    longTitleStyling = 'text-[40px]/14'
-    longAuthorStyling = 'text-[26px]/9'
+    longTextStyling = 'gap-4 px-7 py-3'
+    longTitleStyling = 'text-[40px]/13'
+    longAuthorStyling = 'text-[28px]/10'
   } else if (longTitle || longAuthor) {
     longTextStyling = 'gap-4 px-8 py-3'
     longTitleStyling = longTitle ? 'text-[42px]/14' : 'text-[44px]/14'
@@ -79,6 +79,7 @@ export default function BrawlPit() {
       setVisible(false)
       await new Promise((resolve) => setTimeout(resolve, 250))
       setMatch(data)
+      await new Promise((resolve) => setTimeout(resolve, 50))
       setVisible(true)
     } catch (error) {
       setError('Failed to load match. Please try again.')
@@ -125,7 +126,7 @@ export default function BrawlPit() {
       ) : (
         match && (
           <div
-            className={`${visible ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-1 scale-95 opacity-0'} flex w-full grow items-center justify-center gap-26 transition-all duration-250 ease-in-out`}
+            className={`${visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'} flex w-full grow items-center justify-center gap-27 transition-all duration-250 ease-in-out`}
           >
             <BookButton
               book={match.book_a}

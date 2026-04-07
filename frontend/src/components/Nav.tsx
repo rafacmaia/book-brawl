@@ -9,7 +9,7 @@ export function Nav() {
   }
 
   return (
-    <nav className="flex h-18 w-full items-center justify-end gap-8 px-6 py-4 align-middle font-zain text-[22px] font-extrabold tracking-wide text-primary/95">
+    <nav className="flex h-18 w-full items-center justify-end gap-8 px-6 py-4 align-middle font-zain text-[20px] font-extrabold tracking-wide text-primary/95">
       <NavLink to={'/brawl'} className={activeStyle}>
         Brawl Pit
       </NavLink>
