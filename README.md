@@ -150,7 +150,8 @@ for more details._
 
    #### Observations
 
-    - A sample CSV with 25 books is included at [`data/sample.csv`](data/sample.csv) to
+    - A sample CSV with 25 books is included at [
+      `data/sample.csv`](sample-data/sample.csv) to
       get
       you started.
 
@@ -201,7 +202,6 @@ usable by both the web API and the original CLI.
 | [`auth.py`](auth.py)                                         | API         | Clerk JWT verification                  |
 | [`config.py`](config.py)                                     | Config      | Environment variables and app constants |
 | [`models.py`](models.py)                                     | Domain      | Book data class                         |
-| [`state.py`](state.py)                                       | State       | In-memory session state                 |
 | [`services/game_service.py`](services/game_service.py)       | Service     | Matchmaking and match resolution        |
 | [`services/scoring_service.py`](services/scoring_service.py) | Service     | Elo calculation and accuracy scoring    |
 | [`services/ranking_service.py`](services/ranking_service.py) | Service     | Book ranking and tiebreaking            |
@@ -213,15 +213,16 @@ usable by both the web API and the original CLI.
 
 ### **CLI**
 
-| File                                             | Description                                    |
-|--------------------------------------------------|------------------------------------------------|
-| [`main.py`](main.py)                             | Entry point and main menu                      |
-| [`game.py`](game.py)                             | Game loop and match flow                       |
-| [`leaderboard.py`](leaderboard.py)               | Rankings display and table rendering           |
-| [`library_management.py`](library_management.py) | Book entry and library reset                   |
-| [`csv_handler.py`](csv_handler.py)               | CSV import and export                          |
-| [`ui.py`](ui.py)                                 | UI strings, styling utilities, and color theme |
-| [`utils.py`](utils.py)                           | Formatting and input helpers                   |
+| File                                                 | Description                                    |
+|------------------------------------------------------|------------------------------------------------|
+| [`main.py`](cli/main.py)                             | Entry point and main menu                      |
+| [`game.py`](cli/game.py)                             | Game loop and match flow                       |
+| [`leaderboard.py`](cli/leaderboard.py)               | Rankings display and table rendering           |
+| [`library_management.py`](cli/library_management.py) | Book entry and library reset                   |
+| [`csv_handler.py`](cli/csv_handler.py)               | CSV import and export                          |
+| [`ui.py`](cli/ui.py)                                 | UI strings, styling utilities, and color theme |
+| [`utils.py`](cli/utils.py)                           | Formatting and input helpers                   |
+| [`state.py`](state.py)                               | In-memory session state                        |
 
 ### **Frontend** _(React + Vite, in `frontend/`)_
 

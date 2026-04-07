@@ -1,0 +1,30 @@
+-- Book Brawl Database Schema
+-- Last updated: 2026-04-06
+--
+-- To recreate the database from scratch:
+--   sqlite3 data/book_brawl.db < db/schema.sql
+--
+-- For incremental changes to an existing database, use db/migrate.py instead.
+
+
+CREATE TABLE IF NOT EXISTS book (
+    id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    title    TEXT    NOT NULL,
+    author   TEXT    NOT NULL,
+    rating   REAL    DEFAULT NULL,
+    elo      INTEGER DEFAULT 1000,
+    UNIQUE (title, author)
+);
+
+
+CREATE TABLE IF NOT EXISTS comparison (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    winner_id  INTEGER   NOT NULL REFERENCES book(id),
+    loser_id   INTEGER   NOT NULL REFERENCES book(id),
+    timestamp  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- Indexes to speed up the frequent queries.
+CREATE INDEX IF NOT EXISTS idx_comparison_winner    ON comparison(winner_id);
+CREATE INDEX IF NOT EXISTS idx_comparison_loser     ON comparison(loser_id);

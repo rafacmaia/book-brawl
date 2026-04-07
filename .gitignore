@@ -1,7 +1,7 @@
 # Environment variables
 .env
 .env.local
-.env.*local
+.env.*.local
 
 # Python
 __pycache__/
@@ -24,9 +24,10 @@ ENV/
 *.sqlite
 *.sqlite3
 *.csv
-!data/sample.csv
-backup/
-exports/
+!sample-data/sample.csv
+cli/backup/
+cli/exports/
+cli/data/
 
 # Distribution / packaging
 dist/
@@ -40,6 +41,6 @@ build/
 node_modules/
 
 # VPS Legacy
-deploy.sh
-.rsyncignore
-VPS_NOTES.md
+cli/deploy.sh
+cli/.rsyncignore
+cli/VPS_NOTES.md

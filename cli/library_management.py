@@ -1,10 +1,6 @@
 import os
 
-from config import BOOK_LIMIT
 from csv_handler import csv_reader, export_to_csv, import_from_csv
-from db.books_repo import insert
-from models import Book
-from services.library_service import rating_to_elo
 from ui import (
     CSV_INSTRUCTIONS,
     DIVIDER,
@@ -25,6 +21,11 @@ from ui import (
     style,
 )
 from utils import format_book, header, press_enter, prompt
+
+from cli.ui import BOOK_LIMIT
+from db.books_repo import insert
+from models import Book
+from services.library_service import rating_to_elo
 
 # ====== ADDING BOOKS
 
@@ -210,8 +211,8 @@ def _process_import(new_books, books, interrupted=False, method="CSV"):
 
 def reset_handler(books, db_path):
     print(header("FACTORY RESET", new_line=True))
-    print(" This will delete all data and trigger a complete program reset.")
-    print(style(" This cannot be undone. All data will be lost.", ERROR))
+    print(" This will delete all sample-data and trigger a complete program reset.")
+    print(style(" This cannot be undone. All sample-data will be lost.", ERROR))
 
     print()
     export_choice = prompt(

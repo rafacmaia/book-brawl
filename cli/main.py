@@ -3,16 +3,12 @@ import shutil
 import sys
 from datetime import datetime
 
-import state
 from csv_handler import export_to_csv
-from db.books_repo import get_all
-from db.connection import init_db
 from game import run_game
 from leaderboard import (
     view_leaderboard,
 )
 from library_management import add_books, onboarding, reset_handler
-from services.scoring_service import calculate_progress
 from ui import (
     ACCENT,
     BACKUPS_LIMIT,
@@ -35,6 +31,11 @@ from utils import (
     prompt,
 )
 
+import cli.state as state
+from db.books_repo import get_all
+from db.connection import init_db
+from services.scoring_service import calculate_progress
+
 
 def startup():
     """Print the startup message and display the main menu.
@@ -44,6 +45,7 @@ def startup():
     state.books = get_all()
 
     os.system("cls" if os.name == "nt" else "clear")
+
     print("\033]1;Book Brawl\007", end="", flush=True)
 
     print("\n" + TITLE)

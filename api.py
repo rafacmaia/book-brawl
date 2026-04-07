@@ -7,7 +7,6 @@ from fastapi import Depends, FastAPI, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-import state
 from auth import get_current_user
 from config import ACCURACY_TIERS
 from db import books_repo, users_repo
@@ -23,11 +22,14 @@ from services.scoring_service import (
 
 # ====== APP SETUP
 
+_books: list = []
+
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
+    global _books
     init_db()
-    state.books = books_repo.get_all()
+    _books = books_repo.get_all()
     yield
 
 
@@ -57,12 +59,12 @@ class MatchResult(BaseModel):
 @app.get("/brawl")
 def get_match(_user_id: str = Depends(get_current_user)):
     """Return two books to face off"""
-    if len(state.books) < 2:
+    if len(_books) < 2:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Not enough books"
         )
 
-    book_a, book_b = select_opponents(state.books)
+    book_a, book_b = select_opponents(_books)
     return {
         "book_a": {
             "id": book_a.id,
@@ -80,7 +82,7 @@ def get_match(_user_id: str = Depends(get_current_user)):
 @app.post("/brawl/resolve")
 def post_match(result: MatchResult, _user_id: str = Depends(get_current_user)):
     """Resolve a match between two books and update their records."""
-    book_map = {b.id: b for b in state.books}
+    book_map = {b.id: b for b in _books}
 
     winner = book_map.get(result.winner_id)
     loser = book_map.get(result.loser_id)
@@ -90,7 +92,7 @@ def post_match(result: MatchResult, _user_id: str = Depends(get_current_user)):
             status_code=status.HTTP_404_NOT_FOUND, detail="Books not found"
         )
 
-    resolve_comparison(winner, loser, state.books)
+    resolve_comparison(winner, loser, _books)
 
     return {"status": "ok", "winner": winner.id, "loser": loser.id}
 
@@ -102,8 +104,8 @@ def post_match(result: MatchResult, _user_id: str = Depends(get_current_user)):
 def get_progress(_user_id: str = Depends(get_current_user)):
     """Return the user's overall progress in the game."""
     return {
-        "progress": round(calculate_progress(state.books), 4),
-        "book_count": len(state.books),
+        "progress": round(calculate_progress(_books), 4),
+        "book_count": len(_books),
     }
 
 
@@ -111,8 +113,8 @@ def get_progress(_user_id: str = Depends(get_current_user)):
 def get_leaderboard(_user_id: str = Depends(get_current_user)):
     ranked_books = []
 
-    for rank, book in rank_books(state.books):
-        accuracy_score = confidence_score(book, state.books)
+    for rank, book in rank_books(_books):
+        accuracy_score = confidence_score(book, _books)
 
         accuracy_tier = len(ACCURACY_TIERS)
         for index, threshold in enumerate(ACCURACY_TIERS, start=1):
@@ -145,7 +147,7 @@ class BookData(BaseModel):
 @app.post("/books")
 def add_book(book: BookData, _user_id: str = Depends(get_current_user)):
     """Add a new book to the collection."""
-    existing_books = {(b.title.lower(), b.author.lower()) for b in state.books}
+    existing_books = {(b.title.lower(), b.author.lower()) for b in _books}
 
     if (book.title.lower(), book.author.lower()) in existing_books:
         raise HTTPException(status_code=409, detail="Book already exists")
@@ -157,7 +159,7 @@ def add_book(book: BookData, _user_id: str = Depends(get_current_user)):
     except sqlite3.IntegrityError:
         raise HTTPException(status_code=409, detail="Book already exists")
 
-    state.books.append(new_book)
+    _books.append(new_book)
 
     return {"id": new_book.id, "title": new_book.title, "author": new_book.author}
 
@@ -178,9 +180,9 @@ def import_books(file: UploadFile, _user_id: str = Depends(get_current_user)):
     if "title" not in reader.fieldnames or "author" not in reader.fieldnames:
         raise HTTPException(status_code=400, detail="CSV file missing required columns")
 
-    result = library_service.import_books(reader, state.books)
+    result = library_service.import_books(reader, _books)
 
-    state.books.extend(result.new_books)
+    _books.extend(result.new_books)
 
     return {
         "imported": len(result.new_books),
