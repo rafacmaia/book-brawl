@@ -164,6 +164,8 @@ def backup_cleanup(limit, db_path):
 
 
 if __name__ == "__main__":
+    os.makedirs("data", exist_ok=True)
+
     if "--beta" in sys.argv:
         state.db_path = "data/beta.db"
     if "--demo1" in sys.argv:
