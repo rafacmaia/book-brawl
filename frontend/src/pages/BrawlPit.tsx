@@ -108,7 +108,7 @@ export default function BrawlPit() {
     'underline decoration-accent/80 decoration-wavy decoration-8 underline-offset-42'
 
   return (
-    <main className="relative flex grow flex-col items-center">
+    <main className="relative flex grow flex-col items-center text-primary/95">
       <h1
         className={`z-100 mt-24 text-center font-calistoga text-7xl font-extrabold tracking-wide text-primary/95 drop-shadow-md`}
       >

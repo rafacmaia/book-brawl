@@ -6,6 +6,7 @@ import Footer from './components/Footer.tsx'
 import { Nav } from './components/Nav.tsx'
 import { apiFetch } from './api.ts'
 import { useEffect } from 'react'
+import { BookIntake } from './pages/BookIntake.tsx'
 
 export default function App() {
   const { user } = useUser()
@@ -49,6 +50,7 @@ export default function App() {
                   <Route path={'/'} element={<Navigate to="/brawl" replace />} />
                   <Route path={'/brawl'} element={<BrawlPit />} />
                   <Route path={'/leaderboard'} element={<Leaderboard />} />
+                  <Route path={'/feed'} element={<BookIntake />} />
                 </Routes>
                 <Footer />
               </div>

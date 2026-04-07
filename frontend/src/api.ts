@@ -1,11 +1,11 @@
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+export const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 export async function apiFetch(
   endpoint: string,
   token: string,
   options: RequestInit = {}
 ): Promise<Response> {
-  return fetch(`${API_BASE}${endpoint}`, {
+  const response = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -13,4 +13,11 @@ export async function apiFetch(
       ...options.headers,
     },
   })
+
+  if (!response.ok) {
+    const error = await response.json()
+    throw new Error(error.detail ?? `Request failed: ${response.status}`)
+  }
+
+  return response
 }

@@ -16,6 +16,9 @@ export function Nav() {
       <NavLink to={'/leaderboard'} className={activeStyle}>
         Leaderboard
       </NavLink>
+      <NavLink to={'/feed'} className={activeStyle}>
+        Feed the Pit
+      </NavLink>
       <div className={`translate-y-0.5`}>
         <UserButton />
       </div>
