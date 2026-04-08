@@ -1,10 +1,10 @@
 import csv
 import io
-import sqlite3
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
+from psycopg2 import errors as pg_errors
 from pydantic import BaseModel
 
 from auth import get_current_reader_id, get_current_user
@@ -162,7 +162,7 @@ def add_book(book: BookData, reader_id: str = Depends(get_current_reader_id)):
 
     try:
         books_repo.insert(reader_id, new_book)
-    except sqlite3.IntegrityError:
+    except pg_errors.UniqueViolation:
         raise HTTPException(status_code=409, detail="Book already exists")
 
     return {"id": new_book.id, "title": new_book.title, "author": new_book.author}
@@ -212,8 +212,9 @@ def sync_user(data: UserSync, clerk_id: str = Depends(get_current_user)):
     if not user:
         try:
             user_id = users_repo.insert(clerk_id, data.email, data.username)
-        except sqlite3.IntegrityError:
+        except pg_errors.UniqueViolation:
             raise HTTPException(status_code=409, detail="User already exists")
+
         return {"id": user_id, "clerk_id": clerk_id, "created": True}
 
     return {"id": user["id"], "clerk_id": clerk_id, "created": False}
