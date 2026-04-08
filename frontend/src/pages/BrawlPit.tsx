@@ -60,28 +60,28 @@ export default function BrawlPit() {
   const { getToken } = useAuth()
 
   const [match, setMatch] = useState<Match | null>(null)
+  const [nextMatch, setNextMatch] = useState<Match | null>(null)
   const [emptyPit, setEmptyPit] = useState<boolean>(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [visible, setVisible] = useState(true)
+  const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    void fetchMatch().finally(() => setLoading(false))
+    void (async () => {
+      const token = await getToken()
+      const [first, second] = await Promise.all([fetchMatch(token!), fetchMatch(token!)])
+
+      setMatch(first ?? null)
+      setLoading(false)
+      requestAnimationFrame(() => setVisible(true))
+      setNextMatch(second ?? null)
+    })()
   }, [])
 
-  async function fetchMatch(token: string | null = null) {
+  async function fetchMatch(token: string) {
     try {
-      if (!token) {
-        token = await getToken()
-      }
-
       const response = await apiFetch('/brawl', token!)
-      const data = await response.json()
-      setVisible(false)
-      await new Promise((resolve) => setTimeout(resolve, 250))
-      setMatch(data)
-      await new Promise((resolve) => setTimeout(resolve, 50))
-      setVisible(true)
+      return await response.json()
     } catch (err) {
       if (err instanceof ApiError && err.status === 400) {
         setEmptyPit(true)
@@ -94,16 +94,28 @@ export default function BrawlPit() {
   async function handleChoice(winnerId: number, loserId: number) {
     setError(null)
 
+    if (nextMatch) {
+      setVisible(false)
+      await new Promise((resolve) => setTimeout(resolve, 300))
+      setMatch(nextMatch)
+      await new Promise((resolve) => setTimeout(resolve, 50))
+      setVisible(true)
+
+      setNextMatch(null)
+    }
+
     try {
       const token = await getToken()
 
-      await Promise.all([
+      const [_, next] = await Promise.all([
         apiFetch('/brawl/resolve', token!, {
           method: 'POST',
           body: JSON.stringify({ winner_id: winnerId, loser_id: loserId }),
         }),
         fetchMatch(token!),
       ])
+
+      setNextMatch(next)
     } catch (error) {
       setError('Something went wrong. Please try again.')
     }
@@ -133,7 +145,7 @@ export default function BrawlPit() {
       ) : (
         match && (
           <div
-            className={`${visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'} flex w-full grow items-center justify-center gap-27 transition-all duration-250 ease-in-out`}
+            className={`${visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'} flex w-full grow items-center justify-center gap-27 transition-all duration-300 ease-in-out`}
           >
             <BookButton
               book={match.book_a}
