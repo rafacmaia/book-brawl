@@ -36,6 +36,11 @@ def import_books(reader_id, file_reader, books):
     """
     existing_books = {(b.title.lower(), b.author.lower()) for b in books}
 
+    elo_range = get_elo_range(reader_id) or {
+        "elo_min": ELO_MIN_DEFAULT,
+        "elo_max": ELO_MAX_DEFAULT,
+    }
+
     result = ImportResult(new_books=[], skipped=0, interrupted=False)
 
     for i, row in enumerate(file_reader, start=2):
@@ -47,7 +52,7 @@ def import_books(reader_id, file_reader, books):
         if book_data:
             # 'books' only updates after the full import, so len(books) == 0 stays True
             # for every row in a first-time import
-            elo = rating_to_elo(reader_id, book_data.rating, first_run=len(books) == 0)
+            elo = rating_to_elo(reader_id, elo_range, book_data.rating)
             book = Book(book_data.title, book_data.author, book_data.rating, elo)
             result.new_books.append(book)
             existing_books.add((book_data.title.lower(), book_data.author.lower()))
@@ -99,28 +104,23 @@ def _process_row(row, i, existing_books, result):
         return BookData(title, author, rating)
 
 
-def rating_to_elo(reader_id, rating, first_run=False):
+def rating_to_elo(reader_id, elo_range, rating):
     """Convert a user rating, or lack of, to an Elo score."""
     if rating is None:
         return ELO_DEFAULT
 
-    if first_run:
+    elo_min = elo_range["elo_min"]
+    elo_max = elo_range["elo_max"]
+
+    if elo_min == ELO_MIN_DEFAULT and elo_max == ELO_MAX_DEFAULT:
         # Map rating to the starting 800-1200 Elo range
         elo = ELO_MIN_DEFAULT + (rating - 1) * ((ELO_MAX_DEFAULT - ELO_MIN_DEFAULT) / 9)
         return round(elo)
     else:
-        stats = get_elo_range(reader_id) or {
-            "elo_min": ELO_MIN_DEFAULT,
-            "elo_max": ELO_MAX_DEFAULT,
-        }
-
-        e_min = min(stats["elo_min"], ELO_MIN_DEFAULT)
-        e_max = max(stats["elo_max"], ELO_MAX_DEFAULT)
-
         # Maps rating to Elo using a floor of 3 rather than 1, reflecting that
         # real-world ratings rarely fall below 3/10. The floor bump ensures a book
         # rated at the floor doesn't start at the literal Elo minimum — it begins one
         # K-value above, within reach of the bottom but not pinned there.
         rating = max(RATING_FLOOR, rating)
-        elo = round(e_min + (rating - 3) * ((e_max - e_min) / 7))
-        return max(elo, e_min + RATING_FLOOR_BUMP)
+        elo = round(elo_min + (rating - 3) * ((elo_max - elo_min) / 7))
+        return max(elo, elo_min + RATING_FLOOR_BUMP)
