@@ -1,6 +1,6 @@
 import { useAuth } from '@clerk/react'
 import { type ChangeEvent, useState } from 'react'
-import { API_BASE, apiFetch } from '../api'
+import { API_BASE, ApiError, apiFetch } from '../api'
 
 interface ImportResult {
   imported: number
@@ -15,11 +15,13 @@ interface ManualResult {
 
 function InputField({
   type,
+  step,
   placeholder,
   value,
   onChange,
 }: {
   type: string
+  step?: string
   placeholder: string
   value: string
   onChange: (value: string) => void
@@ -27,6 +29,7 @@ function InputField({
   return (
     <input
       type={type}
+      step={step}
       placeholder={placeholder}
       value={value}
       onChange={(e) => onChange(e.target.value)}
@@ -35,12 +38,12 @@ function InputField({
   )
 }
 
-export function BookIntake() {
+export default function BookIntake() {
   const { getToken } = useAuth()
-  const [importRes, setImportRes] = useState<ImportResult | null>(null)
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [rating, setRating] = useState('')
+  const [importRes, setImportRes] = useState<ImportResult | null>(null)
   const [manualRes, setManualRes] = useState<ManualResult | null>(null)
   const [loading, setLoading] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
@@ -70,6 +73,7 @@ export function BookIntake() {
       if (!response.ok) {
         const err = await response.json()
         setImportError(err.detail ?? 'Import failed')
+        return
       }
 
       const data = await response.json()
@@ -93,7 +97,7 @@ export function BookIntake() {
     }
 
     const parsedRating = rating ? parseFloat(rating) : null
-    if (parsedRating !== null && (parsedRating < 1 || parsedRating > 10)) {
+    if (parsedRating !== null && (isNaN(parsedRating) || parsedRating < 1 || parsedRating > 10)) {
       setManualError('Rating must be between 1 and 10.')
       return
     }
@@ -114,13 +118,16 @@ export function BookIntake() {
       setTitle('')
       setAuthor('')
       setRating('')
-    } catch (err: unknown) {
-      console.error(err)
-      setManualError('Something went wrong. Please try again.')
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 409) {
+        setManualError('This book is already in the pit!')
+      } else {
+        setManualError('Something went wrong. Please try again.')
+      }
     }
   }
 
-  const wavyUnderline =
+  const underlineStyling =
     'underline decoration-accent/80 decoration-wavy decoration-4 underline-offset-12'
   const subheaderStyling =
     'mb-4 text-left font-calistoga text-3xl font-bold tracking-wide underline decoration-accent/75 decoration-wavy underline-offset-8 drop-shadow-md'
@@ -130,30 +137,31 @@ export function BookIntake() {
   return (
     <main className="flex grow flex-col items-center gap-16 p-4 text-primary/95">
       <h1
-        className={`mb-4 text-center font-calistoga text-6xl font-extrabold tracking-widest drop-shadow-xs ${wavyUnderline}`}
+        className={`mb-4 text-center font-calistoga text-6xl font-extrabold tracking-widest drop-shadow-xs ${underlineStyling}`}
       >
         Feed the Pit
       </h1>
       <div className={'mb-16 flex w-full grow justify-center gap-16 align-middle'}>
         {/* MANUAL ENTRY  */}
-        <section className="flex w-xl flex-col gap-6 text-[22px]">
+        <section className="flex w-xl flex-col gap-6">
           <h2 className={subheaderStyling}>Manual Entry</h2>
           <InputField type="text" placeholder="Title" value={title} onChange={setTitle} />
           <InputField type="text" placeholder="Author" value={author} onChange={setAuthor} />
           <InputField
             type="number"
+            step="0.5"
             placeholder="Optional Rating (1-10, decimals welcome)"
             value={rating}
             onChange={setRating}
           />
-          <div className="mb-2 flex items-start gap-6 text-left">
+          <div className="mb-2 flex items-start gap-6 text-left text-[20px]">
             <button onClick={handleManualEntry} className={`${buttonStyling}`}>
               Add Book
             </button>
             {(manualError || manualRes) && (
               <div className="translate-y-1 self-center font-bold tracking-wide brightness-120">
                 {manualError && (
-                  <p className={'font-bold text-accent'}>
+                  <p className={'text-xl font-bold text-accent'}>
                     ❌<span className={'ml-2'}>{manualError}</span>
                   </p>
                 )}

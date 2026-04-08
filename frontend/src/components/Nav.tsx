@@ -1,7 +1,7 @@
-import { NavLink } from 'react-router-dom'
 import { UserButton } from '@clerk/react'
+import { NavLink } from 'react-router-dom'
 
-export function Nav() {
+export default function Nav() {
   function activeStyle({ isActive }: { isActive: boolean }): string {
     return isActive
       ? 'underline decoration-wavy decoration-2 underline-offset-4 decoration-accent/80'

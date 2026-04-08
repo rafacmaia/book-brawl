@@ -1,13 +1,12 @@
-import { useEffect, useState } from 'react'
-import { apiFetch } from '../api.ts'
-import { Placeholder } from '../components/Placeholder.tsx'
 import { useAuth } from '@clerk/react'
+import { useEffect, useState } from 'react'
+import { apiFetch } from '../api'
+import Placeholder from '../components/Placeholder'
 
 interface BookData {
   rank: string
   title: string
   author: string
-  accuracy_score: number
   accuracy_tier: number
 }
 
@@ -50,7 +49,7 @@ export default function Leaderboard() {
       setRankings(rankingsData)
       setProgress(progressData.progress)
       setBookCount(progressData.book_count)
-    } catch (error) {
+    } catch {
       setError('Failed to load leaderboard. Please try again.')
     } finally {
       setLoading(false)
@@ -80,7 +79,7 @@ export default function Leaderboard() {
               'mt-2 rounded-full bg-primary/90 px-10 py-2 text-center font-calistoga text-[22px] font-bold tracking-wide text-text shadow-2xl'
             }
           >
-            {bookCount} Books{'\u00A0\u00A0\u00A0\u00A0•\u00A0\u00A0\u00A0\u00A0'}
+            {bookCount} Books<span className={'mx-6'}>•</span>
             {Math.round(progress * 100)}% Complete
           </h2>
           <table className="mt-2 w-2/3 table-fixed border-collapse rounded-md bg-primary/90 text-text shadow-lg">

@@ -1,5 +1,14 @@
 export const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
+export class ApiError extends Error {
+  status: number
+
+  constructor(message: string, status: number) {
+    super(message)
+    this.status = status
+  }
+}
+
 export async function apiFetch(
   endpoint: string,
   token: string,
@@ -15,8 +24,8 @@ export async function apiFetch(
   })
 
   if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.detail ?? `Request failed: ${response.status}`)
+    const err = await response.json().catch(() => ({}))
+    throw new ApiError(err.detail ?? 'Request failed', response.status)
   }
 
   return response

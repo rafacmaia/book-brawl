@@ -1,12 +1,12 @@
 import { RedirectToSignIn, Show, useAuth, useUser } from '@clerk/react'
 import { Navigate, Route, Routes } from 'react-router-dom'
-import BrawlPit from './pages/BrawlPit.tsx'
-import Leaderboard from './pages/Leaderboard.tsx'
-import Footer from './components/Footer.tsx'
-import { Nav } from './components/Nav.tsx'
-import { apiFetch } from './api.ts'
 import { useEffect } from 'react'
-import { BookIntake } from './pages/BookIntake.tsx'
+import { apiFetch } from './api'
+import BrawlPit from './pages/BrawlPit'
+import Leaderboard from './pages/Leaderboard'
+import Footer from './components/Footer'
+import BookIntake from './pages/BookIntake'
+import Nav from './components/Nav'
 
 export default function App() {
   const { user } = useUser()

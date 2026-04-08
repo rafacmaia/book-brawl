@@ -1,7 +1,7 @@
 import { useAuth } from '@clerk/react'
 import { useEffect, useState } from 'react'
-import { apiFetch } from '../api'
-import { Placeholder } from '../components/Placeholder.tsx'
+import { ApiError, apiFetch } from '../api'
+import Placeholder from '../components/Placeholder'
 
 interface Book {
   id: number
@@ -82,8 +82,8 @@ export default function BrawlPit() {
       setMatch(data)
       await new Promise((resolve) => setTimeout(resolve, 50))
       setVisible(true)
-    } catch (error: any) {
-      if (error.message === 'Not enough books') {
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 400) {
         setEmptyPit(true)
       } else {
         setError('Failed to load brawl, please try again!')
