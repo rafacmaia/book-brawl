@@ -1,5 +1,7 @@
 """Handles user authentication using Clerk JWTs."""
 
+from typing import Annotated
+
 import jwt
 import requests
 from fastapi import HTTPException, status
@@ -8,6 +10,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt.algorithms import RSAAlgorithm
 
 from config import CLERK_JWKS_URL
+from db import users_repo
 
 if not CLERK_JWKS_URL:
     raise RuntimeError(
@@ -19,7 +22,7 @@ bearer_scheme = HTTPBearer()
 
 
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(bearer_scheme)],
 ):
     """Verify the JWT and return the Clerk user ID.
 
@@ -72,3 +75,13 @@ def _get_jwks():
     response = requests.get(CLERK_JWKS_URL)
     response.raise_for_status()  # Raise an exception if there's an HTTP error
     return response.json()
+
+
+def get_current_reader_id(clerk_id: Annotated[str, Depends(get_current_user)]):
+    """Resolve Clerk ID to internal reader ID."""
+    reader = users_repo.get_by_clerk_id(clerk_id)
+
+    if not reader:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return reader["id"]

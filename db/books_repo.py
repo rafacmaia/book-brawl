@@ -4,14 +4,17 @@ from db.connection import get_connection
 from models import Book
 
 
-def get_all():
+def get_all(reader_id):
     """Load all books, set their opponent/wins history, and set global Elo min/max."""
     Book.elo_min = 800
     Book.elo_max = 1200
 
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute("SELECT id, title, author, rating, elo FROM book")
+            cur.execute(
+                "SELECT id, title, author, rating, elo FROM book WHERE reader_id = %s",
+                (reader_id,),
+            )
             rows = cur.fetchall()
 
     books = []
@@ -32,7 +35,10 @@ def get_all():
     book_map = {b.id: b for b in books}
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute("SELECT winner_id, loser_id FROM comparison")
+            cur.execute(
+                "SELECT winner_id, loser_id FROM comparison WHERE reader_id = %s",
+                (reader_id,),
+            )
             for row in cur.fetchall():
                 w_id, l_id = row["winner_id"], row["loser_id"]
                 book_map[w_id].record_opponent(l_id)
@@ -42,29 +48,29 @@ def get_all():
     return books
 
 
-def insert(book):
+def insert(reader_id, book):
     """Insert a new book and set its ID."""
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
                 """
-                    INSERT INTO book (title, author, rating, elo) 
-                    VALUES (%s, %s, %s, %s) 
+                    INSERT INTO book (reader_id, title, author, rating, elo) 
+                    VALUES (%s, %s, %s, %s, %s) 
                     RETURNING id
                 """,
-                (book.title, book.author, book.rating, book.elo),
+                (reader_id, book.title, book.author, book.rating, book.elo),
             )
             book.id = cur.fetchone()["id"]
 
 
-def insert_many(books):
+def insert_many(reader_id, books):
     """Insert multiple books and set their IDs."""
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             rows = execute_values(
                 cur,
-                "INSERT INTO book (title, author, rating, elo) VALUES %s RETURNING id",
-                [(b.title, b.author, b.rating, b.elo) for b in books],
+                "INSERT INTO book (reader_id, title, author, rating, elo) VALUES %s RETURNING id",
+                [(reader_id, b.title, b.author, b.rating, b.elo) for b in books],
                 fetch=True,
             )
             for book, row in zip(books, rows):
@@ -78,11 +84,14 @@ def update_elo(book):
             cur.execute("UPDATE book SET elo = %s WHERE id = %s", (book.elo, book.id))
 
 
-def get_elo_range():
+def get_elo_range(reader_id):
     """Return min, max, and median Elo across all books."""
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute("SELECT MIN(elo) as elo_min, MAX(elo) as elo_max FROM book")
+            cur.execute(
+                "SELECT MIN(elo) as elo_min, MAX(elo) as elo_max FROM book WHERE reader_id = %s",
+                (reader_id,),
+            )
             result = cur.fetchone()
 
             return dict(result) if result and result["elo_min"] is not None else None

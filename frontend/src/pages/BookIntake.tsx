@@ -101,7 +101,7 @@ export function BookIntake() {
     try {
       const token = await getToken()
 
-      const response = await apiFetch('/books', token!, {
+      await apiFetch('/books', token!, {
         method: 'POST',
         body: JSON.stringify({
           title: title.trim(),
@@ -110,14 +110,13 @@ export function BookIntake() {
         }),
       })
 
-      if (response.ok) {
-        setManualRes({ title: title.trim(), author: author.trim() })
-        setTitle('')
-        setAuthor('')
-        setRating('')
-      }
-    } catch (e: any) {
-      setManualError(e.message ?? 'Something went wrong. Please try again.')
+      setManualRes({ title: title.trim(), author: author.trim() })
+      setTitle('')
+      setAuthor('')
+      setRating('')
+    } catch (err: unknown) {
+      console.error(err)
+      setManualError('Something went wrong. Please try again.')
     }
   }
 

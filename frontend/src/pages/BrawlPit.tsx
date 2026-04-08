@@ -60,6 +60,7 @@ export default function BrawlPit() {
   const { getToken } = useAuth()
 
   const [match, setMatch] = useState<Match | null>(null)
+  const [emptyPit, setEmptyPit] = useState<boolean>(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [visible, setVisible] = useState(true)
@@ -81,8 +82,12 @@ export default function BrawlPit() {
       setMatch(data)
       await new Promise((resolve) => setTimeout(resolve, 50))
       setVisible(true)
-    } catch (error) {
-      setError('Failed to load match. Please try again.')
+    } catch (error: any) {
+      if (error.message === 'Not enough books') {
+        setEmptyPit(true)
+      } else {
+        setError('Failed to load brawl, please try again!')
+      }
     }
   }
 
@@ -123,6 +128,8 @@ export default function BrawlPit() {
         <Placeholder message={'Loading...'} />
       ) : error ? (
         <Placeholder message={error} />
+      ) : emptyPit ? (
+        <Placeholder message={'Not enough books to brawl! Feed the Pit and try again.'} />
       ) : (
         match && (
           <div

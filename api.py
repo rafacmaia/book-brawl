@@ -7,7 +7,7 @@ from fastapi import Depends, FastAPI, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from auth import get_current_user
+from auth import get_current_reader_id, get_current_user
 from config import ACCURACY_TIERS
 from db import books_repo, users_repo
 from db.connection import init_db
@@ -22,14 +22,10 @@ from services.scoring_service import (
 
 # ====== APP SETUP
 
-_books: list = []
-
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    global _books
     init_db()
-    _books = books_repo.get_all()
     yield
 
 
@@ -57,14 +53,16 @@ class MatchResult(BaseModel):
 
 
 @app.get("/brawl")
-def get_match(_user_id: str = Depends(get_current_user)):
+def get_match(reader_id: str = Depends(get_current_reader_id)):
     """Return two books to face off"""
-    if len(_books) < 2:
+    books = books_repo.get_all(reader_id)
+
+    if len(books) < 2:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Not enough books"
         )
 
-    book_a, book_b = select_opponents(_books)
+    book_a, book_b = select_opponents(books)
     return {
         "book_a": {
             "id": book_a.id,
@@ -80,41 +78,47 @@ def get_match(_user_id: str = Depends(get_current_user)):
 
 
 @app.post("/brawl/resolve")
-def post_match(result: MatchResult, _user_id: str = Depends(get_current_user)):
+def post_match(result: MatchResult, reader_id: str = Depends(get_current_reader_id)):
     """Resolve a match between two books and update their records."""
-    book_map = {b.id: b for b in _books}
+    books = books_repo.get_all(reader_id)
+
+    book_map = {b.id: b for b in books}
 
     winner = book_map.get(result.winner_id)
     loser = book_map.get(result.loser_id)
 
-    if not (winner and loser):
+    if winner is None or loser is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Books not found"
         )
 
-    resolve_comparison(winner, loser, _books)
+    resolve_comparison(reader_id, winner, loser, books)
 
-    return {"status": "ok", "winner": winner.id, "loser": loser.id}
+    return {"status": "ok", "winner": result.winner_id, "loser": result.loser_id}
 
 
 # ====== LEADERBOARD: PROGRESS & RANKINGS
 
 
 @app.get("/progress")
-def get_progress(_user_id: str = Depends(get_current_user)):
+def get_progress(reader_id: str = Depends(get_current_reader_id)):
     """Return the user's overall progress in the game."""
+    books = books_repo.get_all(reader_id)
+
     return {
-        "progress": round(calculate_progress(_books), 4),
-        "book_count": len(_books),
+        "progress": round(calculate_progress(books), 4),
+        "book_count": len(books),
     }
 
 
 @app.get("/leaderboard")
-def get_leaderboard(_user_id: str = Depends(get_current_user)):
+def get_leaderboard(reader_id: str = Depends(get_current_reader_id)):
+    books = books_repo.get_all(reader_id)
+
     ranked_books = []
 
-    for rank, book in rank_books(_books):
-        accuracy_score = confidence_score(book, _books)
+    for rank, book in rank_books(books):
+        accuracy_score = confidence_score(book, books)
 
         accuracy_tier = len(ACCURACY_TIERS)
         for index, threshold in enumerate(ACCURACY_TIERS, start=1):
@@ -145,9 +149,11 @@ class BookData(BaseModel):
 
 
 @app.post("/books")
-def add_book(book: BookData, _user_id: str = Depends(get_current_user)):
+def add_book(book: BookData, reader_id: str = Depends(get_current_reader_id)):
     """Add a new book to the collection."""
-    existing_books = {(b.title.lower(), b.author.lower()) for b in _books}
+    books = books_repo.get_all(reader_id)
+
+    existing_books = {(b.title.lower(), b.author.lower()) for b in books}
 
     if (book.title.lower(), book.author.lower()) in existing_books:
         raise HTTPException(status_code=409, detail="Book already exists")
@@ -155,34 +161,33 @@ def add_book(book: BookData, _user_id: str = Depends(get_current_user)):
     new_book = Book(title=book.title, author=book.author, rating=book.rating)
 
     try:
-        books_repo.insert(new_book)
+        books_repo.insert(reader_id, new_book)
     except sqlite3.IntegrityError:
         raise HTTPException(status_code=409, detail="Book already exists")
-
-    _books.append(new_book)
 
     return {"id": new_book.id, "title": new_book.title, "author": new_book.author}
 
 
 @app.post("/books/import")
-def import_books(file: UploadFile, _user_id: str = Depends(get_current_user)):
+def import_books(file: UploadFile, reader_id: str = Depends(get_current_reader_id)):
     """Import books from a CSV file."""
-    if not file.filename.lower().endswith(".csv"):
+    filename = file.filename or ""
+    if not filename.lower().endswith(".csv"):
         raise HTTPException(status_code=400, detail="Invalid file type")
 
     content = file.file.read().decode("utf-8")
-    reader = csv.DictReader(io.StringIO(content))
+    file_reader = csv.DictReader(io.StringIO(content))
 
-    if not reader.fieldnames:
+    if not file_reader.fieldnames:
         raise HTTPException(status_code=400, detail="CSV file is empty")
 
-    reader.fieldnames = [f.lower().strip() for f in reader.fieldnames]
-    if "title" not in reader.fieldnames or "author" not in reader.fieldnames:
+    file_reader.fieldnames = [f.lower().strip() for f in file_reader.fieldnames]
+    if "title" not in file_reader.fieldnames or "author" not in file_reader.fieldnames:
         raise HTTPException(status_code=400, detail="CSV file missing required columns")
 
-    result = library_service.import_books(reader, _books)
+    books = books_repo.get_all(reader_id)
 
-    _books.extend(result.new_books)
+    result = library_service.import_books(reader_id, file_reader, books)
 
     return {
         "imported": len(result.new_books),

@@ -12,11 +12,11 @@ interface BookData {
 }
 
 const TIER_LABELS: Record<number, string> = {
-  1: 'Very Low',
-  2: 'Low',
-  3: 'Moderate',
-  4: 'High',
-  5: 'Very High',
+  1: '🔴 Very Low',
+  2: '🟠 Low',
+  3: '🟡 Moderate',
+  4: '🟢 High',
+  5: '✅ Very High',
 }
 
 export default function Leaderboard() {
