@@ -13,19 +13,15 @@ interface ManualResult {
   author: string
 }
 
-function InputField({
-  type,
-  step,
-  placeholder,
-  value,
-  onChange,
-}: {
+interface InputFieldProps {
   type: string
   step?: string
   placeholder: string
   value: string
   onChange: (value: string) => void
-}) {
+}
+
+function InputField({ type, step, placeholder, value, onChange }: InputFieldProps) {
   return (
     <input
       type={type}
@@ -40,14 +36,15 @@ function InputField({
 
 export default function BookIntake() {
   const { getToken } = useAuth()
+
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [rating, setRating] = useState('')
   const [importRes, setImportRes] = useState<ImportResult | null>(null)
   const [manualRes, setManualRes] = useState<ManualResult | null>(null)
-  const [loading, setLoading] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
   const [manualError, setManualError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
   async function handleFileUpload(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -177,7 +174,7 @@ export default function BookIntake() {
         </section>
 
         {/* DIVIDER */}
-        <div className={'border-r-2 border-primary/60'} />
+        <div className={'border-r-2 border-primary/70'} />
 
         {/* CSV IMPORT */}
         <section className="flex w-xl flex-col gap-6 text-[22px]">

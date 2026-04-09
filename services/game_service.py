@@ -3,10 +3,10 @@ import random
 from db.books_repo import update_elo as save_elo
 from db.comparisons_repo import insert as insert_comparison
 from services.scoring_service import (
+    ABS_MIN_PERCENTAGE,
+    _absolute_score,
     calculate_elo,
     confidence_score,
-    opponent_weights,
-    sampling_weight,
 )
 
 
@@ -17,21 +17,63 @@ def select_opponents(books):
     that have been matched against each other less often, and books with similar Elo
     scores, to maximize information gained from each match.
     """
-    # Calculate weights based on confidence level.
+    # Calculate confidence scores for all books
     confidence_scores = {b.id: confidence_score(b, books) for b in books}
 
-    weights = [sampling_weight(b, confidence_scores[b.id], books) for b in books]
+    # Calculate weights based on confidence scores
+    weights = [_sampling_weight(b, confidence_scores[b.id], books) for b in books]
 
     book_a = random.choices(books, weights=weights, k=1)[0]
 
     # Calculate weights for book_b candidates based on the selected book_a
-    candidates = opponent_weights(book_a, confidence_scores, books)
+    candidates = _opponent_weights(book_a, confidence_scores, books)
     candidate_books = [b for b, w in candidates]
     candidate_weights = [w for b, w in candidates]
 
     book_b = random.choices(candidate_books, weights=candidate_weights, k=1)[0]
 
     return book_a, book_b
+
+
+def _sampling_weight(book, b_confidence, books):
+    """Calculate selection weight based on confidence level and absolute_score.
+
+    Ensures a minimum weight of 0.1. Absolute_score is used to highly prioritize newer
+    book entries with very few matches.
+    """
+    if len(books) <= 1:
+        return 1
+
+    # Boost scales with library size and absolute_score: larger collections
+    # require higher boosts to make a difference, and lower absolute_score
+    # requires a higher boost to get early data in.
+    early_boost = (len(books) * ABS_MIN_PERCENTAGE) * (1 - _absolute_score(book, books))
+    confidence_weight = 1 - b_confidence
+
+    return max(0.1, confidence_weight, early_boost)
+
+
+def _opponent_weights(book_a, con_scores, books):
+    """Adjust weights for book_b selection based on the selected book_a.
+
+    Prioritize rarer pairings and books with similar Elo scores.
+    """
+    candidates = []
+    for b in books:
+        if b.id != book_a.id:
+            # Increase the multiplier to penalize rematches more
+            rematch_penalty = 1 + 2 * book_a.opponents.get(b.id, 0)
+
+            # Decrease the divisor to prioritize similar score ranges
+            elo_gap_penalty = 1 + abs(book_a.elo - b.elo) / 150
+
+            # Calculate the base weight based on confidence level
+            w = max(0.1, 1 - con_scores[b.id])
+            adjusted_weight = max(0.1, w / rematch_penalty / elo_gap_penalty)
+
+            candidates.append((b, adjusted_weight))
+
+    return candidates
 
 
 def resolve_comparison(reader_id, winner, loser, books):
