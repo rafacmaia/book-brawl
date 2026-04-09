@@ -5,7 +5,7 @@ from db.books_repo import get_elo_range, insert, insert_many
 from models import Book
 from services.scoring_service import K_TIERS
 
-ELO_DEFAULT = 1000
+DEFAULT_RATING = 6
 ELO_MIN_DEFAULT = 800
 ELO_MAX_DEFAULT = 1200
 
@@ -107,7 +107,7 @@ def _process_row(row, i, existing_books, result):
 def rating_to_elo(reader_id, elo_range, rating):
     """Convert a user rating, or lack of, to an Elo score."""
     if rating is None:
-        return ELO_DEFAULT
+        rating = DEFAULT_RATING
 
     elo_min = elo_range["elo_min"]
     elo_max = elo_range["elo_max"]
