@@ -10,7 +10,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt.algorithms import RSAAlgorithm
 
 from config import CLERK_JWKS_URL
-from db import users_repo
+from db import readers_repo
 
 if not CLERK_JWKS_URL:
     raise RuntimeError(
@@ -79,7 +79,7 @@ def _get_jwks():
 
 def get_current_reader_id(clerk_id: Annotated[str, Depends(get_current_user)]):
     """Resolve Clerk ID to internal reader ID."""
-    reader = users_repo.get_by_clerk_id(clerk_id)
+    reader = readers_repo.get_by_clerk_id(clerk_id)
 
     if not reader:
         raise HTTPException(status_code=404, detail="User not found")

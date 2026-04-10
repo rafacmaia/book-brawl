@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 from auth import get_current_reader_id, get_current_user
 from config import ACCURACY_TIERS
-from db import books_repo, users_repo
+from db import books_repo, readers_repo
 from db.connection import init_db
 from models import Book
 from services import library_service
@@ -52,7 +52,7 @@ class MatchResult(BaseModel):
 
 
 @app.get("/brawl")
-def get_match(reader_id: str = Depends(get_current_reader_id)):
+def get_match(reader_id: int = Depends(get_current_reader_id)):
     """Return two books to face off"""
     books = books_repo.get_all(reader_id)
 
@@ -77,14 +77,13 @@ def get_match(reader_id: str = Depends(get_current_reader_id)):
 
 
 @app.post("/brawl/resolve")
-def post_match(result: MatchResult, reader_id: str = Depends(get_current_reader_id)):
+def post_match(result: MatchResult, reader_id: int = Depends(get_current_reader_id)):
     """Resolve a match between two books and update their records."""
     books = books_repo.get_all(reader_id)
-
     book_map = {b.id: b for b in books}
 
-    winner = book_map.get(result.winner_id)
-    loser = book_map.get(result.loser_id)
+    winner: Book | None = book_map.get(result.winner_id)
+    loser: Book | None = book_map.get(result.loser_id)
 
     if winner is None or loser is None:
         raise HTTPException(
@@ -100,7 +99,7 @@ def post_match(result: MatchResult, reader_id: str = Depends(get_current_reader_
 
 
 @app.get("/progress")
-def get_progress(reader_id: str = Depends(get_current_reader_id)):
+def get_progress(reader_id: int = Depends(get_current_reader_id)):
     """Return the user's overall progress in the game."""
     books = books_repo.get_all(reader_id)
 
@@ -111,7 +110,7 @@ def get_progress(reader_id: str = Depends(get_current_reader_id)):
 
 
 @app.get("/leaderboard")
-def get_leaderboard(reader_id: str = Depends(get_current_reader_id)):
+def get_leaderboard(reader_id: int = Depends(get_current_reader_id)):
     books = books_repo.get_all(reader_id)
 
     ranked_books = []
@@ -148,7 +147,7 @@ class BookData(BaseModel):
 
 
 @app.post("/books")
-def add_book(book: BookData, reader_id: str = Depends(get_current_reader_id)):
+def add_book(book: BookData, reader_id: int = Depends(get_current_reader_id)):
     """Add a new book to the collection."""
     books = books_repo.get_all(reader_id)
 
@@ -168,7 +167,7 @@ def add_book(book: BookData, reader_id: str = Depends(get_current_reader_id)):
 
 
 @app.post("/books/import")
-def import_books(file: UploadFile, reader_id: str = Depends(get_current_reader_id)):
+def import_books(file: UploadFile, reader_id: int = Depends(get_current_reader_id)):
     """Import books from a CSV file."""
     filename = file.filename or ""
     if not filename.lower().endswith(".csv"):
@@ -206,11 +205,11 @@ class UserSync(BaseModel):
 @app.post("/readers")
 def sync_user(data: UserSync, clerk_id: str = Depends(get_current_user)):
     """Create a new user record on the first login or return an existing one."""
-    user = users_repo.get_by_clerk_id(clerk_id)
+    user = readers_repo.get_by_clerk_id(clerk_id)
 
     if not user:
         try:
-            user_id = users_repo.insert(clerk_id, data.email, data.username)
+            user_id = readers_repo.insert(clerk_id, data.email, data.username)
         except pg_errors.UniqueViolation:
             raise HTTPException(status_code=409, detail="User already exists")
 

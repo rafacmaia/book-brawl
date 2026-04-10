@@ -8,7 +8,7 @@ class Book:
         self.author = author
         self.rating = rating
         self.elo = elo if elo is not None else 1000
-        self.opponents = {}  # {opp_id: times_matched} - used for confidence scoring
+        self.faced_opponents = {}  # {opp_id: times_matched} - used in confidence scoring
         self.won_over = {}  # {opp_id: times_won_over} - used for tiebreaking
 
     def update_elo(self, new_elo):
@@ -21,7 +21,7 @@ class Book:
             Book.elo_max = self.elo
 
     def record_opponent(self, opponent_id):
-        self.opponents[opponent_id] = self.opponents.get(opponent_id, 0) + 1
+        self.faced_opponents[opponent_id] = self.faced_opponents.get(opponent_id, 0) + 1
 
     def record_won_over(self, opponent_id):
         self.won_over[opponent_id] = self.won_over.get(opponent_id, 0) + 1

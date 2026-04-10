@@ -208,7 +208,7 @@ usable by both the web API and the original CLI.
 | [`services/library_service.py`](services/library_service.py) | Service     | Book import and initial Elo mapping     |
 | [`db/books_repo.py`](db/books_repo.py)                       | Persistence | Book queries                            |
 | [`db/comparisons_repo.py`](db/comparisons_repo.py)           | Persistence | Comparison queries                      |
-| [`db/users_repo.py`](db/users_repo.py)                       | Persistence | User queries                            |
+| [`db/readers_repo.py`](db/readers_repo.py)                   | Persistence | User queries                            |
 | [`db/connection.py`](db/connection.py)                       | Persistence | Database connection and schema          |
 
 ### **CLI**

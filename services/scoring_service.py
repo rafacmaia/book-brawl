@@ -68,7 +68,7 @@ def _absolute_score(book, books):
         else 1
     )
 
-    return min(len(book.opponents) / absolute_cap, 1)
+    return min(len(book.faced_opponents) / absolute_cap, 1)
 
 
 def _local_score(book, books):
@@ -83,7 +83,7 @@ def _local_score(book, books):
             and abs(_expected_score(book.elo, opp.elo) - 0.5) <= LOCAL_WINDOW
         ):
             relevant_opponents += 1
-            if opp.id in book.opponents:
+            if opp.id in book.faced_opponents:
                 relevant_opp_faced += 1
 
     return relevant_opp_faced / relevant_opponents if relevant_opponents else 1
