@@ -117,7 +117,7 @@ def _rating_to_elo(elo_range, rating):
     elo_min = elo_range["elo_min"]
     elo_max = elo_range["elo_max"]
 
-    if elo_min == ELO_MIN_DEFAULT and elo_max == ELO_MAX_DEFAULT:
+    if elo_min >= ELO_MIN_DEFAULT and elo_max <= ELO_MAX_DEFAULT:
         # Map rating to the starting 800-1200 Elo range
         elo = ELO_MIN_DEFAULT + (rating - 1) * ((ELO_MAX_DEFAULT - ELO_MIN_DEFAULT) / 9)
         return round(elo)

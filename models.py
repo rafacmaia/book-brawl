@@ -7,7 +7,7 @@ class Book:
         self.title = title
         self.author = author
         self.rating = rating
-        self.elo = elo if elo is not None else 1000
+        self.elo = elo
         self.faced_opponents = {}  # {opp_id: times_matched} - used in confidence scoring
         self.won_over = {}  # {opp_id: times_won_over} - used for tiebreaking
 
