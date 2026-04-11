@@ -1,7 +1,7 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from config import BOOK_LIMIT
-from db.books_repo import get_elo_range, insert, insert_many
+from db.books_repo import get_all, get_elo_range, insert, insert_many
 from models import Book
 from services.scoring_service import K_TIERS
 
@@ -19,7 +19,6 @@ class ImportResult:
     new_books: list
     skipped: int
     interrupted: bool
-    errors: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -29,12 +28,31 @@ class BookData:
     rating: float | None = None
 
 
-def import_books(reader_id, file_reader, books):
+def add_book(reader_id, title, author, rating):
+    """Add a single book to the database, ensuring no duplicates."""
+    if rating is not None and not (1 <= rating <= 10):
+        raise ValueError("Rating must be between 1 and 10")
+
+    elo_range = get_elo_range(reader_id) or {
+        "elo_min": ELO_MIN_DEFAULT,
+        "elo_max": ELO_MAX_DEFAULT,
+    }
+    elo = _rating_to_elo(elo_range, rating)
+
+    new_book = Book(title, author, rating, elo)
+
+    insert(reader_id, new_book)
+
+    return new_book
+
+
+def import_books(reader_id, file_reader):
     """Process each row of the CSV, adding new books to the database.
 
     Validates each row, skipping duplicate and invalid entries.
     """
-    existing_books = {(b.title.lower(), b.author.lower()) for b in books}
+    books = get_all(reader_id)
+    existing_books = {(b["title"].lower(), b["author"].lower()) for b in books}
 
     elo_range = get_elo_range(reader_id) or {
         "elo_min": ELO_MIN_DEFAULT,
@@ -44,44 +62,33 @@ def import_books(reader_id, file_reader, books):
     result = ImportResult(new_books=[], skipped=0, interrupted=False)
 
     for i, row in enumerate(file_reader, start=2):
-        if len(books) + len(result.new_books) >= BOOK_LIMIT:
+        if len(existing_books) >= BOOK_LIMIT:
             result.interrupted = True
             return result
 
-        book_data = _process_row(row, i, existing_books, result)
+        book_data = _process_row(row, existing_books, result)
         if book_data:
-            # 'books' only updates after the full import, so len(books) == 0 stays True
-            # for every row in a first-time import
-            elo = rating_to_elo(reader_id, elo_range, book_data.rating)
+            elo = _rating_to_elo(elo_range, book_data.rating)
             book = Book(book_data.title, book_data.author, book_data.rating, elo)
             result.new_books.append(book)
             existing_books.add((book_data.title.lower(), book_data.author.lower()))
 
-    try:
-        insert_many(reader_id, result.new_books)
-    except Exception as e:
-        result.errors.append(f"Database error during import: {str(e)}")
-        result.interrupted = True
-        result.new_books = []
+    insert_many(reader_id, result.new_books)
 
     return result
 
 
-def _process_row(row, i, existing_books, result):
+def _process_row(row, existing_books, result):
     """Validate and process a single CSV row, updating the import result in place."""
     title = (row.get("title") or "").strip()
     author = (row.get("author") or "").strip()
     raw_rating = (row.get("rating") or "").strip()
 
     if not (title or author):
-        return None
+        return None  # Ignore empty rows
 
     if not (title and author):
-        author_clause = f" by '{author}'" if author else ""
-        result.errors.append(
-            f"Skipped row {i}: '{title if title else '  '}'"
-            f"{author_clause} – missing {'title' if not title else 'author'}"
-        )
+        result.skipped += 1  # Skip rows missing title or author
         return None
 
     if not raw_rating:
@@ -92,9 +99,7 @@ def _process_row(row, i, existing_books, result):
             if not (1 <= rating <= 10):
                 raise ValueError
         except ValueError:
-            result.errors.append(
-                f"Skipped row {i}: '{title}' by '{author}' – invalid rating: '{raw_rating}'"
-            )
+            result.skipped += 1  # Skip rows with invalid ratings
             return None
 
     if (title.lower(), author.lower()) in existing_books:
@@ -104,7 +109,7 @@ def _process_row(row, i, existing_books, result):
         return BookData(title, author, rating)
 
 
-def rating_to_elo(reader_id, elo_range, rating):
+def _rating_to_elo(elo_range, rating):
     """Convert a user rating, or lack of, to an Elo score."""
     if rating is None:
         return ELO_DEFAULT

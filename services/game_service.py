@@ -1,7 +1,9 @@
 import random
 
+from db.books_repo import get_all_history
 from db.books_repo import update_elo as save_elo
 from db.comparisons_repo import insert as insert_comparison
+from models import Book
 from services.scoring_service import (
     ABS_MIN_PERCENTAGE,
     _absolute_score,
@@ -10,13 +12,23 @@ from services.scoring_service import (
 )
 
 
-def select_opponents(books):
+class NotEnoughBooksError(Exception):
+    """Raised when there are not enough books to select opponents."""
+
+    pass
+
+
+def select_opponents(reader_id):
     """Select two books using weighted random selection.
 
     Favor low-confidence books (i.e., books with fewer unique matches played), books
     that have been matched against each other less often, and books with similar Elo
     scores, to maximize information gained from each match.
     """
+    books = get_all_history(reader_id)
+    if len(books) < 2:
+        raise NotEnoughBooksError
+
     # Calculate confidence scores for all books
     confidence_scores = {b.id: confidence_score(b, books) for b in books}
 
@@ -76,11 +88,19 @@ def _opponent_weights(book_a, con_scores, books):
     return candidates
 
 
-def resolve_comparison(reader_id, winner, loser, books):
+def resolve_comparison(reader_id, winner_id, loser_id):
     """Update book records after a match is resolved.
 
     Update Elo scores, persist match, and update book opponents and wins.
     """
+    books = get_all_history(reader_id)
+    book_map = {b.id: b for b in books}
+
+    winner: Book | None = book_map.get(winner_id)
+    loser: Book | None = book_map.get(loser_id)
+
+    if winner is None or loser is None:
+        raise ValueError
 
     new_winner_elo, new_loser_elo = calculate_elo(winner, loser, books)
     insert_comparison(reader_id, winner.id, loser.id)
@@ -93,3 +113,5 @@ def resolve_comparison(reader_id, winner, loser, books):
     loser.update_elo(new_loser_elo)
     loser.record_opponent(winner.id)
     save_elo(loser)
+
+    return winner, loser

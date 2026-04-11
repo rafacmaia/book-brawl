@@ -8,17 +8,17 @@ from psycopg2 import errors as pg_errors
 from pydantic import BaseModel
 
 from auth import get_current_reader_id, get_current_user
-from config import ACCURACY_TIERS
 from db import books_repo, readers_repo
 from db.connection import init_db
-from models import Book
 from services import library_service
-from services.game_service import resolve_comparison, select_opponents
-from services.ranking_service import rank_books
-from services.scoring_service import (
-    calculate_progress,
-    confidence_score,
+from services.game_service import (
+    NotEnoughBooksError,
+    resolve_comparison,
+    select_opponents,
 )
+from services.library_service import add_book as insert_book
+from services.ranking_service import build_leaderboard
+from services.scoring_service import calculate_progress
 
 # ====== APP SETUP
 
@@ -54,14 +54,11 @@ class MatchResult(BaseModel):
 @app.get("/brawl")
 def get_match(reader_id: int = Depends(get_current_reader_id)):
     """Return two books to face off"""
-    books = books_repo.get_all(reader_id)
+    try:
+        book_a, book_b = select_opponents(reader_id)
+    except NotEnoughBooksError:
+        raise HTTPException(status_code=400, detail="Not enough books")
 
-    if len(books) < 2:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Not enough books"
-        )
-
-    book_a, book_b = select_opponents(books)
     return {
         "book_a": {
             "id": book_a.id,
@@ -76,23 +73,37 @@ def get_match(reader_id: int = Depends(get_current_reader_id)):
     }
 
 
-@app.post("/brawl/resolve")
+# TODO: finish implementing this!
+@app.get("/brawl/session")
+def get_session(reader_id: int = Depends(get_current_reader_id)):
+    books = books_repo.get_all_history(reader_id)
+
+    return [
+        {
+            "id": b.id,
+            "title": b.title,
+            "author": b.author,
+            "elo": b.elo,
+            "opponents": b.faced_opponents,
+            "won_over": b.won_over,
+        }
+        for b in books
+    ]
+
+
+@app.post("/brawl/resolve", status_code=status.HTTP_201_CREATED)
 def post_match(result: MatchResult, reader_id: int = Depends(get_current_reader_id)):
     """Resolve a match between two books and update their records."""
-    books = books_repo.get_all(reader_id)
-    book_map = {b.id: b for b in books}
+    try:
+        winner, loser = resolve_comparison(reader_id, result.winner_id, result.loser_id)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Books not found")
 
-    winner: Book | None = book_map.get(result.winner_id)
-    loser: Book | None = book_map.get(result.loser_id)
-
-    if winner is None or loser is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Books not found"
-        )
-
-    resolve_comparison(reader_id, winner, loser, books)
-
-    return {"status": "ok", "winner": result.winner_id, "loser": result.loser_id}
+    return {
+        "status": "ok",
+        "winner": {"id": winner.id, "elo": winner.elo},
+        "loser": {"id": loser.id, "elo": loser.elo},
+    }
 
 
 # ====== LEADERBOARD: PROGRESS & RANKINGS
@@ -101,7 +112,7 @@ def post_match(result: MatchResult, reader_id: int = Depends(get_current_reader_
 @app.get("/progress")
 def get_progress(reader_id: int = Depends(get_current_reader_id)):
     """Return the user's overall progress in the game."""
-    books = books_repo.get_all(reader_id)
+    books = books_repo.get_all_history(reader_id)
 
     return {
         "progress": round(calculate_progress(books), 4),
@@ -111,33 +122,10 @@ def get_progress(reader_id: int = Depends(get_current_reader_id)):
 
 @app.get("/leaderboard")
 def get_leaderboard(reader_id: int = Depends(get_current_reader_id)):
-    books = books_repo.get_all(reader_id)
-
-    ranked_books = []
-
-    for rank, book in rank_books(books):
-        accuracy_score = confidence_score(book, books)
-
-        accuracy_tier = len(ACCURACY_TIERS)
-        for index, threshold in enumerate(ACCURACY_TIERS, start=1):
-            if accuracy_score < threshold:
-                accuracy_tier = index
-                break
-
-        ranked_books.append(
-            {
-                "rank": rank,
-                "title": book.title,
-                "author": book.author,
-                "accuracy_score": round(accuracy_score, 4),
-                "accuracy_tier": accuracy_tier,
-            }
-        )
-
-    return ranked_books
+    return build_leaderboard(reader_id)
 
 
-# ====== BOOK INSERTIONS
+# ====== COLLECTION MANAGEMENT
 
 
 class BookData(BaseModel):
@@ -146,27 +134,26 @@ class BookData(BaseModel):
     rating: float | None = None
 
 
-@app.post("/books")
+@app.get("/books")
+def get_books(reader_id: int = Depends(get_current_reader_id)):
+    """Return the user's collection of books, sorted alphabetically by title."""
+    return books_repo.get_all(reader_id)
+
+
+@app.post("/books", status_code=status.HTTP_201_CREATED)
 def add_book(book: BookData, reader_id: int = Depends(get_current_reader_id)):
     """Add a new book to the collection."""
-    books = books_repo.get_all(reader_id)
-
-    existing_books = {(b.title.lower(), b.author.lower()) for b in books}
-
-    if (book.title.lower(), book.author.lower()) in existing_books:
-        raise HTTPException(status_code=409, detail="Book already exists")
-
-    new_book = Book(title=book.title, author=book.author, rating=book.rating)
-
     try:
-        books_repo.insert(reader_id, new_book)
+        new_book = insert_book(reader_id, book.title, book.author, book.rating)
     except pg_errors.UniqueViolation:
         raise HTTPException(status_code=409, detail="Book already exists")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
     return {"id": new_book.id, "title": new_book.title, "author": new_book.author}
 
 
-@app.post("/books/import")
+@app.post("/books/import", status_code=status.HTTP_201_CREATED)
 def import_books(file: UploadFile, reader_id: int = Depends(get_current_reader_id)):
     """Import books from a CSV file."""
     filename = file.filename or ""
@@ -183,9 +170,12 @@ def import_books(file: UploadFile, reader_id: int = Depends(get_current_reader_i
     if "title" not in file_reader.fieldnames or "author" not in file_reader.fieldnames:
         raise HTTPException(status_code=400, detail="CSV file missing required columns")
 
-    books = books_repo.get_all(reader_id)
-
-    result = library_service.import_books(reader_id, file_reader, books)
+    try:
+        result = library_service.import_books(reader_id, file_reader)
+    except pg_errors.UniqueViolation:
+        raise HTTPException(status_code=409, detail="Book already exists")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
     return {
         "imported": len(result.new_books),

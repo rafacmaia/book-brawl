@@ -5,6 +5,22 @@ from models import Book
 
 
 def get_all(reader_id):
+    """Return a reader's collection of books, sorted alphabetically by title."""
+    with get_connection() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                SELECT id, title, author, rating FROM book
+                WHERE reader_id = %s
+                ORDER BY
+                    REGEXP_REPLACE(title, '^(a|an|the)\\s+', '', 'i')
+                """,
+                (reader_id,),
+            )
+            return [dict(row) for row in cur.fetchall()]
+
+
+def get_all_history(reader_id):
     """Load all books, set their opponent/wins history, and set global Elo min/max."""
     Book.elo_min = 800
     Book.elo_max = 1200

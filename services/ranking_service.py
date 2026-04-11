@@ -1,4 +1,37 @@
-def rank_books(books):
+from config import ACCURACY_TIERS
+from db.books_repo import get_all_history
+from services.scoring_service import confidence_score
+
+
+def build_leaderboard(reader_id):
+    """Return a list of (rank, book) tuples."""
+    books = get_all_history(reader_id)
+
+    ranked_books = []
+
+    for rank, book in _rank_books(books):
+        accuracy_score = confidence_score(book, books)
+
+        accuracy_tier = len(ACCURACY_TIERS)
+        for index, threshold in enumerate(ACCURACY_TIERS, start=1):
+            if accuracy_score < threshold:
+                accuracy_tier = index
+                break
+
+        ranked_books.append(
+            {
+                "rank": rank,
+                "title": book.title,
+                "author": book.author,
+                "accuracy_score": round(accuracy_score, 4),
+                "accuracy_tier": accuracy_tier,
+            }
+        )
+
+    return ranked_books
+
+
+def _rank_books(books):
     """Rank all books based on their Elo score.
 
     Ties are broken by head-to-head comparisons (i.e., number of wins against other
