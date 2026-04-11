@@ -35,9 +35,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",  # Vite's dev server
-        "https://book-brawl.vercel.app",  # Vercel dev deployment (frontend)
         "https://bookbrawl.app",  # Production domain
-        "https://www.bookbrawl.app",  # Production domain
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -194,6 +192,13 @@ def import_books(file: UploadFile, reader_id: int = Depends(get_current_reader_i
         "skipped": result.skipped,
         "interrupted": result.interrupted,
     }
+
+
+@app.delete("/books/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_book(book_id: int, reader_id: int = Depends(get_current_reader_id)):
+    """Remove a book from the collection."""
+    if not books_repo.delete(reader_id, book_id):
+        raise HTTPException(status_code=404, detail="Book not found")
 
 
 # ====== USERS

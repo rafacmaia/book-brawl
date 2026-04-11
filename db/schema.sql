@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS reader (
 
 CREATE TABLE IF NOT EXISTS book (
     id          SERIAL      PRIMARY KEY,
-    reader_id   INTEGER     NOT NULL REFERENCES reader(id),
+    reader_id   INTEGER     NOT NULL REFERENCES reader(id) ON DELETE CASCADE,
     title       TEXT        NOT NULL,
     author      TEXT        NOT NULL,
     rating      REAL,
@@ -27,8 +27,8 @@ CREATE TABLE IF NOT EXISTS book (
 CREATE TABLE IF NOT EXISTS comparison (
     id         SERIAL       PRIMARY KEY,
     reader_id  INTEGER      NOT NULL REFERENCES reader(id),
-    winner_id  INTEGER      NOT NULL REFERENCES book(id),
-    loser_id   INTEGER      NOT NULL REFERENCES book(id),
+    winner_id  INTEGER      NOT NULL REFERENCES book(id) ON DELETE CASCADE,
+    loser_id   INTEGER      NOT NULL REFERENCES book(id) ON DELETE CASCADE,
     timestamp  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

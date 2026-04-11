@@ -77,6 +77,17 @@ def insert_many(reader_id, books):
                 book.id = row["id"]
 
 
+def delete(reader_id, book_id):
+    """Delete a book by ID."""
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "DELETE FROM book WHERE reader_id = %s AND id = %s",
+                (reader_id, book_id),
+            )
+            return cur.rowcount > 0
+
+
 def update_elo(book):
     """Update the Elo score for a book."""
     with get_connection() as conn:
