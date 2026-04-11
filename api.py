@@ -35,7 +35,9 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",  # Vite's dev server
-        "https://book-brawl.vercel.app",  # Vercel deployment (frontend)
+        "https://book-brawl.vercel.app",  # Vercel dev deployment (frontend)
+        "https://bookbrawl.app",  # Production domain
+        "https://www.bookbrawl.app",  # Production domain
     ],
     allow_credentials=True,
     allow_methods=["*"],
