@@ -2,6 +2,7 @@ import { useAuth } from '@clerk/react'
 import { useEffect, useState } from 'react'
 import { apiFetch } from '../api'
 import Placeholder from '../components/Placeholder'
+import { PageHeading } from '../components/PageHeading.tsx'
 
 interface BookData {
   rank: string
@@ -56,18 +57,9 @@ export default function Leaderboard() {
     }
   }
 
-  // TODO: Account for 1 book
-
-  const wavyUnderline =
-    'underline decoration-accent/80 decoration-wavy decoration-4 underline-offset-12'
-
   return (
     <main className="flex h-full min-h-0 grow flex-col items-center gap-8 overflow-y-auto p-4 text-primary/95">
-      <h1
-        className={`text-center font-calistoga text-6xl font-extrabold tracking-widest drop-shadow-xs ${wavyUnderline}`}
-      >
-        The Leaderboard
-      </h1>
+      <PageHeading title={'The Leaderboard'} />
       {loading ? (
         <Placeholder message={'Loading...'} />
       ) : error ? (
