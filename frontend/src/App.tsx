@@ -6,7 +6,7 @@ import BrawlPit from './pages/BrawlPit'
 import Leaderboard from './pages/Leaderboard'
 import Footer from './components/Footer'
 import BookIntake from './pages/BookIntake'
-import Nav from './components/Nav'
+import Header from './components/Header.tsx'
 
 export default function App() {
   const { user } = useUser()
@@ -45,7 +45,7 @@ export default function App() {
             </Show>
             <Show when={'signed-in'}>
               <div className={'flex h-full min-h-screen flex-col font-zain'}>
-                <Nav />
+                <Header />
                 <Routes>
                   <Route path={'/'} element={<Navigate to="/brawl" replace />} />
                   <Route path={'/brawl'} element={<BrawlPit />} />
