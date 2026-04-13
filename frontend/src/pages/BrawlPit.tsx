@@ -22,7 +22,7 @@ function BookButton({ book, onClick }: { book: Book; onClick: () => void }) {
   const veryLongTitle = title.length >= 69
   const longAuthor = author.length >= 30
 
-  const italic = /anonymous|various/i.test(author)
+  const italic = /\b(?:anonymous|various)\b/i.test(author)
 
   let longTextStyling: string, longTitleStyling: string, longAuthorStyling: string
 
