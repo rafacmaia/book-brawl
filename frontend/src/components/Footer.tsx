@@ -1,7 +1,7 @@
 export default function Footer() {
   return (
     <footer className="mt-auto flex w-screen flex-col items-center gap-4 p-4 text-center text-footer/75">
-      <div className="h-px w-7/8 bg-footer opacity-50 sm:w-1/3" />
+      <div className="h-px w-[95%] bg-footer opacity-50 sm:w-1/3" />
       <small className="block font-gaegu text-[17px]">
         © 2026{' '}
         <a

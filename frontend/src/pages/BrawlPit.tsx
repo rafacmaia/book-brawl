@@ -29,17 +29,21 @@ function BookButton({ book, onClick }: { book: Book; onClick: () => void }) {
   let longTextStyling: string, longTitleStyling: string, longAuthorStyling: string
 
   if ((longTitle && longAuthor) || veryLongTitle) {
-    longTextStyling = 'gap-4 px-7 py-3'
-    longTitleStyling = 'text-[40px]/13'
-    longAuthorStyling = 'text-[28px]/10'
+    longTextStyling = 'gap-4 sm:px-7 sm:py-3 px-4 py-2'
+    longTitleStyling = 'text-[28px]/8 sm:text-[40px]/13'
+    longAuthorStyling = 'text-[20px]/7 sm:text-[28px]/10'
   } else if (longTitle || longAuthor) {
-    longTextStyling = 'gap-4 px-8 py-3'
-    longTitleStyling = longTitle ? 'text-[42px]/14' : 'text-[44px]/14'
-    longAuthorStyling = longAuthor ? 'text-[28px]/10' : 'text-[30px]'
+    longTextStyling = 'gap-4 sm:px-8 sm:py-3 px-4 py-2'
+    longTitleStyling = longTitle
+      ? 'text-[30px]/9 sm:text-[42px]/14'
+      : 'text-[32px]/10 sm:text-[44px]/14'
+    longAuthorStyling = longAuthor
+      ? 'text-[22px]/7 sm:text-[28px]/10'
+      : 'text-[24px] sm:text-[30px]'
   } else {
-    longTextStyling = 'gap-6 px-8 py-4'
-    longTitleStyling = 'text-[44px]/16'
-    longAuthorStyling = 'text-[30px]'
+    longTextStyling = 'gap-6 sm:px-8 sm:py-4 px-4 py-2'
+    longTitleStyling = 'text-[32px]/10 sm:text-[44px]/16'
+    longAuthorStyling = 'text-[24px] sm:text-[30px]'
   }
 
   const hoverStyling =
@@ -47,7 +51,7 @@ function BookButton({ book, onClick }: { book: Book; onClick: () => void }) {
 
   return (
     <button
-      className={`flex h-72 w-134 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-md border-3 border-accent/80 bg-button/95 font-calistoga wrap-break-word text-text shadow-lg transition-all duration-250 active:scale-99 ${hoverStyling} ${longTextStyling}`}
+      className={`flex w-9/10 flex-1 basis-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-md border-3 border-accent/80 bg-button/95 font-calistoga wrap-break-word text-text shadow-lg transition-all duration-250 active:scale-99 sm:h-72 sm:w-134 sm:flex-none ${hoverStyling} ${longTextStyling}`}
       onClick={onClick}
     >
       <p className={`line-clamp-3 w-full p-1 font-medium ${longTitleStyling}`}>{title}</p>
@@ -125,17 +129,17 @@ export default function BrawlPit() {
   }
 
   const wavyUnderline =
-    'underline decoration-accent/80 decoration-wavy decoration-8 underline-offset-42'
+    'underline decoration-accent/80 decoration-wavy decoration-5 sm:decoration-8 underline-offset-46 sm:underline-offset-42'
 
   return (
-    <main className="relative flex grow flex-col items-center text-primary/95">
+    <main className="relative flex grow flex-col items-center px-4 text-primary/95">
       <h1
-        className={`z-100 mt-24 text-center font-calistoga text-7xl font-extrabold tracking-wide text-primary/95 drop-shadow-md`}
+        className={`z-100 mt-6 text-center font-calistoga text-[54px]/18 font-extrabold tracking-wide text-primary/95 drop-shadow-md sm:mt-24 sm:text-7xl`}
       >
         Which means more to you?
       </h1>
       <h1
-        className={`absolute z-0 mt-24 text-center font-calistoga text-7xl font-extrabold tracking-wide text-background ${wavyUnderline}`}
+        className={`absolute z-0 mt-24 text-center font-calistoga text-5xl font-extrabold tracking-wide text-background sm:block sm:text-7xl ${wavyUnderline}`}
       >
         ===============
       </h1>
@@ -164,7 +168,7 @@ export default function BrawlPit() {
       ) : (
         match && (
           <div
-            className={`${visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'} flex w-full grow items-center justify-center gap-27 transition-all duration-300 ease-in-out`}
+            className={`${visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'} mt-12 mb-8 flex w-full grow flex-col items-center justify-center gap-8 transition-all duration-300 ease-in-out sm:mt-0 sm:flex-row sm:gap-27`}
           >
             <BookButton
               book={match.book_a}

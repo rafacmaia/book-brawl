@@ -104,7 +104,7 @@ export default function Leaderboard() {
             {bookCount} Books<span className={'mx-6'}>•</span>
             {Math.round(progress * 100)}% Complete
           </h2>
-          <table className="w-2/3 table-fixed border-collapse rounded-md bg-button text-text shadow-lg">
+          <table className="w-[96%] table-fixed border-collapse rounded-md bg-button text-text shadow-lg sm:w-2/3">
             <thead className={'text-left'}>
               <tr className={'border-b-3 border-red-800'}>
                 <th className={`w-[10%] ${thStyling}`}>Rank</th>

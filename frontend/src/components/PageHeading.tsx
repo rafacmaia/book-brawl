@@ -4,7 +4,7 @@ export default function PageHeading({ title }: { title: string }) {
 
   return (
     <h1
-      className={`text-center font-calistoga text-6xl font-extrabold tracking-widest text-primary/95 drop-shadow-xs ${wavyUnderline}`}
+      className={`text-center font-calistoga text-[44px] font-extrabold tracking-wider text-primary/95 drop-shadow-xs sm:text-6xl sm:tracking-widest ${wavyUnderline}`}
     >
       {title}
     </h1>
