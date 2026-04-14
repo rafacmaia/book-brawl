@@ -33,6 +33,9 @@ def add_book(reader_id, title, author, rating):
     if rating is not None and not (1 <= rating <= 10):
         raise ValueError("Rating must be between 1 and 10")
 
+    if not (title and author):
+        raise ValueError("Title and author are required")
+
     elo_range = get_elo_range(reader_id) or {
         "elo_min": ELO_MIN_DEFAULT,
         "elo_max": ELO_MAX_DEFAULT,

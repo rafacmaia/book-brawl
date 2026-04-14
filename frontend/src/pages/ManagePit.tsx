@@ -70,9 +70,9 @@ function ImportModal({
         <h2 className="font-calistoga text-3xl font-bold text-text">CSV Import</h2>
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 size-6 cursor-pointer rounded-full bg-accent align-middle text-[16px] font-bold text-primary hover:scale-108"
+          className="absolute top-3 right-4 cursor-pointer text-[18px] font-extrabold text-red-700 hover:scale-112"
         >
-          x
+          🔴
         </button>
         <div className="flex flex-col gap-2 text-[20px] text-text/90">
           <p>
@@ -170,6 +170,7 @@ export default function ManagePit() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  const [loadingAdd, setLoadingAdd] = useState<boolean>(false)
   const [addError, setAddError] = useState<string | null>(null)
   const [newBook, setNewBook] = useState<Book | null>(null)
 
@@ -202,26 +203,27 @@ export default function ManagePit() {
 
   async function handleAdd(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
-
     const form = e.currentTarget
-    setAddError(null)
-    setNewBook(null)
-
     const formData = new FormData(form)
-    if (!formData.get('title') || !formData.get('author')) {
-      setAddError('Please enter both title and author.')
-      return
-    }
 
     const title = formData.get('title') as string
     const author = formData.get('author') as string
     const rating = formData.get('rating') as string | null
+
+    if (!title.trim() || !author.trim()) {
+      setAddError('Please enter both title and author.')
+      return
+    }
 
     const parsedRating = rating ? parseFloat(rating) : null
     if (parsedRating !== null && (isNaN(parsedRating) || parsedRating < 1 || parsedRating > 10)) {
       setAddError('Rating must be between 1 and 10')
       return
     }
+
+    setLoadingAdd(true)
+    setAddError(null)
+    setNewBook(null)
 
     try {
       const token = await getToken()
@@ -236,6 +238,7 @@ export default function ManagePit() {
       })
 
       const newBook = await response.json()
+
       setBooks((prev) => [newBook, ...prev])
       setNewBook(newBook)
       form.reset()
@@ -246,6 +249,8 @@ export default function ManagePit() {
       } else {
         setAddError(`Something went wrong. Please try again. ${err}`)
       }
+    } finally {
+      setLoadingAdd(false)
     }
   }
 
@@ -278,7 +283,7 @@ export default function ManagePit() {
   const tdStyling = `py-1.5 ${cellXPadding}`
 
   return (
-    <main className="flex h-full min-h-0 grow flex-col items-center gap-8 overflow-y-auto p-4 text-primary/95">
+    <main className="mx-auto flex h-full min-h-0 w-2/3 grow flex-col items-center justify-center gap-8 overflow-y-auto p-4 text-primary/95">
       <PageHeading title={'Manage the Pit'} />
 
       {showImportModal && (
@@ -303,7 +308,7 @@ export default function ManagePit() {
       ) : (
         <>
           {/* MANUAL INPUT */}
-          <section className="mt-4 flex w-3/5 flex-col gap-4">
+          <section className="mt-4 flex w-full flex-col gap-4">
             <h2 className="mb-4 font-calistoga text-3xl font-bold tracking-wide underline decoration-accent/80 decoration-wavy underline-offset-8 drop-shadow-md">
               New Entries
             </h2>
@@ -349,32 +354,46 @@ export default function ManagePit() {
               </button>
             </form>
             {addError && (
-              <p className="w-fit self-end rounded-xl bg-button/90 px-6 py-2 text-xl font-bold text-red-800 brightness-110">
+              <p className="w-fit self-end rounded-lg bg-button/90 px-6 py-2 text-xl font-bold text-red-800 brightness-110">
                 <span className={'mr-2'}>❌</span>
                 {addError}
               </p>
             )}
 
-            <div
-              className={`self-end rounded-xl bg-button px-6 py-2 ${newBook ? 'block' : 'hidden'}`}
-            >
-              <p className={'text-xl text-text brightness-110'}>
+            {newBook && (
+              <p
+                className={
+                  'self-end rounded-lg bg-button px-6 py-2 text-xl text-text brightness-110'
+                }
+              >
                 ✔ Added:{' '}
                 <span
                   className={'ml-1 font-bold underline decoration-accent/70 underline-offset-3'}
                 >
-                  {newBook?.title}
+                  {newBook.title}
                 </span>
                 , by{' '}
                 <span className={'font-bold underline decoration-accent/70 underline-offset-3'}>
-                  {newBook?.author}
+                  {newBook.author}
                 </span>
               </p>
-            </div>
+            )}
+
+            {loadingAdd && (
+              <p
+                className={
+                  'self-end rounded-lg bg-button/80 px-6 py-2 text-xl font-bold text-text brightness-110'
+                }
+              >
+                Updating the pit...
+              </p>
+            )}
           </section>
 
+          {/*<hr className="h-px w-full bg-button" />*/}
+
           {/* TABLE OF CURRENT BOOKS */}
-          <section className="mt-4 flex w-3/5 flex-col gap-4">
+          <section className="mt-4 flex w-full flex-col gap-4">
             <div className="flex w-full justify-between">
               <p
                 className={

@@ -27,7 +27,9 @@ def calculate_progress(books):
     """Return the average confidence score of all books."""
     if not books:
         return 0
+
     confidence_scores = [confidence_score(book, books) for book in books]
+
     return sum(confidence_scores) / len(confidence_scores)
 
 
