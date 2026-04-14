@@ -250,10 +250,16 @@ export default function ManagePit() {
   }
 
   function handleImportSuccess() {
+    setNewBook(null)
+    setAddError(null)
+
     void fetchBooks()
   }
 
   async function handleBurn(book: Book) {
+    setNewBook(null)
+    setAddError(null)
+
     try {
       const token = await getToken()
 
@@ -304,7 +310,7 @@ export default function ManagePit() {
             <p className={`text-lg text-[20px] font-medium tracking-wide`}>
               <span className={`font-extrabold decoration-accent/80`}>Rating</span> (1-10, decimals
               welcome) is optional, but encouraged. It sets an initial placement for the book, which
-              over time the Brawl Pit will confirm or disprove.
+              over time, the Brawl Pit will confirm or disprove.
             </p>
             <form
               className="flex w-full justify-between font-calistoga text-lg font-bold text-text"
