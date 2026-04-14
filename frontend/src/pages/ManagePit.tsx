@@ -96,9 +96,9 @@ function ImportModal({
               className="hidden"
             />
           </label>
-          {error && <p className="text-[18px] font-bold text-accent">{error}</p>}
+          {error && <p className="pl-1 text-[18px] font-bold text-red-700">{error}</p>}
           {result && (
-            <div className="flex flex-col gap-2 text-[20px] font-semibold tracking-wide">
+            <div className="flex flex-col gap-2 pl-1 text-[20px] font-semibold tracking-wide">
               {result.skipped > 0 && (
                 <p className="text-text">
                   Skipped{' '}
@@ -281,9 +281,10 @@ export default function ManagePit() {
   const cellXPadding = 'px-2 first:pl-4 last:pr-4'
   const thStyling = `font-calistoga text-[20px] tracking-wide pt-2 pb-1 font-extrabold ${cellXPadding}`
   const tdStyling = `py-1.5 ${cellXPadding}`
+  const addTriggered = newBook != null || addError != null || loadingAdd
 
   return (
-    <main className="mx-auto flex h-full min-h-0 w-2/3 grow flex-col items-center justify-center gap-8 overflow-y-auto p-4 text-primary/95">
+    <main className="mx-auto flex h-full min-h-0 w-2/3 grow flex-col items-center gap-4 overflow-y-auto p-4 text-primary/95">
       <PageHeading title={'Manage the Pit'} />
 
       {showImportModal && (
@@ -308,7 +309,9 @@ export default function ManagePit() {
       ) : (
         <>
           {/* MANUAL INPUT */}
-          <section className="mt-4 flex w-full flex-col gap-4">
+          <section
+            className={`mt-12 ${addTriggered ? 'mb-0' : 'mb-15'} flex w-full flex-col gap-4`}
+          >
             <h2 className="mb-4 font-calistoga text-3xl font-bold tracking-wide underline decoration-accent/80 decoration-wavy underline-offset-8 drop-shadow-md">
               New Entries
             </h2>
@@ -390,10 +393,10 @@ export default function ManagePit() {
             )}
           </section>
 
-          {/*<hr className="h-px w-full bg-button" />*/}
+          <hr className="h-px w-full text-button" />
 
           {/* TABLE OF CURRENT BOOKS */}
-          <section className="mt-4 flex w-full flex-col gap-4">
+          <section className="flex w-full flex-col gap-4">
             <div className="flex w-full justify-between">
               <p
                 className={
@@ -412,32 +415,34 @@ export default function ManagePit() {
               </button>
             </div>
 
-            <table className="w-full table-fixed border-collapse rounded-md bg-button text-text shadow-lg">
-              <thead className={'text-left'}>
-                <tr className={'border-b-3 border-red-700'}>
-                  <th className={`w-5/10 ${thStyling}`}>Title</th>
-                  <th className={`w-4/10 ${thStyling}`}>Author</th>
-                  <th className={`w-1/10 text-center ${thStyling}`}>Burn?</th>
-                </tr>
-              </thead>
-              <tbody className={'text-[18px] opacity-95'}>
-                {books.map((book) => (
-                  <tr key={book.id} className={'border-b-2 border-red-700/80 last:border-none'}>
-                    <td className={`font-bold ${tdStyling}`}>{book.title}</td>
-                    <td className={tdStyling}>{book.author}</td>
-                    <td className={`text-center ${tdStyling}`}>
-                      <button
-                        onClick={() => setBookToBurn(book)}
-                        title={'Delete book'}
-                        className={`cursor-pointer transition-all hover:scale-112 hover:brightness-120`}
-                      >
-                        <span className={`drop-shadow-2xl drop-shadow-amber-950`}>🔥</span>
-                      </button>
-                    </td>
+            {books.length > 0 && (
+              <table className="w-full table-fixed border-collapse rounded-md bg-button text-text shadow-lg">
+                <thead className={'text-left'}>
+                  <tr className={'border-b-3 border-red-700'}>
+                    <th className={`w-5/10 ${thStyling}`}>Title</th>
+                    <th className={`w-4/10 ${thStyling}`}>Author</th>
+                    <th className={`w-1/10 text-center ${thStyling}`}>Burn?</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className={'text-[18px] opacity-95'}>
+                  {books.map((book) => (
+                    <tr key={book.id} className={'border-b-2 border-red-700/80 last:border-none'}>
+                      <td className={`font-bold ${tdStyling}`}>{book.title}</td>
+                      <td className={tdStyling}>{book.author}</td>
+                      <td className={`text-center ${tdStyling}`}>
+                        <button
+                          onClick={() => setBookToBurn(book)}
+                          title={'Delete book'}
+                          className={`cursor-pointer transition-all hover:scale-112 hover:brightness-120`}
+                        >
+                          <span className={`drop-shadow-2xl drop-shadow-amber-950`}>🔥</span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </section>
         </>
       )}
