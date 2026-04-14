@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react'
 import { apiFetch } from '../api'
 import Placeholder from '../components/Placeholder'
 import PageHeading from '../components/PageHeading'
+import { CircleAlert } from 'lucide-react'
+import { NavLink } from 'react-router-dom'
 
 interface BookData {
   rank: string
@@ -25,6 +27,7 @@ export default function Leaderboard() {
   const [rankings, setRankings] = useState<BookData[]>([])
   const [progress, setProgress] = useState<number>(0)
   const [bookCount, setBookCount] = useState<number>(0)
+  const [emptyPit, setEmptyPit] = useState<boolean>(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -48,7 +51,7 @@ export default function Leaderboard() {
       const progressData = await progressRes.json()
 
       if (progressData.book_count === 0) {
-        setError('No books in the Pit. Feed the Pit to start!')
+        setEmptyPit(true)
         return
       }
 
@@ -73,6 +76,24 @@ export default function Leaderboard() {
         <Placeholder message={'Loading...'} />
       ) : error ? (
         <Placeholder message={error} />
+      ) : emptyPit ? (
+        <div
+          className={
+            'mb-12 flex grow flex-col items-center justify-center gap-0 text-center font-zain text-5xl/20 font-extrabold tracking-wide text-primary/85'
+          }
+        >
+          <CircleAlert size={72} className={'mb-8'} />
+          <p>No books in the pit!</p>
+          <p>
+            <NavLink
+              to={'/manage'}
+              className={`font-extrabold text-primary/90 underline decoration-accent/80 decoration-4 underline-offset-4 transition-all hover:text-[52px] hover:text-primary hover:decoration-wavy hover:underline-offset-8`}
+            >
+              Feed the Pit
+            </NavLink>{' '}
+            and try again.
+          </p>
+        </div>
       ) : (
         <>
           <h2

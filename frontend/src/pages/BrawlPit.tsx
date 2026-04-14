@@ -2,6 +2,8 @@ import { useAuth } from '@clerk/react'
 import { useEffect, useState } from 'react'
 import { ApiError, apiFetch } from '../api'
 import Placeholder from '../components/Placeholder'
+import { CircleAlert, PencilLine } from 'lucide-react'
+import { NavLink } from 'react-router-dom'
 
 interface Book {
   id: number
@@ -50,7 +52,8 @@ function BookButton({ book, onClick }: { book: Book; onClick: () => void }) {
     >
       <p className={`line-clamp-3 w-full p-1 font-medium ${longTitleStyling}`}>{title}</p>
       <p className={`line-clamp-2 w-full font-zain font-light ${longAuthorStyling}`}>
-        by <span className={italic ? 'italic' : ''}>{author}</span>
+        <PencilLine className={'mr-2 inline -translate-y-0.5 scale-85'} />
+        <span className={italic ? 'italic' : ''}>{author}</span>
       </p>
     </button>
   )
@@ -141,7 +144,23 @@ export default function BrawlPit() {
       ) : error ? (
         <Placeholder message={error} />
       ) : emptyPit ? (
-        <Placeholder message={'Not enough books to brawl! Feed the Pit and try again.'} />
+        <div
+          className={
+            'mb-12 flex grow flex-col items-center justify-center gap-0 text-center font-zain text-5xl/20 font-extrabold tracking-wide text-primary/85'
+          }
+        >
+          <CircleAlert size={72} className={'mb-8'} />
+          <p>Not enough books to brawl!</p>
+          <p>
+            <NavLink
+              to={'/manage'}
+              className={`font-extrabold text-primary/90 underline decoration-accent/80 decoration-4 underline-offset-4 transition-all hover:text-[52px] hover:text-primary hover:decoration-wavy hover:underline-offset-8`}
+            >
+              Feed the Pit
+            </NavLink>{' '}
+            and try again.
+          </p>
+        </div>
       ) : (
         match && (
           <div

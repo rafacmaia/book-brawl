@@ -3,6 +3,9 @@ import { type ChangeEvent, type SubmitEvent, useEffect, useRef, useState } from 
 import { API_BASE, ApiError, apiFetch } from '../api.ts'
 import Placeholder from '../components/Placeholder'
 import PageHeading from '../components/PageHeading'
+import { Download, SquareX } from 'lucide-react'
+import { FireIcon as FireSolid } from '@heroicons/react/24/solid'
+import { FireIcon as FireOutline } from '@heroicons/react/24/outline'
 
 interface Book {
   id: number
@@ -64,25 +67,26 @@ function ImportModal({
     }
   }
 
+  const fieldStyling = 'font-bold underline decoration-red-600/90'
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="relative flex w-xl flex-col gap-6 rounded-md border-4 border-background bg-button p-8 font-zain text-text shadow-2xl">
         <h2 className="font-calistoga text-3xl font-bold text-text">CSV Import</h2>
         <button
           onClick={onClose}
-          className="absolute top-3 right-4 cursor-pointer text-[18px] font-extrabold text-red-700 hover:scale-112"
+          className="absolute top-3 right-4 cursor-pointer font-extrabold text-red-700 hover:scale-112"
         >
-          🔴
+          <SquareX size={28} />
         </button>
         <div className="flex flex-col gap-2 text-[20px] text-text/90">
           <p>
-            Your CSV must have{' '}
-            <span className="font-bold underline decoration-accent/75">title</span> and{' '}
-            <span className="font-bold underline decoration-accent/75">author</span> columns.
+            Your CSV must have <span className={fieldStyling}>title</span> and{' '}
+            <span className={fieldStyling}>author</span> columns.
           </p>
           <p>
-            A <span className="font-bold underline decoration-accent/75">rating</span> column (1–10,
-            decimals welcome) is encouraged, but optional.
+            A <span className={fieldStyling}>rating</span> column (1–10, decimals welcome) is
+            encouraged, but optional.
           </p>
         </div>
         <div className="flex flex-col gap-4">
@@ -278,7 +282,7 @@ export default function ManagePit() {
     }
   }
 
-  const cellXPadding = 'px-2 first:pl-4 last:pr-4'
+  const cellXPadding = 'px-2 first:pl-4'
   const thStyling = `font-calistoga text-[20px] tracking-wide pt-2 pb-1 font-extrabold ${cellXPadding}`
   const tdStyling = `py-1.5 ${cellXPadding}`
   const addTriggered = newBook != null || addError != null || loadingAdd
@@ -351,6 +355,7 @@ export default function ManagePit() {
               />
               <button
                 type="submit"
+                title={'Add new book'}
                 className="w-[8%] cursor-pointer rounded-md border-b-3 border-primary/75 bg-accent/75 p-1 text-center font-gaegu text-2xl font-black text-primary shadow-md transition-all hover:bg-accent/90"
               >
                 Add
@@ -409,9 +414,15 @@ export default function ManagePit() {
                 onClick={() => {
                   setShowImportModal(true)
                 }}
-                className={`hover:shadow-3xl cursor-pointer rounded-full border-b-3 border-accent/80 bg-button/95 px-6 py-2 font-calistoga text-base font-extrabold tracking-wider text-text shadow-2xl transition-all hover:scale-104 hover:bg-button`}
+                className={`cursor-pointer rounded-full border-b-3 border-accent/80 bg-button/95 px-6 py-2 font-calistoga text-base font-extrabold tracking-wider text-text shadow-2xl transition-all hover:scale-104 hover:bg-button`}
               >
-                <span className={'mr-2 drop-shadow-2xl drop-shadow-zinc-950'}>📥</span> CSV Import
+                {/*<span className={'mr-2 drop-shadow-2xl drop-shadow-zinc-950'}>📥</span> */}
+                <Download
+                  size={18}
+                  strokeWidth={3}
+                  className={'mr-2 inline -translate-y-px drop-shadow-2xl drop-shadow-zinc-950'}
+                />
+                CSV Import
               </button>
             </div>
 
@@ -429,13 +440,18 @@ export default function ManagePit() {
                     <tr key={book.id} className={'border-b-2 border-red-700/80 last:border-none'}>
                       <td className={`font-bold ${tdStyling}`}>{book.title}</td>
                       <td className={tdStyling}>{book.author}</td>
-                      <td className={`text-center ${tdStyling}`}>
+                      <td className={`text-center`}>
                         <button
                           onClick={() => setBookToBurn(book)}
                           title={'Delete book'}
-                          className={`cursor-pointer transition-all hover:scale-112 hover:brightness-120`}
+                          className={`group cursor-pointer transition-all hover:scale-115 hover:animate-pulse hover:brightness-120`}
                         >
-                          <span className={`drop-shadow-2xl drop-shadow-amber-950`}>🔥</span>
+                          <FireOutline
+                            className={`block size-7 translate-y-1 text-red-700 group-hover:hidden`}
+                          />
+                          <FireSolid
+                            className={`hidden size-7 translate-y-1 text-red-700 group-hover:block`}
+                          />
                         </button>
                       </td>
                     </tr>
