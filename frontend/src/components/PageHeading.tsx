@@ -1,4 +1,4 @@
-export function PageHeading({ title }: { title: string }) {
+export default function PageHeading({ title }: { title: string }) {
   const wavyUnderline =
     'underline decoration-accent/80 decoration-wavy decoration-4 underline-offset-12'
 

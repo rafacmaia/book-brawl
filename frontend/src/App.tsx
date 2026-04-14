@@ -2,11 +2,11 @@ import { RedirectToSignIn, Show, useAuth, useUser } from '@clerk/react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { useEffect } from 'react'
 import { apiFetch } from './api'
+import Header from './components/Header'
 import BrawlPit from './pages/BrawlPit'
 import Leaderboard from './pages/Leaderboard'
+import ManagePit from './pages/ManagePit'
 import Footer from './components/Footer'
-import BookIntake from './pages/BookIntake'
-import Header from './components/Header.tsx'
 
 export default function App() {
   const { user } = useUser()
@@ -50,7 +50,7 @@ export default function App() {
                   <Route path={'/'} element={<Navigate to="/brawl" replace />} />
                   <Route path={'/brawl'} element={<BrawlPit />} />
                   <Route path={'/leaderboard'} element={<Leaderboard />} />
-                  <Route path={'/feed'} element={<BookIntake />} />
+                  <Route path={'/manage'} element={<ManagePit />} />
                 </Routes>
                 <Footer />
               </div>

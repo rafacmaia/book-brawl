@@ -17,8 +17,8 @@ export default function Header() {
         <NavLink to={'/leaderboard'} className={activeStyle}>
           Leaderboard
         </NavLink>
-        <NavLink to={'/feed'} className={activeStyle}>
-          Feed the Pit
+        <NavLink to={'/manage'} className={activeStyle}>
+          Manage the Pit
         </NavLink>
         <div className={`translate-y-1`}>
           <UserButton />
