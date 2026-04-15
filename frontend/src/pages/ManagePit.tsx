@@ -71,13 +71,13 @@ function ImportModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="relative flex w-xl flex-col gap-6 rounded-md border-4 border-background bg-button p-8 font-zain text-text shadow-2xl">
+      <div className="relative flex w-[90%] flex-col gap-4 rounded-lg border-6 border-background bg-button p-6 font-zain text-text shadow-2xl md:w-xl md:gap-6 md:rounded-md md:border-4 md:p-8">
         <h2 className="font-calistoga text-3xl font-bold text-text">CSV Import</h2>
         <button
           onClick={onClose}
-          className="absolute top-3 right-4 cursor-pointer font-extrabold text-red-700 hover:scale-112"
+          className="absolute top-2 right-2 cursor-pointer font-extrabold text-red-700 hover:scale-112 active:scale-95 md:top-3 md:right-4"
         >
-          <SquareX size={28} />
+          <SquareX className="size-6 md:size-7" />
         </button>
         <div className="flex flex-col gap-2 text-[20px] text-text/90">
           <p>
@@ -438,8 +438,8 @@ export default function ManagePit() {
               <table className="w-full table-fixed border-collapse rounded-md bg-button text-text shadow-lg">
                 <thead className={'text-left'}>
                   <tr className={'border-b-2 border-red-700 md:border-b-3'}>
-                    <th className={`w-[45%] md:w-[50%] ${thStyling}`}>Title</th>
-                    <th className={`w-[40%] md:w-[40%] ${thStyling}`}>Author</th>
+                    <th className={`w-[50%] md:w-[50%] ${thStyling}`}>Title</th>
+                    <th className={`w-[35%] md:w-[40%] ${thStyling}`}>Author</th>
                     <th className={`w-[15%] text-center md:w-[10%] ${thStyling}`}>Burn?</th>
                   </tr>
                 </thead>
@@ -450,7 +450,9 @@ export default function ManagePit() {
                       className={'border-b border-red-700/80 last:border-none md:border-b-2'}
                     >
                       <td className={`font-bold ${tdStyling}`}>{book.title}</td>
-                      <td className={tdStyling}>{book.author}</td>
+                      <td className={`max-md:text-[15px] ${tdStyling}`}>
+                        <span className={`line-clamp-3`}>{book.author}</span>
+                      </td>
                       <td className={`text-center`}>
                         <button
                           onClick={() => setBookToBurn(book)}

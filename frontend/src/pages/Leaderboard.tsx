@@ -13,12 +13,12 @@ interface BookData {
   accuracy_tier: number
 }
 
-const TIER_LABELS: Record<number, string> = {
-  1: '🔴 Very Low',
-  2: '🟠 Low',
-  3: '🟡 Moderate',
-  4: '🟢 High',
-  5: '✅ Very High',
+const TIER_LABELS: Record<number, [string, string]> = {
+  1: ['🔴', 'Very Low'],
+  2: ['🟠', 'Low'],
+  3: ['🟡', 'Moderate'],
+  4: ['🟢', 'High'],
+  5: ['💎', 'Very High'],
 }
 
 export default function Leaderboard() {
@@ -65,12 +65,12 @@ export default function Leaderboard() {
     }
   }
 
-  const cellXPadding = 'md:px-2 px-1'
-  const thStyling = `md:pt-2 pt-1 first:pl-2 md:first:pl-5 pb-1 tracking-wide text-[15px] md:text-[20px] font-extrabold font-calistoga ${cellXPadding}`
-  const tdStyling = `md:py-1.5 py-1 first:pl-2 md:first:pl-6 ${cellXPadding}`
+  const cellXPadding = 'px-2'
+  const thStyling = `md:pt-2 pt-1 first:pl-2 md:first:pl-5 pb-1 tracking-wide text-[16px] md:text-[20px] font-extrabold font-calistoga ${cellXPadding}`
+  const tdStyling = `md:py-1.5 py-1 first:pl-3 md:first:pl-6 ${cellXPadding}`
 
   return (
-    <main className="mx-auto flex h-full min-h-0 w-full grow flex-col items-center gap-4 overflow-y-auto p-2 text-primary/95 md:gap-8">
+    <main className="mx-auto flex h-full min-h-0 w-[98%] grow flex-col items-center gap-4 overflow-y-auto p-2 text-primary/95 md:gap-8">
       <PageHeading title={'The Leaderboard'} />
       {loading ? (
         <Placeholder message={'Loading...'} />
@@ -107,13 +107,13 @@ export default function Leaderboard() {
           <table className="w-full table-fixed border-collapse rounded-md bg-button text-text shadow-lg md:w-2/3">
             <thead className={'text-left'}>
               <tr className={'border-b-2 border-red-800 md:border-b-3'}>
-                <th className={`w-[10%] md:w-[10%] ${thStyling}`}>
-                  <span className={'block md:hidden'}>#</span>
-                  <span className={'hidden md:block'}>Rank</span>
+                <th className={`w-[14%] md:w-[10%] ${thStyling}`}>Rank</th>
+                <th className={`w-[65%] md:w-[45%] ${thStyling}`}>
+                  <span className={'sm:hidden'}>Book</span>
+                  <span className={'hidden sm:inline'}>Title</span>
                 </th>
-                <th className={`w-[40%] max-md:pl-2 md:w-[45%] ${thStyling}`}>Title</th>
-                <th className={`w-[30%] md:w-[30%] ${thStyling}`}>Author</th>
-                <th className={`w-[20%] md:w-[15%] ${thStyling}`}>Accuracy</th>
+                <th className={`w-[32%] max-md:hidden md:w-[30%] ${thStyling}`}>Author</th>
+                <th className={`w-[22%] md:w-[15%] ${thStyling}`}>Accuracy</th>
               </tr>
             </thead>
             <tbody className={'text-[15px] opacity-95 md:text-[18px]'}>
@@ -123,18 +123,22 @@ export default function Leaderboard() {
                   className={'border-b border-red-800/80 last:border-none md:border-b-2'}
                 >
                   <td
-                    className={`font-calistoga text-[14px] font-bold text-red-900/75 md:text-[17px] ${tdStyling}`}
+                    className={`font-calistoga text-[16px] font-bold text-red-900/75 ${tdStyling}`}
                   >
                     {book.rank}
                   </td>
                   <td className={`font-bold ${tdStyling}`}>
-                    <span className={'line-clamp-3 max-md:pl-1'}>{book.title}</span>
+                    <span className={'line-clamp-3'}>{book.title}</span>
+                    <span className="block font-zain text-[14px] font-normal opacity-75 sm:hidden">
+                      {book.author}
+                    </span>
                   </td>
-                  <td className={`${tdStyling}`}>
+                  <td className={`${tdStyling} max-md:hidden`}>
                     <span className={'line-clamp-3'}>{book.author}</span>
                   </td>
-                  <td className={`max-md:text-[14px] ${tdStyling}`}>
-                    {TIER_LABELS[book.accuracy_tier]}
+                  <td className={`opacity-90 max-md:text-[14px] ${tdStyling}`}>
+                    {TIER_LABELS[book.accuracy_tier][0]}
+                    <span className={'ml-2'}>{TIER_LABELS[book.accuracy_tier][1]}</span>
                   </td>
                 </tr>
               ))}
