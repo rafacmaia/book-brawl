@@ -191,6 +191,12 @@ def delete_book(book_id: int, reader_id: int = Depends(get_current_reader_id)):
         raise HTTPException(status_code=404, detail="Book not found")
 
 
+@app.delete("/books", status_code=status.HTTP_204_NO_CONTENT)
+def delete_all_books(reader_id: int = Depends(get_current_reader_id)):
+    """Remove all books from the collection."""
+    books_repo.delete_all(reader_id)
+
+
 # ====== USERS
 
 

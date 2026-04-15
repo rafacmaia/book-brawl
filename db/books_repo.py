@@ -104,6 +104,13 @@ def delete(reader_id, book_id):
             return cur.rowcount > 0
 
 
+def delete_all(reader_id):
+    """Delete all books for a reader."""
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM book WHERE reader_id = %s", (reader_id,))
+
+
 def update_elo(book):
     """Update the Elo score for a book."""
     with get_connection() as conn:
