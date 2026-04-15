@@ -65,12 +65,12 @@ export default function Leaderboard() {
     }
   }
 
-  const cellXPadding = 'px-2'
-  const thStyling = `pt-2 first:pl-5  pb-1 tracking-wide text-[20px] font-extrabold font-calistoga ${cellXPadding}`
-  const tdStyling = `py-1.5 first:pl-6 ${cellXPadding}`
+  const cellXPadding = 'md:px-2 px-1'
+  const thStyling = `md:pt-2 pt-1 first:pl-2 md:first:pl-5 pb-1 tracking-wide text-[15px] md:text-[20px] font-extrabold font-calistoga ${cellXPadding}`
+  const tdStyling = `md:py-1.5 py-1 first:pl-2 md:first:pl-6 ${cellXPadding}`
 
   return (
-    <main className="flex h-full min-h-0 grow flex-col items-center gap-8 overflow-y-auto p-4 text-primary/95">
+    <main className="mx-auto flex h-full min-h-0 w-full grow flex-col items-center gap-4 overflow-y-auto p-2 text-primary/95 md:gap-8">
       <PageHeading title={'The Leaderboard'} />
       {loading ? (
         <Placeholder message={'Loading...'} />
@@ -79,7 +79,7 @@ export default function Leaderboard() {
       ) : emptyPit ? (
         <div
           className={
-            'mb-12 flex grow flex-col items-center justify-center gap-0 text-center font-zain text-5xl/20 font-extrabold tracking-wide text-primary/85'
+            'mb-12 flex w-full grow flex-col items-center justify-center gap-0 text-center font-zain text-5xl/20 font-extrabold tracking-wide text-primary/85'
           }
         >
           <CircleAlert size={72} className={'mb-8'} />
@@ -98,30 +98,44 @@ export default function Leaderboard() {
         <>
           <h2
             className={
-              'mt-4 rounded-full bg-button px-10 py-2 text-center font-calistoga text-[22px] font-bold tracking-wide text-text shadow-2xl'
+              'mt-4 rounded-full bg-button px-6 py-2 text-center font-calistoga text-[18px] font-bold tracking-wide text-text shadow-2xl md:px-10 md:text-[22px]'
             }
           >
-            {bookCount} Books<span className={'mx-6'}>•</span>
+            {bookCount} Books<span className={'mx-3 md:mx-6'}>•</span>
             {Math.round(progress * 100)}% Complete
           </h2>
-          <table className="w-[96%] table-fixed border-collapse rounded-md bg-button text-text shadow-lg sm:w-2/3">
+          <table className="w-full table-fixed border-collapse rounded-md bg-button text-text shadow-lg md:w-2/3">
             <thead className={'text-left'}>
-              <tr className={'border-b-3 border-red-800'}>
-                <th className={`w-[10%] ${thStyling}`}>Rank</th>
-                <th className={`w-[45%] ${thStyling}`}>Title</th>
-                <th className={`w-[30%] ${thStyling}`}>Author</th>
-                <th className={`w-[15%] ${thStyling}`}>Accuracy</th>
+              <tr className={'border-b-2 border-red-800 md:border-b-3'}>
+                <th className={`w-[10%] md:w-[10%] ${thStyling}`}>
+                  <span className={'block md:hidden'}>#</span>
+                  <span className={'hidden md:block'}>Rank</span>
+                </th>
+                <th className={`w-[40%] max-md:pl-2 md:w-[45%] ${thStyling}`}>Title</th>
+                <th className={`w-[30%] md:w-[30%] ${thStyling}`}>Author</th>
+                <th className={`w-[20%] md:w-[15%] ${thStyling}`}>Accuracy</th>
               </tr>
             </thead>
-            <tbody className={'text-[18px] opacity-95'}>
+            <tbody className={'text-[15px] opacity-95 md:text-[18px]'}>
               {rankings.map((book) => (
-                <tr key={book.rank} className={'border-b-2 border-red-800/80 last:border-none'}>
-                  <td className={`font-calistoga font-bold text-red-900/75 ${tdStyling}`}>
+                <tr
+                  key={book.rank}
+                  className={'border-b border-red-800/80 last:border-none md:border-b-2'}
+                >
+                  <td
+                    className={`font-calistoga text-[14px] font-bold text-red-900/75 md:text-[17px] ${tdStyling}`}
+                  >
                     {book.rank}
                   </td>
-                  <td className={`font-bold ${tdStyling}`}>{book.title}</td>
-                  <td className={tdStyling}>{book.author}</td>
-                  <td className={tdStyling}>{TIER_LABELS[book.accuracy_tier]}</td>
+                  <td className={`font-bold ${tdStyling}`}>
+                    <span className={'line-clamp-3 max-md:pl-1'}>{book.title}</span>
+                  </td>
+                  <td className={`${tdStyling}`}>
+                    <span className={'line-clamp-3'}>{book.author}</span>
+                  </td>
+                  <td className={`max-md:text-[14px] ${tdStyling}`}>
+                    {TIER_LABELS[book.accuracy_tier]}
+                  </td>
                 </tr>
               ))}
             </tbody>

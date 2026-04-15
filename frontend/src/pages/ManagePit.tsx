@@ -3,7 +3,7 @@ import { type ChangeEvent, type SubmitEvent, useEffect, useRef, useState } from 
 import { API_BASE, ApiError, apiFetch } from '../api.ts'
 import Placeholder from '../components/Placeholder'
 import PageHeading from '../components/PageHeading'
-import { Download, SquareX } from 'lucide-react'
+import { Ban, Download, SquareX } from 'lucide-react'
 import { FireIcon as FireSolid } from '@heroicons/react/24/solid'
 import { FireIcon as FireOutline } from '@heroicons/react/24/outline'
 
@@ -143,18 +143,21 @@ function DeleteModal({
   onCancel: () => void
 }) {
   const buttonStyling =
-    'cursor-pointer  rounded-md border-b-3 border-background bg-red-800/80 w-3/10 px-4 py-2 font-zain text-[18px] font-extrabold tracking-wider text-primary drop-shadow-md transition-all hover:scale-104 hover:bg-red-800'
+    'cursor-pointer rounded-md border-b-4 md:border-b-3 border-background bg-red-800/80 md:w-3/10 w-1/3 px-4 pb-1 pt-2 md:py-2 font-zain text-[16px] md:text-[18px] font-extrabold tracking-wider text-primary drop-shadow-md transition-all hover:scale-104 hover:bg-red-800 active:scale-95 active:bg-red-800'
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="flex w-xl flex-col items-center justify-center gap-6 rounded-md border-4 border-background bg-button p-8 font-zain text-text shadow-2xl">
+      <div className="flex w-[90%] flex-col items-center justify-center gap-4 rounded-lg border-6 border-red-800/80 bg-button p-6 font-zain text-text shadow-2xl md:w-xl md:gap-6 md:rounded-md md:border-4 md:p-8">
         <h2 className="font-calistoga text-3xl font-bold">Burn this book?</h2>
-        <p className="text-center font-zain text-[22px]">
-          <span className="font-calistoga text-[20px] font-bold">{book.title}</span>, by{' '}
-          <span className={'font-calistoga text-[20px] font-semibold'}>{book.author}</span>, will be
-          permanently removed from the Book Pit.
+        <p className="text-center font-zain text-[20px] md:text-[22px]">
+          <span className="font-calistoga text-[18px] font-bold md:text-[20px]">{book.title}</span>,
+          by{' '}
+          <span className={'font-calistoga text-[18px] font-semibold md:text-[20px]'}>
+            {book.author}
+          </span>
+          , will be permanently removed from the Book Pit.
         </p>
-        <div className="flex w-full items-center justify-center gap-12">
+        <div className="flex w-full items-center justify-center gap-10 md:gap-12">
           <button onClick={onConfirm} className={buttonStyling}>
             BURN
           </button>
@@ -215,12 +218,14 @@ export default function ManagePit() {
     const rating = formData.get('rating') as string | null
 
     if (!title.trim() || !author.trim()) {
+      setNewBook(null)
       setAddError('Please enter both title and author.')
       return
     }
 
     const parsedRating = rating ? parseFloat(rating) : null
     if (parsedRating !== null && (isNaN(parsedRating) || parsedRating < 1 || parsedRating > 10)) {
+      setNewBook(null)
       setAddError('Rating must be between 1 and 10')
       return
     }
@@ -282,13 +287,15 @@ export default function ManagePit() {
     }
   }
 
-  const cellXPadding = 'px-2 first:pl-4'
-  const thStyling = `font-calistoga text-[20px] tracking-wide pt-2 pb-1 font-extrabold ${cellXPadding}`
-  const tdStyling = `py-1.5 ${cellXPadding}`
+  const cellXPadding = 'px-1 first:pl-2 md:px-2 md:first:pl-4'
+  const thStyling = `font-calistoga text-[16px] md:text-[20px] tracking-wide pt-1 md:pt-2 pb-1 font-extrabold ${cellXPadding}`
+  const tdStyling = `py-1 md:py-1.5 ${cellXPadding}`
+  const addMessageStyling = `w-full md:self-end rounded-md md:rounded-lg bg-button px-4 py-2 text-base md:w-fit md:px-6 md:text-xl md:brightness-110`
+
   const addTriggered = newBook != null || addError != null || loadingAdd
 
   return (
-    <main className="mx-auto flex h-full min-h-0 w-2/3 grow flex-col items-center gap-4 overflow-y-auto p-4 text-primary/95">
+    <main className="mx-auto flex h-full min-h-0 w-[98%] grow flex-col items-center gap-3 overflow-y-auto p-2 text-primary/95 sm:w-2/3 sm:gap-4 sm:p-4">
       <PageHeading title={'Manage the Pit'} />
 
       {showImportModal && (
@@ -314,18 +321,18 @@ export default function ManagePit() {
         <>
           {/* MANUAL INPUT */}
           <section
-            className={`mt-12 ${addTriggered ? 'mb-0' : 'mb-15'} flex w-full flex-col gap-4`}
+            className={`mt-6 w-full sm:mt-12 ${addTriggered ? 'mb-0' : 'mb-12 md:mb-15'} flex flex-col gap-4`}
           >
-            <h2 className="mb-4 font-calistoga text-3xl font-bold tracking-wide underline decoration-accent/80 decoration-wavy underline-offset-8 drop-shadow-md">
+            <h2 className="font-calistoga text-2xl font-bold tracking-wide decoration-accent/80 decoration-wavy underline-offset-8 drop-shadow-md sm:mb-4 sm:text-3xl sm:underline">
               New Entries
             </h2>
-            <p className={`text-lg text-[20px] font-medium tracking-wide`}>
-              <span className={`font-extrabold decoration-accent/80`}>Rating</span> (1-10, decimals
-              welcome) is optional, but encouraged. It sets an initial placement for the book, which
-              over time, the Brawl Pit will confirm or disprove.
+            <p className={`text-[16px] font-medium sm:text-[20px]/8 sm:tracking-wide`}>
+              <span className={`font-extrabold decoration-accent/80`}>Rating</span> (1-10) is
+              optional, but encouraged. It gives the book an initial placement, which over time, the
+              Brawl Pit will confirm or disprove.
             </p>
             <form
-              className="flex w-full justify-between font-calistoga text-lg font-bold text-text"
+              className="flex w-full flex-col justify-between gap-3 font-calistoga text-base font-bold text-text sm:gap-0 sm:text-lg md:flex-row"
               onSubmit={(e) => handleAdd(e)}
             >
               <input
@@ -334,14 +341,14 @@ export default function ManagePit() {
                 placeholder="Title"
                 name="title"
                 ref={titleRef}
-                className="w-[48%] rounded-md border-b-3 border-primary/85 bg-blue-200/90 p-2 pl-3 shadow-lg"
+                className="rounded-md border-b-3 border-primary/85 bg-blue-200/90 p-2 pl-3 shadow-lg sm:w-[48%]"
               />
               <input
                 aria-label="Enter book author"
                 type="text"
                 placeholder="Author"
                 name="author"
-                className="w-[30%] rounded-md border-b-3 border-primary/85 bg-blue-200/90 p-2 pl-3 shadow-lg"
+                className="rounded-md border-b-3 border-primary/85 bg-blue-200/90 p-2 pl-3 shadow-lg sm:w-[30%]"
               />
               <input
                 aria-label="Enter optional rating (1-10, decimals welcome)"
@@ -351,61 +358,61 @@ export default function ManagePit() {
                 step="0.1"
                 placeholder="Rating"
                 name="rating"
-                className="border-accent/ w-[11%] rounded-md border-b-3 border-primary/85 bg-blue-200/90 p-2 pl-3 shadow-lg"
+                className="rounded-md border-b-3 border-primary/85 bg-blue-200/90 p-2 pl-3 shadow-lg sm:w-[11%]"
               />
               <button
                 type="submit"
                 title={'Add new book'}
-                className="w-[8%] cursor-pointer rounded-md border-b-3 border-primary/75 bg-accent/75 p-1 text-center font-gaegu text-2xl font-black text-primary shadow-md transition-all hover:bg-accent/90"
+                className="cursor-pointer rounded-md border-b-3 border-primary/75 bg-accent/80 p-2 text-center font-gaegu text-xl font-black text-primary shadow-md transition-all hover:bg-accent/90 active:scale-97 active:bg-accent/70 sm:w-[8%] sm:p-1 sm:text-2xl md:bg-accent/75"
               >
-                Add
+                <span className="inline md:hidden">Add Book</span>
+                <span className="hidden md:inline">Add</span>
               </button>
             </form>
             {addError && (
-              <p className="w-fit self-end rounded-lg bg-button/90 px-6 py-2 text-xl font-bold text-red-800 brightness-110">
-                <span className={'mr-2'}>❌</span>
+              <p
+                className={`font-extrabold text-red-700 opacity-96 md:text-red-800 md:opacity-90 ${addMessageStyling}`}
+              >
+                <Ban
+                  strokeWidth={3}
+                  className={'mr-2 inline size-4 -translate-y-0.5 md:size-4.25'}
+                />
                 {addError}
               </p>
             )}
 
             {newBook && (
-              <p
-                className={
-                  'self-end rounded-lg bg-button px-6 py-2 text-xl text-text brightness-110'
-                }
-              >
+              <p className={`text-text ${addMessageStyling}`}>
                 ✔ Added:{' '}
                 <span
-                  className={'ml-1 font-bold underline decoration-accent/70 underline-offset-3'}
+                  className={
+                    'font-bold decoration-accent/70 underline-offset-3 md:ml-1 md:underline'
+                  }
                 >
                   {newBook.title}
                 </span>
                 , by{' '}
-                <span className={'font-bold underline decoration-accent/70 underline-offset-3'}>
+                <span className={'font-bold decoration-accent/70 underline-offset-3 md:underline'}>
                   {newBook.author}
                 </span>
               </p>
             )}
 
             {loadingAdd && (
-              <p
-                className={
-                  'self-end rounded-lg bg-button/80 px-6 py-2 text-xl font-bold text-text brightness-110'
-                }
-              >
+              <p className={`font-bold text-text opacity-80 ${addMessageStyling}`}>
                 Updating the pit...
               </p>
             )}
           </section>
 
-          <hr className="h-px w-full text-button" />
+          <hr className="my-2 h-px w-full text-button md:my-0" />
 
           {/* TABLE OF CURRENT BOOKS */}
           <section className="flex w-full flex-col gap-4">
             <div className="flex w-full justify-between">
               <p
                 className={
-                  'h-fit w-fit rounded-md bg-button px-6 py-2 font-calistoga text-[20px] font-bold tracking-wider text-text shadow-2xl'
+                  'h-fit w-fit rounded-md bg-button px-4 py-2 font-calistoga text-[16px] font-semibold tracking-wide text-text shadow-2xl md:px-6 md:text-[20px] md:font-bold md:tracking-wider'
                 }
               >
                 Books in the Pit: {books.length}
@@ -414,13 +421,14 @@ export default function ManagePit() {
                 onClick={() => {
                   setShowImportModal(true)
                 }}
-                className={`cursor-pointer rounded-full border-b-3 border-accent/80 bg-button/95 px-6 py-2 font-calistoga text-base font-extrabold tracking-wider text-text shadow-2xl transition-all hover:scale-104 hover:bg-button`}
+                className={`cursor-pointer rounded-full border-b-3 border-accent/80 bg-button px-4 py-2 font-calistoga text-[14px] font-semibold tracking-wide text-text shadow-2xl transition-all hover:scale-104 hover:bg-button active:scale-96 active:opacity-90 md:bg-button/95 md:px-6 md:text-base md:font-extrabold md:tracking-wider`}
               >
                 {/*<span className={'mr-2 drop-shadow-2xl drop-shadow-zinc-950'}>📥</span> */}
                 <Download
-                  size={18}
                   strokeWidth={3}
-                  className={'mr-2 inline -translate-y-px drop-shadow-2xl drop-shadow-zinc-950'}
+                  className={
+                    'mr-2 inline size-4 -translate-y-px drop-shadow-2xl drop-shadow-zinc-950 md:size-4.5'
+                  }
                 />
                 CSV Import
               </button>
@@ -429,28 +437,31 @@ export default function ManagePit() {
             {books.length > 0 && (
               <table className="w-full table-fixed border-collapse rounded-md bg-button text-text shadow-lg">
                 <thead className={'text-left'}>
-                  <tr className={'border-b-3 border-red-700'}>
-                    <th className={`w-5/10 ${thStyling}`}>Title</th>
-                    <th className={`w-4/10 ${thStyling}`}>Author</th>
-                    <th className={`w-1/10 text-center ${thStyling}`}>Burn?</th>
+                  <tr className={'border-b-2 border-red-700 md:border-b-3'}>
+                    <th className={`w-[45%] md:w-[50%] ${thStyling}`}>Title</th>
+                    <th className={`w-[40%] md:w-[40%] ${thStyling}`}>Author</th>
+                    <th className={`w-[15%] text-center md:w-[10%] ${thStyling}`}>Burn?</th>
                   </tr>
                 </thead>
-                <tbody className={'text-[18px] opacity-95'}>
+                <tbody className={'text-[16px] opacity-95 md:text-[18px]'}>
                   {books.map((book) => (
-                    <tr key={book.id} className={'border-b-2 border-red-700/80 last:border-none'}>
+                    <tr
+                      key={book.id}
+                      className={'border-b border-red-700/80 last:border-none md:border-b-2'}
+                    >
                       <td className={`font-bold ${tdStyling}`}>{book.title}</td>
                       <td className={tdStyling}>{book.author}</td>
                       <td className={`text-center`}>
                         <button
                           onClick={() => setBookToBurn(book)}
                           title={'Delete book'}
-                          className={`group cursor-pointer transition-all hover:scale-115 hover:animate-pulse hover:brightness-120`}
+                          className={`group cursor-pointer transition-all hover:scale-115 hover:animate-pulse hover:brightness-120 active:scale-115`}
                         >
                           <FireOutline
-                            className={`block size-7 translate-y-1 text-red-700 group-hover:hidden`}
+                            className={`block size-5 translate-y-1 text-red-700 group-hover:hidden group-active:hidden md:size-7`}
                           />
                           <FireSolid
-                            className={`hidden size-7 translate-y-1 text-red-700 group-hover:block`}
+                            className={`hidden size-5 translate-y-1 text-red-700 group-hover:block group-active:block md:size-7`}
                           />
                         </button>
                       </td>

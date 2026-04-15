@@ -47,5 +47,5 @@ body {
 }
 
 #root {
-    @apply min-h-screen p-0 m-0;
+    @apply min-h-dvh p-0 m-0;
 }
