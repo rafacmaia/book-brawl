@@ -172,12 +172,12 @@ export default function Leaderboard() {
     }
   }
 
-  const cellXPadding = 'px-2'
-  const thStyling = `md:pt-2 pt-1 first:pl-2 md:first:pl-5 pb-1 text-[16px] tracking-wide md:text-[20px] font-extrabold font-calistoga ${cellXPadding}`
-  const tdStyling = `md:py-1.75 py-1 first:pl-3 md:first:pl-6 ${cellXPadding}`
+  const cellXPadding = 'px-2 '
+  const thStyling = `md:pt-2 pt-1 first:pl-2 md:first:pl-5 pb-1 text-[16px] tracking-wider md:text-[20px] font-extrabold font-calistoga ${cellXPadding}`
+  const tdStyling = `md:py-1.75 py-1 first:pl-3 md:first:pl-6 last:max-md:pr-2.25 ${cellXPadding}`
 
   return (
-    <main className="mx-auto flex h-full min-h-0 w-[98%] grow flex-col items-center gap-4 overflow-y-auto p-2 text-primary/95 md:gap-8">
+    <main className="mx-auto flex h-full min-h-0 w-[97%] grow flex-col items-center gap-4 overflow-y-auto p-2 text-primary/95 md:gap-8">
       {showAccuracyModal && <AccuracyModal onClose={() => setShowAccuracyModal(false)} />}
 
       <PageHeading
@@ -220,12 +220,12 @@ export default function Leaderboard() {
             {bookCount} Books<span className={'mx-3 md:mx-6'}>•</span>
             {Math.round(progress * 100)}% Complete
           </h2>
-          <table className="w-full table-fixed border-collapse rounded-md bg-button text-text shadow-lg md:w-2/3">
+          <table className="w-full table-fixed border-collapse rounded-md bg-button text-text shadow-lg sm:max-w-280">
             <thead className={'text-left'}>
               <tr className={'border-b-2 border-red-800 md:border-b-3'}>
                 <th className={`w-[10%] md:w-[10%] ${thStyling}`}>
-                  <span className={'sm:hidden'}>#</span>
-                  <span className={'hidden sm:inline'}>Rank</span>
+                  <span className={'md:hidden'}>#</span>
+                  <span className={'hidden md:inline'}>Rank</span>
                 </th>
                 <th className={`w-[74%] md:w-[46%] ${thStyling}`}>
                   <span className={'sm:hidden'}>Book</span>
@@ -234,11 +234,11 @@ export default function Leaderboard() {
                 <th className={`max-md:hidden md:w-[31%] ${thStyling}`}>Author</th>
                 <th className={`w-[16%] text-right md:w-[13%] md:text-left ${thStyling}`}>
                   <button onClick={() => setShowAccuracyModal(true)} className={'inline-flex'}>
-                    <span className={'sm:hidden'}>Acc.</span>
-                    <span className={'hidden sm:inline'}>Accuracy</span>
-                    <InfoCircleMini className={'size-3 shrink-0 translate-y-px sm:hidden'} />
+                    <span className={'lg:hidden'}>Acc.</span>
+                    <span className={'hidden lg:inline'}>Accuracy</span>
+                    <InfoCircleMini className={'size-3 shrink-0 translate-y-px lg:hidden'} />
                     <InfoCircle
-                      className={'ml-1 hidden size-4 shrink-0 translate-y-px sm:inline'}
+                      className={'ml-1 hidden size-4 shrink-0 translate-y-px lg:inline'}
                     />
                   </button>
                 </th>
@@ -251,75 +251,87 @@ export default function Leaderboard() {
                   className={`border-b border-red-800/80 last:border-none md:border-b-2`}
                 >
                   <td
-                    className={`relative flex items-center justify-between font-calistoga font-black md:text-[18px] ${tdStyling} ${book.rank < 100 ? 'text-[16px]' : book.rank < 1000 ? 'text-[15px]' : 'text-[14px]'}`}
+                    className={`relative font-calistoga font-black md:text-[18px] ${tdStyling} ${book.rank < 100 ? 'text-[16px]' : book.rank < 1000 ? 'text-[15px]' : 'text-[14px]'}`}
                   >
-                    {book.rank}
-                    {book.rank == 1 && (
-                      <Trophy
-                        className={
-                          'hidden size-4.25 -translate-y-px stroke-3 text-yellow-800/80 sm:inline'
-                        }
-                      />
-                    )}
-                    {book.rank == 2 && (
-                      <CircleStar
-                        className={
-                          'hidden size-4.25 -translate-y-px stroke-2 text-yellow-800/70 sm:inline'
-                        }
-                      />
-                    )}
-                    {book.rank == 3 && (
-                      <Star
-                        className={'hidden size-3.75 -translate-y-px text-yellow-800/60 sm:inline'}
-                      />
-                    )}
-                    {book.rank == 4 && (
-                      <Sparkle
-                        className={'hidden size-3.75 -translate-y-px text-yellow-800/50 sm:inline'}
-                      />
-                    )}
+                    <div className={'flex h-full items-center justify-between'}>
+                      {book.rank}
+                      {book.rank == 1 && (
+                        <Trophy
+                          className={
+                            'hidden size-4.25 -translate-y-px stroke-3 text-yellow-800/80 sm:inline'
+                          }
+                        />
+                      )}
+                      {book.rank == 2 && (
+                        <CircleStar
+                          className={
+                            'hidden size-4.25 -translate-y-px stroke-2 text-yellow-800/70 sm:inline'
+                          }
+                        />
+                      )}
+                      {book.rank == 3 && (
+                        <Star
+                          className={
+                            'hidden size-3.75 -translate-y-px text-yellow-800/60 sm:inline'
+                          }
+                        />
+                      )}
+                      {book.rank == 4 && (
+                        <Sparkle
+                          className={
+                            'hidden size-3.75 -translate-y-px text-yellow-800/50 sm:inline'
+                          }
+                        />
+                      )}
+                    </div>
                   </td>
                   <td className={`relative ${tdStyling}`}>
                     <span className={`line-clamp-2 text-[16px] font-bold md:text-[18px]`}>
                       {book.title}
                     </span>
-                    <span className="line-clamp-1 font-zain text-[14px] font-normal opacity-75 sm:hidden">
+                    <span className="line-clamp-1 pr-3 font-zain text-[14px] font-normal opacity-75 md:hidden">
                       {book.author}
                     </span>
                     {book.rank == 1 && (
                       <Trophy
                         className={
-                          'absolute right-0 bottom-2 size-4.25 stroke-3 text-yellow-800/80 sm:hidden'
+                          'absolute right-0.5 bottom-2 size-4.25 stroke-3 text-yellow-800/80 sm:hidden'
                         }
                       />
                     )}
                     {book.rank == 2 && (
                       <CircleStar
                         className={
-                          'absolute right-0 bottom-2 size-4.25 text-yellow-800/70 sm:hidden'
+                          'absolute right-0.5 bottom-2 size-4.25 text-yellow-800/70 sm:hidden'
                         }
                       />
                     )}
                     {book.rank == 3 && (
                       <Star
-                        className={'absolute right-0 bottom-2 size-4 text-yellow-800/60 sm:hidden'}
+                        className={
+                          'absolute right-0.5 bottom-2 size-4 text-yellow-800/60 sm:hidden'
+                        }
                       />
                     )}
                     {book.rank == 4 && (
                       <Sparkle
-                        className={'absolute right-0 bottom-2 size-4 text-yellow-800/50 sm:hidden'}
+                        className={
+                          'absolute right-0.5 bottom-2 size-4 text-yellow-800/50 sm:hidden'
+                        }
                       />
                     )}
                   </td>
                   <td className={`${tdStyling} text-[18px] max-md:hidden`}>
                     <span className={'line-clamp-3'}>{book.author}</span>
                   </td>
-                  <td className={`text-right opacity-90 md:pr-2 md:text-left ${tdStyling}`}>
+                  <td
+                    className={`text-right opacity-90 md:pr-2 md:text-center lg:text-left ${tdStyling}`}
+                  >
                     <TierSymbol
                       accuracyTier={book.accuracy_tier}
-                      styling="inline size-5.75 sm:size-6"
+                      styling="inline lg:-translate-y-0.5 size-5.75 sm:size-6"
                     />
-                    <span className={'ml-1 hidden text-[18px] opacity-90 md:inline'}>
+                    <span className={'ml-1 hidden text-[18px] opacity-90 lg:inline'}>
                       {TIER_LABELS[book.accuracy_tier]}
                     </span>
                   </td>

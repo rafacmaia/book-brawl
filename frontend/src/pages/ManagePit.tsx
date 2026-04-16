@@ -75,6 +75,7 @@ function ImportModal({
         <h2 className="font-calistoga text-3xl font-bold text-text">CSV Import</h2>
         <button
           onClick={onClose}
+          aria-label="Close CSV import modal"
           className="absolute top-2 right-2 cursor-pointer font-extrabold text-red-700 hover:scale-112 active:scale-95 md:top-3 md:right-4"
         >
           <SquareX className="size-6 md:size-7" />
@@ -287,8 +288,8 @@ export default function ManagePit() {
     }
   }
 
-  const cellXPadding = 'px-1 first:pl-2 md:px-2 md:first:pl-4'
-  const thStyling = `font-calistoga text-[16px] md:text-[20px] tracking-wide pt-1 md:pt-2 pb-1 font-extrabold ${cellXPadding}`
+  const cellXPadding = 'first:pl-2.25 md:px-2 md:first:pl-4'
+  const thStyling = `font-calistoga text-[16px] md:text-[20px] tracking-wider pt-1 md:pt-2 pb-1 font-extrabold ${cellXPadding}`
   const tdStyling = `py-1 md:py-1.5 ${cellXPadding}`
   const inputStyling = 'rounded-md border-b-3 border-primary/85 bg-blue-200 p-3 sm:p-2 shadow-lg'
   const addMessageStyling = `w-full md:self-end rounded-md md:rounded-lg bg-button px-4 py-2 text-base md:w-fit md:px-6 md:text-xl md:brightness-110`
@@ -296,7 +297,7 @@ export default function ManagePit() {
   const addTriggered = newBook != null || addError != null || loadingAdd
 
   return (
-    <main className="mx-auto flex h-full min-h-0 w-[97%] grow flex-col items-center gap-3 overflow-y-auto p-2 text-primary/95 sm:w-2/3 sm:gap-4 sm:p-4">
+    <main className="mx-auto flex h-full min-h-0 w-[97%] grow flex-col items-center gap-3 overflow-y-auto p-2 text-primary/95 sm:max-w-6xl sm:gap-4 sm:p-4">
       <PageHeading title={'Manage the Pit'} />
 
       {showImportModal && (
@@ -322,7 +323,7 @@ export default function ManagePit() {
         <>
           {/* MANUAL INPUT */}
           <section
-            className={`mt-5 w-full sm:mt-12 ${addTriggered ? 'mb-0' : 'sm:mb-15'} flex flex-col gap-4`}
+            className={`mt-5 w-full sm:mt-12 ${addTriggered ? 'mb-0' : 'md:mb-15'} flex flex-col gap-4`}
           >
             <h2 className="font-calistoga text-2xl font-bold tracking-wide decoration-accent/80 decoration-wavy underline-offset-8 drop-shadow-md sm:mb-4 sm:text-3xl sm:underline">
               New Entries
@@ -333,7 +334,7 @@ export default function ManagePit() {
               Brawl Pit will confirm or disprove.
             </p>
             <form
-              className="flex w-full flex-col justify-between gap-3 font-calistoga text-base font-bold text-text sm:gap-0 sm:text-lg md:flex-row"
+              className="flex w-full flex-col justify-between gap-3 font-calistoga text-base font-bold text-text sm:text-lg md:flex-row md:gap-0"
               onSubmit={(e) => handleAdd(e)}
             >
               <input
@@ -342,14 +343,14 @@ export default function ManagePit() {
                 placeholder="Title"
                 name="title"
                 ref={titleRef}
-                className={`sm:w-[48%] ${inputStyling}`}
+                className={`md:w-[48%] ${inputStyling}`}
               />
               <input
                 aria-label="Enter book author"
                 type="text"
                 placeholder="Author"
                 name="author"
-                className={`sm:w-[30%] ${inputStyling}`}
+                className={`md:w-[30%] ${inputStyling}`}
               />
               <input
                 aria-label="Enter optional rating (1-10, decimals welcome)"
@@ -359,12 +360,12 @@ export default function ManagePit() {
                 step="0.1"
                 placeholder="Rating"
                 name="rating"
-                className={`sm:w-[11%] ${inputStyling}`}
+                className={`md:w-[11%] ${inputStyling}`}
               />
               <button
                 type="submit"
                 title={'Add new book'}
-                className="cursor-pointer rounded-md border-b-3 border-primary/75 bg-accent/80 p-1.5 text-center font-zain text-[20px] font-black text-primary/90 shadow-md transition-all hover:bg-accent/90 active:scale-97 active:bg-accent/70 sm:w-[8%] sm:p-1 sm:text-2xl md:bg-accent/75"
+                className="cursor-pointer rounded-md border-b-3 border-primary/75 bg-accent/80 pt-2 pb-1.5 text-center font-zain text-[20px] font-black text-primary/90 shadow-md transition-all hover:bg-accent/90 active:scale-97 active:bg-accent/70 md:w-[8%] md:bg-accent/75 md:p-1 md:text-2xl"
               >
                 <span className="inline md:hidden">Add Book</span>
                 <span className="hidden md:inline">Add</span>
@@ -376,7 +377,7 @@ export default function ManagePit() {
               >
                 <Ban
                   strokeWidth={3}
-                  className={'mr-2 inline size-4 -translate-y-0.5 md:size-4.25'}
+                  className={'mr-2 inline size-4 -translate-y-px sm:-translate-y-0.5 md:size-4.25'}
                 />
                 {addError}
               </p>
@@ -439,10 +440,16 @@ export default function ManagePit() {
               <table className="w-full table-fixed border-collapse rounded-md bg-button text-text shadow-lg">
                 <thead className={'text-left'}>
                   <tr className={'border-b-2 border-red-700 md:border-b-3'}>
-                    <th className={`w-[80%] md:w-[50%] ${thStyling}`}>Title</th>
+                    <th className={`w-[85%] md:w-[50%] ${thStyling}`}>
+                      {/*<BooksIcon className={'size-5 -translate-x-0.5 sm:hidden'} />*/}
+                      <span className={''}>Title</span>
+                    </th>
                     <th className={`w-[40%] max-md:hidden ${thStyling}`}>Author</th>
-                    <th className={`w-[20%] text-right md:w-[10%] md:text-center ${thStyling}`}>
-                      Burn?
+                    <th className={`w-[15%] text-center md:w-[10%] ${thStyling}`}>
+                      <span className={'max-md:hidden'}>Burn?</span>
+                      <div className={'flex justify-end pr-2.5 md:hidden'}>
+                        <FireSolid className={`size-5 self-end text-red-700`} />
+                      </div>
                     </th>
                   </tr>
                 </thead>
@@ -456,24 +463,26 @@ export default function ManagePit() {
                         <span className={`line-clamp-2 text-[16px] font-bold md:text-[18px]`}>
                           {book.title}
                         </span>
-                        <span className="line-clamp-1 font-zain text-[14px] font-normal opacity-75 sm:hidden">
+                        <span className="line-clamp-1 font-zain text-[14px] font-normal opacity-75 md:hidden">
                           {book.author}
                         </span>
                       </td>
                       <td className={`max-md:hidden max-md:text-[15px] ${tdStyling}`}>
                         <span className={`line-clamp-3`}>{book.author}</span>
                       </td>
-                      <td className={`pr-2 text-right md:pr-0 md:text-center`}>
+                      <td className={`pr-2.5 text-right md:pr-0 md:text-center`}>
                         <button
                           onClick={() => setBookToBurn(book)}
                           title={'Delete book'}
-                          className={`group cursor-pointer transition-all hover:scale-115 hover:animate-pulse hover:brightness-120 active:scale-115`}
+                          className={`group cursor-pointer transition-all hover:scale-120 hover:animate-pulse hover:brightness-120 active:scale-120`}
                         >
                           <FireOutline
-                            className={`block size-5 translate-y-1 text-red-700 group-hover:hidden group-active:hidden md:size-6.5`}
+                            aria-label="Delete this book"
+                            className={`block size-5 translate-y-1 text-red-700 group-hover:hidden group-active:hidden md:size-6.25`}
                           />
                           <FireSolid
-                            className={`hidden size-5 translate-y-1 text-red-700 group-hover:block group-active:block md:size-6.5`}
+                            aria-label="Delete this book"
+                            className={`hidden size-5.25 translate-y-1 text-red-700 group-hover:block group-active:block md:size-6.25`}
                           />
                         </button>
                       </td>
