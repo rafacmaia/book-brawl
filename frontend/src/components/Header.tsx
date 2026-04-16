@@ -17,17 +17,9 @@ export default function Header() {
         <NavLink to={'/leaderboard'} className={activeStyle}>
           Leaderboard
         </NavLink>
-        <NavLink
-          to={'/manage'}
-          className={({ isActive }) => `${activeStyle({ isActive })} hidden sm:inline`}
-        >
-          Manage the Pit
-        </NavLink>
-        <NavLink
-          to={'/manage'}
-          className={({ isActive }) => `${activeStyle({ isActive })} sm:hidden`}
-        >
-          Manage Pit
+        <NavLink to={'/manage'} className={({ isActive }) => `${activeStyle({ isActive })}`}>
+          <span className={`hidden sm:inline`}>Manage the Pit</span>
+          <span className="sm:hidden">Manage Pit</span>
         </NavLink>
         <div className={`translate-y-0.5 sm:translate-y-0.75`}>
           <UserButton />

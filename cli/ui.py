@@ -187,8 +187,8 @@ ACCURACY_LABELS = [
     (ACCURACY_TIERS[4], "✅ Very High"),
 ]
 
-ACCURACY_EXPLAINER = f"""  {ACCURACY_LABELS[0][1]}   — Early sample-data, ranking mostly based on initial rating
-  {ACCURACY_LABELS[1][1]}        — Some sample-data, broad tier is likely correct (top/mid/bottom)
+ACCURACY_EXPLAINER = f"""  {ACCURACY_LABELS[0][1]}   — Early data, ranking mostly based on initial rating
+  {ACCURACY_LABELS[1][1]}        — Some data, broad tier is likely correct (top/mid/bottom)
   {ACCURACY_LABELS[2][1]}   — General position is fairly reliable, exact rank still shifting
   {ACCURACY_LABELS[3][1]}       — Position is well established, likely within ~5 spots
   {ACCURACY_LABELS[4][1]}  — Locked in, unlikely to shift by more than 1 or 2 spots"""
@@ -206,7 +206,7 @@ PROGRESS_LABELS = [
 SUMMARY_LABELS = [
     (
         PROGRESS_TIERS[0],
-        " Not much sample-data yet, ranking mostly based on initial ratings, if available.",
+        " Not much data yet, ranking mostly based on initial ratings, if available.",
     ),
     (
         PROGRESS_TIERS[1],

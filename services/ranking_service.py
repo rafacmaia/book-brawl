@@ -51,7 +51,7 @@ def _rank_books(books):
         rank += 1
 
         if len(tied_group) == 1:
-            ranked.append((str(rank), tied_group[0]))
+            ranked.append((rank, tied_group[0]))
         else:
             ranked.extend(_tiebreak(tied_group, rank))
 
@@ -71,21 +71,13 @@ def _tiebreak(tied_group, rank):
     ranked = []
     current_rank = rank
     for j, book in enumerate(tied_group):
-        tied_to_prev = (
-            j > 0
-            and tiebreak_scores[tied_group[j - 1].id] == tiebreak_scores[book.id]
-            and book.rating == tied_group[j - 1].rating
-        )
         tied_to_next = (
             j < len(tied_group) - 1
             and tiebreak_scores[tied_group[j + 1].id] == tiebreak_scores[book.id]
             and book.rating == tied_group[j + 1].rating
         )
 
-        display_rank = (
-            f"{current_rank}~" if tied_to_next or tied_to_prev else str(current_rank)
-        )
-        ranked.append((display_rank, book))
+        ranked.append((current_rank, book))
 
         if not tied_to_next:
             current_rank += 1
