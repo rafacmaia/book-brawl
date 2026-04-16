@@ -98,7 +98,7 @@ function ImportModal({
               accept=".csv"
               onChange={handleFileUpload}
               disabled={loading}
-              className="hidden"
+              className="sr-only"
             />
           </label>
           {error && <p className="pl-1 text-[18px] font-bold text-red-700">{error}</p>}
