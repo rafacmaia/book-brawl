@@ -211,8 +211,8 @@ def _process_import(new_books, books, interrupted=False, method="CSV"):
 
 def reset_handler(books, db_path):
     print(header("FACTORY RESET", new_line=True))
-    print(" This will delete all sample-data and trigger a complete program reset.")
-    print(style(" This cannot be undone. All sample-data will be lost.", ERROR))
+    print(" This will delete all data and trigger a complete program reset.")
+    print(style(" This cannot be undone. All data will be lost.", ERROR))
 
     print()
     export_choice = prompt(
