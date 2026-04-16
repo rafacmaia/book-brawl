@@ -6,6 +6,7 @@ import PageHeading from '../components/PageHeading'
 import { Ban, Download, SquareX } from 'lucide-react'
 import { FireIcon as FireSolid } from '@heroicons/react/24/solid'
 import { FireIcon as FireOutline } from '@heroicons/react/24/outline'
+import { BombIcon } from '@phosphor-icons/react'
 
 interface Book {
   id: number
@@ -72,7 +73,7 @@ function ImportModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="relative flex w-[90%] flex-col gap-4 rounded-lg border-6 border-background bg-button p-6 font-zain text-text shadow-2xl md:w-xl md:gap-6 md:rounded-md md:border-4 md:p-8">
-        <h2 className="font-calistoga text-3xl font-bold text-text">CSV Import</h2>
+        <h2 className="font-calistoga text-3xl font-bold text-text">Import from a CSV</h2>
         <button
           onClick={onClose}
           aria-label="Close CSV import modal"
@@ -82,7 +83,7 @@ function ImportModal({
         </button>
         <div className="flex flex-col gap-2 text-[20px] text-text/90">
           <p>
-            Your CSV must have <span className={fieldStyling}>title</span> and{' '}
+            Your CSV file must have <span className={fieldStyling}>title</span> and{' '}
             <span className={fieldStyling}>author</span> columns.
           </p>
           <p>
@@ -91,7 +92,7 @@ function ImportModal({
           </p>
         </div>
         <div className="flex flex-col gap-4">
-          <label className="w-fit cursor-pointer rounded-md bg-text/90 px-6 py-3 text-[18px] font-bold text-primary shadow-md transition-all hover:scale-104 hover:bg-text">
+          <label className="w-fit cursor-pointer rounded-md border-b-4 border-red-600/80 bg-text/90 px-6 py-3 text-[18px] font-bold text-primary shadow-md transition-all hover:scale-104 hover:bg-text md:border-b-3">
             {loading ? 'Importing...' : 'Select CSV File'}
             <input
               type="file"
@@ -144,7 +145,7 @@ function DeleteModal({
   onCancel: () => void
 }) {
   const buttonStyling =
-    'cursor-pointer rounded-md border-b-4 md:border-b-3 border-background bg-red-800/80 md:w-3/10 w-1/3 px-4 pb-1 pt-2 md:py-2 font-zain text-[16px] md:text-[18px] font-extrabold tracking-wider text-primary drop-shadow-md transition-all hover:scale-104 hover:bg-red-800 active:scale-95 active:bg-red-800'
+    'cursor-pointer rounded-md border-b-4 md:border-b-3 md:w-3/10 w-1/3 px-4 pb-1 pt-2 md:py-2 font-zain text-[16px] md:text-[18px] font-extrabold tracking-wider text-primary drop-shadow-md transition-all hover:scale-104 active:scale-95 '
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
@@ -159,11 +160,51 @@ function DeleteModal({
           , will be permanently removed from the Book Pit.
         </p>
         <div className="flex w-full items-center justify-center gap-10 md:gap-12">
-          <button onClick={onConfirm} className={buttonStyling}>
+          <button
+            onClick={onConfirm}
+            className={`border-background bg-red-800/75 hover:bg-red-800 active:bg-red-800 ${buttonStyling}`}
+          >
             BURN
           </button>
-          <button onClick={onCancel} className={buttonStyling}>
+          <button
+            onClick={onCancel}
+            className={`border-red-800 bg-background/90 hover:bg-background active:bg-background ${buttonStyling}`}
+          >
             KEEP
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ResetModal({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
+  const buttonStyling =
+    'cursor-pointer rounded-md border-b-4 md:border-b-3 md:w-3/10 w-1/3 px-4 pb-1 pt-2 md:py-2 font-zain text-[16px] md:text-[18px] font-extrabold tracking-wider text-primary drop-shadow-md transition-all hover:scale-104 active:scale-95 '
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div className="flex w-[90%] flex-col items-center justify-center gap-4 rounded-lg border-6 border-red-800/80 bg-button p-5 font-zain text-text shadow-2xl md:w-xl md:gap-6 md:rounded-md md:border-4 md:p-8">
+        <h2 className="font-calistoga text-3xl font-bold tracking-wide">Burn it all?</h2>
+        <p className="text-center font-zain text-[20px] md:text-[22px]">
+          This will <span className={'font-extrabold'}>permanently</span> delete all books and
+          trigger a complete Pit reset.
+        </p>
+        <p className="text-center font-zain text-[20px] font-semibold md:text-[22px]">
+          This cannot be undone. All data will be lost.
+        </p>
+        <div className="flex w-full items-center justify-center gap-10 md:gap-12">
+          <button
+            onClick={onConfirm}
+            className={`border-background bg-red-800/75 hover:bg-red-800 active:bg-red-800 ${buttonStyling}`}
+          >
+            RESET
+          </button>
+          <button
+            onClick={onCancel}
+            className={`border-red-800 bg-background/90 hover:bg-background active:bg-background ${buttonStyling}`}
+          >
+            CANCEL
           </button>
         </div>
       </div>
@@ -184,6 +225,7 @@ export default function ManagePit() {
 
   const [bookToBurn, setBookToBurn] = useState<Book | null>(null)
   const [showImportModal, setShowImportModal] = useState<boolean>(false)
+  const [showResetModal, setShowResetModal] = useState<boolean>(false)
 
   const titleRef = useRef<HTMLInputElement>(null)
 
@@ -255,7 +297,8 @@ export default function ManagePit() {
       titleRef.current?.focus()
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {
-        setAddError('This book is already in the pit!')
+        form.reset()
+        setAddError(`${title}, by ${author}, is already in the pit!`)
       } else {
         setAddError(`Something went wrong. Please try again. ${err}`)
       }
@@ -288,8 +331,25 @@ export default function ManagePit() {
     }
   }
 
+  async function handleReset() {
+    setNewBook(null)
+    setAddError(null)
+
+    try {
+      const token = await getToken()
+
+      await apiFetch('/books', token!, { method: 'DELETE' })
+
+      setBooks([])
+    } catch {
+      setError('Failed to reset pit. Please try again.')
+    } finally {
+      setShowResetModal(false)
+    }
+  }
+
   const cellXPadding = 'first:pl-2.25 md:px-2 md:first:pl-4'
-  const thStyling = `font-calistoga text-[16px] md:text-[20px] tracking-wider pt-1 md:pt-2 pb-1 font-extrabold ${cellXPadding}`
+  const thStyling = `font-calistoga text-[16px] md:text-[20px] tracking-wider pt-1.25 md:pt-2 pb-1.25 font-extrabold ${cellXPadding}`
   const tdStyling = `py-1 md:py-1.5 ${cellXPadding}`
   const inputStyling = 'rounded-md border-b-3 border-primary/85 bg-blue-200 p-3 sm:p-2 shadow-lg'
   const addMessageStyling = `w-full md:self-end rounded-md md:rounded-lg bg-button px-4 py-2 text-base md:w-fit md:px-6 md:text-xl md:brightness-110`
@@ -315,6 +375,10 @@ export default function ManagePit() {
         />
       )}
 
+      {showResetModal && (
+        <ResetModal onConfirm={handleReset} onCancel={() => setShowResetModal(false)} />
+      )}
+
       {error ? (
         <Placeholder message={error} />
       ) : loading ? (
@@ -323,15 +387,15 @@ export default function ManagePit() {
         <>
           {/* MANUAL INPUT */}
           <section
-            className={`mt-5 w-full sm:mt-12 ${addTriggered ? 'mb-0' : 'md:mb-15'} flex flex-col gap-4`}
+            className={`mt-6 w-full sm:mt-12 ${addTriggered ? 'mb-0' : 'md:mb-15'} flex flex-col gap-4`}
           >
             <h2 className="font-calistoga text-2xl font-bold tracking-wide decoration-accent/80 decoration-wavy underline-offset-8 drop-shadow-md sm:mb-4 sm:text-3xl sm:underline">
-              New Entries
+              New Reads
             </h2>
             <p className={`text-[18px] font-medium sm:text-[20px]/8 sm:tracking-wide`}>
               <span className={`font-extrabold decoration-accent/80`}>Rating</span> (1-10) is
-              optional, but encouraged. It gives the book an initial placement, which over time, the
-              Brawl Pit will confirm or disprove.
+              optional, but encouraged. It gives the book an initial placement, which the Brawl Pit
+              will put to the test.
             </p>
             <form
               className="flex w-full flex-col justify-between gap-3 font-calistoga text-base font-bold text-text sm:text-lg md:flex-row md:gap-0"
@@ -365,7 +429,7 @@ export default function ManagePit() {
               <button
                 type="submit"
                 title={'Add new book'}
-                className="cursor-pointer rounded-md border-b-3 border-primary/75 bg-accent/80 pt-2 pb-1.5 text-center font-zain text-[20px] font-black text-primary/90 shadow-md transition-all hover:bg-accent/90 active:scale-97 active:bg-accent/70 md:w-[8%] md:bg-accent/75 md:p-1 md:text-2xl"
+                className="cursor-pointer rounded-md border-b-3 border-primary/75 bg-accent/80 pt-2.5 pb-1.5 text-center font-zain text-[20px] font-extrabold text-primary/90 shadow-md transition-all hover:scale-102 hover:bg-accent/85 active:scale-97 active:bg-accent/70 md:w-[8%] md:bg-accent/75 md:pt-1.75 md:pb-0.75 md:text-[22px]"
               >
                 <span className="inline md:hidden">Add Book</span>
                 <span className="hidden md:inline">Add</span>
@@ -407,10 +471,10 @@ export default function ManagePit() {
             )}
           </section>
 
-          <hr className="my-4 h-px w-full text-button opacity-65 md:my-0" />
+          <hr className="my-3 h-px w-full text-button opacity-65 md:my-0" />
 
           {/* TABLE OF CURRENT BOOKS */}
-          <section className="flex w-full flex-col gap-4">
+          <section className="flex w-full flex-col gap-3">
             <div className="flex w-full justify-between">
               <p
                 className={
@@ -423,16 +487,15 @@ export default function ManagePit() {
                 onClick={() => {
                   setShowImportModal(true)
                 }}
-                className={`cursor-pointer rounded-full border-b-3 border-accent/80 bg-button px-4 py-2 font-calistoga text-[14px] font-semibold tracking-wide text-text shadow-2xl transition-all hover:scale-104 hover:bg-button active:scale-96 active:opacity-90 md:bg-button/95 md:px-6 md:text-base md:font-extrabold md:tracking-wider`}
+                className={`cursor-pointer rounded-full border-b-3 border-red-700/75 bg-button/95 px-4 py-2 font-calistoga text-[14px] font-semibold tracking-wide text-text shadow-2xl transition-all hover:scale-104 hover:bg-button active:scale-96 active:opacity-90 md:bg-button/95 md:px-6 md:text-[18px] md:font-extrabold md:tracking-wider`}
               >
-                {/*<span className={'mr-2 drop-shadow-2xl drop-shadow-zinc-950'}>📥</span> */}
                 <Download
                   strokeWidth={3}
                   className={
-                    'mr-2 inline size-4 -translate-y-px drop-shadow-2xl drop-shadow-zinc-950 md:size-4.5'
+                    'mr-1.5 inline size-3.5 -translate-y-px drop-shadow-2xl drop-shadow-zinc-950 md:mr-1.75 md:size-4.25'
                   }
                 />
-                CSV Import
+                CSV
               </button>
             </div>
 
@@ -441,7 +504,6 @@ export default function ManagePit() {
                 <thead className={'text-left'}>
                   <tr className={'border-b-2 border-red-700 md:border-b-3'}>
                     <th className={`w-[85%] md:w-[50%] ${thStyling}`}>
-                      {/*<BooksIcon className={'size-5 -translate-x-0.5 sm:hidden'} />*/}
                       <span className={''}>Title</span>
                     </th>
                     <th className={`w-[40%] max-md:hidden ${thStyling}`}>Author</th>
@@ -490,6 +552,22 @@ export default function ManagePit() {
                   ))}
                 </tbody>
               </table>
+            )}
+            {books.length > 0 && (
+              <button
+                onClick={() => {
+                  setShowResetModal(true)
+                }}
+                className={`ml-auto cursor-pointer rounded-md border-b-3 border-red-700/90 bg-button/90 px-4 py-2 font-calistoga text-[14px] font-semibold tracking-wide text-text shadow-2xl transition-all hover:scale-104 hover:bg-button active:scale-96 active:opacity-100 md:bg-button/95 md:px-6 md:text-base md:font-extrabold md:tracking-wider`}
+              >
+                <BombIcon
+                  weight={'fill'}
+                  className={
+                    'mr-1.75 inline size-3.75 -translate-y-px drop-shadow-2xl drop-shadow-zinc-950 md:size-4.5'
+                  }
+                />
+                Factory Reset
+              </button>
             )}
           </section>
         </>

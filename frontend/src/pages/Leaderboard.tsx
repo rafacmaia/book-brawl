@@ -199,7 +199,7 @@ export default function Leaderboard() {
           }
         >
           <CircleAlert size={72} className={'mb-8'} />
-          <p>No books in the pit!</p>
+          <p>No books to show!</p>
           <p>
             <NavLink
               to={'/manage'}

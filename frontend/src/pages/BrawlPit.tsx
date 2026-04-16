@@ -149,7 +149,7 @@ export default function BrawlPit() {
           <p>
             <NavLink
               to={'/manage'}
-              className={`font-extrabold text-primary/90 underline decoration-accent/80 decoration-4 underline-offset-4 transition-all hover:text-[52px] hover:text-primary hover:decoration-wavy hover:underline-offset-8`}
+              className={`font-black text-primary/90 underline decoration-accent/80 decoration-4 underline-offset-4 transition-all hover:text-[52px] hover:text-primary hover:decoration-wavy hover:underline-offset-8`}
             >
               Feed the Pit
             </NavLink>{' '}
