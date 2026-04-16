@@ -51,7 +51,7 @@ function BookButton({ book, onClick }: { book: Book; onClick: () => void }) {
 
   return (
     <button
-      className={`flex w-9/10 flex-1 basis-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-3xl border-5 border-accent/80 bg-button/95 py-2 font-calistoga wrap-break-word text-text shadow-lg transition-all duration-250 sm:h-72 sm:w-134 sm:flex-none sm:rounded-md sm:border-3 ${hoverStyling} ${longTextStyling}`}
+      className={`flex w-10/11 flex-1 basis-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-3xl border-5 border-accent/80 bg-button/95 py-2 font-calistoga wrap-break-word text-text shadow-lg transition-all duration-250 sm:h-72 sm:w-134 sm:flex-none sm:rounded-md sm:border-3 ${hoverStyling} ${longTextStyling}`}
       onClick={onClick}
     >
       <p className={`line-clamp-4 w-full p-1 font-medium sm:line-clamp-3 ${longTitleStyling}`}>
@@ -134,16 +134,6 @@ export default function BrawlPit() {
 
   return (
     <main className="relative flex grow flex-col items-center px-4 text-primary/95">
-      <h1
-        className={`z-100 mt-6 text-center font-calistoga text-[54px]/18 font-extrabold tracking-wide text-primary/95 drop-shadow-md sm:mt-24 sm:text-7xl`}
-      >
-        Which means more to you?
-      </h1>
-      <h1
-        className={`absolute z-0 mt-24 hidden text-center font-calistoga text-5xl font-extrabold tracking-wide text-background sm:block sm:text-7xl ${wavyUnderline}`}
-      >
-        ===============
-      </h1>
       {loading ? (
         <Placeholder message={'Loading...'} />
       ) : error ? (
@@ -168,18 +158,30 @@ export default function BrawlPit() {
         </div>
       ) : (
         match && (
-          <div
-            className={`${visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-1 opacity-0 sm:translate-y-3'} mt-8 mb-5 flex w-full grow flex-col items-center justify-center gap-8 transition-all duration-300 ease-in-out sm:my-0 sm:flex-row sm:gap-27`}
-          >
-            <BookButton
-              book={match.book_a}
-              onClick={() => handleChoice(match.book_a.id, match.book_b.id)}
-            />
-            <BookButton
-              book={match.book_b}
-              onClick={() => handleChoice(match.book_b.id, match.book_a.id)}
-            />
-          </div>
+          <>
+            <h1
+              className={`z-100 mt-4 text-center font-calistoga text-[52px]/18 font-extrabold tracking-wide text-primary/95 drop-shadow-md sm:mt-24 sm:text-7xl`}
+            >
+              Which means more to you?
+            </h1>
+            <h1
+              className={`absolute z-0 mt-24 hidden text-center font-calistoga text-5xl font-extrabold tracking-wide text-background sm:block sm:text-7xl ${wavyUnderline}`}
+            >
+              ===============
+            </h1>
+            <div
+              className={`${visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-1 opacity-0 sm:translate-y-3'} mt-7 mb-2 flex w-full grow flex-col items-center justify-center gap-8 transition-all duration-300 ease-in-out sm:my-0 sm:flex-row sm:gap-27`}
+            >
+              <BookButton
+                book={match.book_a}
+                onClick={() => handleChoice(match.book_a.id, match.book_b.id)}
+              />
+              <BookButton
+                book={match.book_b}
+                onClick={() => handleChoice(match.book_b.id, match.book_a.id)}
+              />
+            </div>
+          </>
         )
       )}
     </main>

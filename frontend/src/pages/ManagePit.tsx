@@ -290,12 +290,13 @@ export default function ManagePit() {
   const cellXPadding = 'px-1 first:pl-2 md:px-2 md:first:pl-4'
   const thStyling = `font-calistoga text-[16px] md:text-[20px] tracking-wide pt-1 md:pt-2 pb-1 font-extrabold ${cellXPadding}`
   const tdStyling = `py-1 md:py-1.5 ${cellXPadding}`
+  const inputStyling = 'rounded-md border-b-3 border-primary/85 bg-blue-200 p-3 sm:p-2 shadow-lg'
   const addMessageStyling = `w-full md:self-end rounded-md md:rounded-lg bg-button px-4 py-2 text-base md:w-fit md:px-6 md:text-xl md:brightness-110`
 
   const addTriggered = newBook != null || addError != null || loadingAdd
 
   return (
-    <main className="mx-auto flex h-full min-h-0 w-[98%] grow flex-col items-center gap-3 overflow-y-auto p-2 text-primary/95 sm:w-2/3 sm:gap-4 sm:p-4">
+    <main className="mx-auto flex h-full min-h-0 w-[97%] grow flex-col items-center gap-3 overflow-y-auto p-2 text-primary/95 sm:w-2/3 sm:gap-4 sm:p-4">
       <PageHeading title={'Manage the Pit'} />
 
       {showImportModal && (
@@ -321,12 +322,12 @@ export default function ManagePit() {
         <>
           {/* MANUAL INPUT */}
           <section
-            className={`mt-6 w-full sm:mt-12 ${addTriggered ? 'mb-0' : 'mb-12 md:mb-15'} flex flex-col gap-4`}
+            className={`mt-5 w-full sm:mt-12 ${addTriggered ? 'mb-0' : 'sm:mb-15'} flex flex-col gap-4`}
           >
             <h2 className="font-calistoga text-2xl font-bold tracking-wide decoration-accent/80 decoration-wavy underline-offset-8 drop-shadow-md sm:mb-4 sm:text-3xl sm:underline">
               New Entries
             </h2>
-            <p className={`text-[16px] font-medium sm:text-[20px]/8 sm:tracking-wide`}>
+            <p className={`text-[18px] font-medium sm:text-[20px]/8 sm:tracking-wide`}>
               <span className={`font-extrabold decoration-accent/80`}>Rating</span> (1-10) is
               optional, but encouraged. It gives the book an initial placement, which over time, the
               Brawl Pit will confirm or disprove.
@@ -341,14 +342,14 @@ export default function ManagePit() {
                 placeholder="Title"
                 name="title"
                 ref={titleRef}
-                className="rounded-md border-b-3 border-primary/85 bg-blue-200/90 p-2 pl-3 shadow-lg sm:w-[48%]"
+                className={`sm:w-[48%] ${inputStyling}`}
               />
               <input
                 aria-label="Enter book author"
                 type="text"
                 placeholder="Author"
                 name="author"
-                className="rounded-md border-b-3 border-primary/85 bg-blue-200/90 p-2 pl-3 shadow-lg sm:w-[30%]"
+                className={`sm:w-[30%] ${inputStyling}`}
               />
               <input
                 aria-label="Enter optional rating (1-10, decimals welcome)"
@@ -358,12 +359,12 @@ export default function ManagePit() {
                 step="0.1"
                 placeholder="Rating"
                 name="rating"
-                className="rounded-md border-b-3 border-primary/85 bg-blue-200/90 p-2 pl-3 shadow-lg sm:w-[11%]"
+                className={`sm:w-[11%] ${inputStyling}`}
               />
               <button
                 type="submit"
                 title={'Add new book'}
-                className="cursor-pointer rounded-md border-b-3 border-primary/75 bg-accent/80 p-2 text-center font-gaegu text-xl font-black text-primary shadow-md transition-all hover:bg-accent/90 active:scale-97 active:bg-accent/70 sm:w-[8%] sm:p-1 sm:text-2xl md:bg-accent/75"
+                className="cursor-pointer rounded-md border-b-3 border-primary/75 bg-accent/80 p-1.5 text-center font-zain text-[20px] font-black text-primary/90 shadow-md transition-all hover:bg-accent/90 active:scale-97 active:bg-accent/70 sm:w-[8%] sm:p-1 sm:text-2xl md:bg-accent/75"
               >
                 <span className="inline md:hidden">Add Book</span>
                 <span className="hidden md:inline">Add</span>
@@ -405,7 +406,7 @@ export default function ManagePit() {
             )}
           </section>
 
-          <hr className="my-2 h-px w-full text-button md:my-0" />
+          <hr className="my-4 h-px w-full text-button opacity-65 md:my-0" />
 
           {/* TABLE OF CURRENT BOOKS */}
           <section className="flex w-full flex-col gap-4">
@@ -415,7 +416,7 @@ export default function ManagePit() {
                   'h-fit w-fit rounded-md bg-button px-4 py-2 font-calistoga text-[16px] font-semibold tracking-wide text-text shadow-2xl md:px-6 md:text-[20px] md:font-bold md:tracking-wider'
                 }
               >
-                Books in the Pit: {books.length}
+                {books.length} Book{books.length !== 1 && 's'}
               </p>
               <button
                 onClick={() => {
@@ -438,9 +439,11 @@ export default function ManagePit() {
               <table className="w-full table-fixed border-collapse rounded-md bg-button text-text shadow-lg">
                 <thead className={'text-left'}>
                   <tr className={'border-b-2 border-red-700 md:border-b-3'}>
-                    <th className={`w-[50%] md:w-[50%] ${thStyling}`}>Title</th>
-                    <th className={`w-[35%] md:w-[40%] ${thStyling}`}>Author</th>
-                    <th className={`w-[15%] text-center md:w-[10%] ${thStyling}`}>Burn?</th>
+                    <th className={`w-[80%] md:w-[50%] ${thStyling}`}>Title</th>
+                    <th className={`w-[40%] max-md:hidden ${thStyling}`}>Author</th>
+                    <th className={`w-[20%] text-right md:w-[10%] md:text-center ${thStyling}`}>
+                      Burn?
+                    </th>
                   </tr>
                 </thead>
                 <tbody className={'text-[16px] opacity-95 md:text-[18px]'}>
@@ -449,11 +452,18 @@ export default function ManagePit() {
                       key={book.id}
                       className={'border-b border-red-700/80 last:border-none md:border-b-2'}
                     >
-                      <td className={`font-bold ${tdStyling}`}>{book.title}</td>
-                      <td className={`max-md:text-[15px] ${tdStyling}`}>
+                      <td className={`font-bold ${tdStyling}`}>
+                        <span className={`line-clamp-2 text-[16px] font-bold md:text-[18px]`}>
+                          {book.title}
+                        </span>
+                        <span className="line-clamp-1 font-zain text-[14px] font-normal opacity-75 sm:hidden">
+                          {book.author}
+                        </span>
+                      </td>
+                      <td className={`text-[15px] max-md:hidden ${tdStyling}`}>
                         <span className={`line-clamp-3`}>{book.author}</span>
                       </td>
-                      <td className={`text-center`}>
+                      <td className={`pr-2 text-right md:pr-0 md:text-center`}>
                         <button
                           onClick={() => setBookToBurn(book)}
                           title={'Delete book'}

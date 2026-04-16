@@ -10,7 +10,7 @@ export default function Header() {
 
   return (
     <header className={'flex w-full px-1 py-3 sm:px-6 sm:py-3'}>
-      <nav className="flex w-full items-center justify-around align-middle font-zain text-[20px] font-extrabold text-primary/95 sm:justify-end sm:gap-8 sm:tracking-wide">
+      <nav className="flex w-full items-center justify-around align-middle font-zain text-[18px] font-extrabold text-primary/95 sm:justify-end sm:gap-8 sm:text-[20px] sm:tracking-wide">
         <NavLink to={'/brawl'} className={activeStyle}>
           Brawl Pit
         </NavLink>
