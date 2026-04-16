@@ -460,7 +460,7 @@ export default function ManagePit() {
                           {book.author}
                         </span>
                       </td>
-                      <td className={`text-[15px] max-md:hidden ${tdStyling}`}>
+                      <td className={`max-md:hidden max-md:text-[15px] ${tdStyling}`}>
                         <span className={`line-clamp-3`}>{book.author}</span>
                       </td>
                       <td className={`pr-2 text-right md:pr-0 md:text-center`}>
@@ -470,10 +470,10 @@ export default function ManagePit() {
                           className={`group cursor-pointer transition-all hover:scale-115 hover:animate-pulse hover:brightness-120 active:scale-115`}
                         >
                           <FireOutline
-                            className={`block size-5 translate-y-1 text-red-700 group-hover:hidden group-active:hidden md:size-7`}
+                            className={`block size-5 translate-y-1 text-red-700 group-hover:hidden group-active:hidden md:size-6.5`}
                           />
                           <FireSolid
-                            className={`hidden size-5 translate-y-1 text-red-700 group-hover:block group-active:block md:size-7`}
+                            className={`hidden size-5 translate-y-1 text-red-700 group-hover:block group-active:block md:size-6.5`}
                           />
                         </button>
                       </td>

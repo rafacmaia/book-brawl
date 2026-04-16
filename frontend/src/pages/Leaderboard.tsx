@@ -227,12 +227,12 @@ export default function Leaderboard() {
                   <span className={'sm:hidden'}>#</span>
                   <span className={'hidden sm:inline'}>Rank</span>
                 </th>
-                <th className={`w-[74%] md:w-[45%] ${thStyling}`}>
+                <th className={`w-[74%] md:w-[46%] ${thStyling}`}>
                   <span className={'sm:hidden'}>Book</span>
                   <span className={'hidden sm:inline'}>Title</span>
                 </th>
-                <th className={`max-md:hidden md:w-[30%] ${thStyling}`}>Author</th>
-                <th className={`w-[16%] text-right md:w-[15%] md:text-left ${thStyling}`}>
+                <th className={`max-md:hidden md:w-[31%] ${thStyling}`}>Author</th>
+                <th className={`w-[16%] text-right md:w-[13%] md:text-left ${thStyling}`}>
                   <button onClick={() => setShowAccuracyModal(true)} className={'inline-flex'}>
                     <span className={'sm:hidden'}>Acc.</span>
                     <span className={'hidden sm:inline'}>Accuracy</span>
@@ -319,7 +319,7 @@ export default function Leaderboard() {
                       accuracyTier={book.accuracy_tier}
                       styling="inline size-5.75 sm:size-6"
                     />
-                    <span className={'ml-1 hidden text-[16px] md:inline'}>
+                    <span className={'ml-1 hidden text-[18px] opacity-90 md:inline'}>
                       {TIER_LABELS[book.accuracy_tier]}
                     </span>
                   </td>
