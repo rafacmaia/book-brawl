@@ -1,12 +1,19 @@
 import { useAuth } from '@clerk/react'
-import { type ChangeEvent, type SubmitEvent, useEffect, useRef, useState } from 'react'
+import {
+  type ChangeEvent,
+  type KeyboardEvent,
+  type SubmitEvent,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { API_BASE, ApiError, apiFetch } from '../api.ts'
 import Placeholder from '../components/Placeholder'
 import PageHeading from '../components/PageHeading'
 import { Ban, Download, SquareX } from 'lucide-react'
 import { FireIcon as FireSolid } from '@heroicons/react/24/solid'
 import { FireIcon as FireOutline } from '@heroicons/react/24/outline'
-import { BombIcon } from '@phosphor-icons/react'
+import { BombIcon, PencilSimpleLineIcon } from '@phosphor-icons/react'
 
 interface Book {
   id: number
@@ -19,6 +26,8 @@ interface ImportResult {
   skipped: number
   interrupted: boolean
 }
+
+// ====== MODAL SUBCOMPONENTS
 
 function ImportModal({
   onClose,
@@ -74,10 +83,11 @@ function ImportModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="relative flex w-[90%] flex-col gap-4 rounded-lg border-6 border-background bg-button p-6 font-zain text-text shadow-2xl md:w-xl md:gap-6 md:rounded-md md:border-4 md:p-8">
         <h2 className="font-calistoga text-3xl font-bold text-text">Import from a CSV</h2>
+
         <button
           onClick={onClose}
           aria-label="Close CSV import modal"
-          className="absolute top-2 right-2 cursor-pointer font-extrabold text-red-700 hover:scale-112 active:scale-95 md:top-3 md:right-4"
+          className="absolute top-2 right-2 cursor-pointer font-extrabold text-red-800/80 hover:scale-112 active:scale-95 md:top-3 md:right-4"
         >
           <SquareX className="size-6 md:size-7" />
         </button>
@@ -149,9 +159,9 @@ function DeleteModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="flex w-[90%] flex-col items-center justify-center gap-4 rounded-lg border-6 border-red-800/80 bg-button p-6 font-zain text-text shadow-2xl md:w-xl md:gap-6 md:rounded-md md:border-4 md:p-8">
+      <div className="flex w-[90%] flex-col items-center justify-center gap-5 rounded-lg border-6 border-red-800/80 bg-button p-6 font-zain text-text shadow-2xl md:w-xl md:gap-6 md:rounded-md md:border-4 md:p-8">
         <h2 className="font-calistoga text-3xl font-bold">Burn this book?</h2>
-        <p className="text-center font-zain text-[20px] md:text-[22px]">
+        <p className="text-left font-zain text-[20px] md:text-[22px]">
           <span className="font-calistoga text-[18px] font-bold md:text-[20px]">{book.title}</span>,
           by{' '}
           <span className={'font-calistoga text-[18px] font-semibold md:text-[20px]'}>
@@ -172,6 +182,77 @@ function DeleteModal({
           >
             KEEP
           </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function EditModal({
+  book,
+  onConfirm,
+  onCancel,
+  error,
+}: {
+  book: Book
+  onConfirm: (title: string, author: string) => void
+  onCancel: () => void
+  error: string | null
+}) {
+  const [title, setTitle] = useState(book.title)
+  const [author, setAuthor] = useState(book.author)
+
+  function handleKeyDown(e: KeyboardEvent) {
+    if (e.key === 'Enter') {
+      onConfirm(title, author)
+    } else if (e.key === 'Escape') {
+      onCancel()
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div className="items-left relative flex w-[90%] flex-col justify-center gap-8 rounded-lg border-6 border-red-800/80 bg-button/95 p-6 font-zain text-text shadow-2xl md:w-xl md:gap-8 md:rounded-md md:border-4 md:p-8">
+        <h2 className="font-calistoga text-3xl font-bold">Edit Book</h2>
+        <button
+          onClick={onCancel}
+          aria-label="Close edit modal"
+          className="absolute top-2 right-2 cursor-pointer text-red-800/80 hover:scale-112 active:scale-95 md:top-3 md:right-4"
+        >
+          <SquareX className="size-6 md:size-7" />
+        </button>
+        <div className="flex flex-col gap-3 font-zain text-[16px] md:gap-4 md:text-[18px]">
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="w-full rounded-md border-b-3 border-red-800/85 bg-blue-300/50 px-3 py-2 font-calistoga shadow-lg sm:p-2"
+          />
+          <input
+            type="text"
+            value={author}
+            onChange={(e) => setAuthor(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="w-full rounded-md border-b-3 border-red-800/85 bg-blue-300/50 px-3 py-2 font-calistoga shadow-lg sm:p-2"
+          />
+          <button
+            onClick={() => onConfirm(title, author)}
+            className={`mt-3 cursor-pointer self-center rounded-md border-b-4 border-red-800/85 bg-background/90 px-10 pt-2.5 pb-1.25 font-zain text-[16px] font-extrabold tracking-widest text-primary drop-shadow-md transition-all hover:scale-104 hover:border-background/90 hover:bg-red-800 active:scale-95 active:bg-red-800 md:border-b-3 md:px-12 md:py-2 md:text-[18px]`}
+          >
+            Save
+          </button>
+          {error && (
+            <p
+              className={`w-full self-center rounded-md bg-red-800/85 px-3 py-2 text-left text-base font-extrabold text-primary opacity-95 md:rounded-lg md:px-4 md:pt-2.5 md:text-lg md:text-primary md:opacity-90 md:brightness-110`}
+            >
+              <Ban
+                strokeWidth={3}
+                className={'mr-2 inline size-4 -translate-y-px sm:-translate-y-0.5 md:size-4.25'}
+              />
+              {error}
+            </p>
+          )}
         </div>
       </div>
     </div>
@@ -212,6 +293,8 @@ function ResetModal({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: 
   )
 }
 
+// ====== MAIN PAGE
+
 export default function ManagePit() {
   const { getToken } = useAuth()
 
@@ -223,7 +306,10 @@ export default function ManagePit() {
   const [addError, setAddError] = useState<string | null>(null)
   const [newBook, setNewBook] = useState<Book | null>(null)
 
+  const [editError, setEditError] = useState<string | null>(null)
+
   const [bookToBurn, setBookToBurn] = useState<Book | null>(null)
+  const [bookToEdit, setBookToEdit] = useState<Book | null>(null)
   const [showImportModal, setShowImportModal] = useState<boolean>(false)
   const [showResetModal, setShowResetModal] = useState<boolean>(false)
 
@@ -300,7 +386,7 @@ export default function ManagePit() {
         form.reset()
         setAddError(`${title}, by ${author}, is already in the pit!`)
       } else {
-        setAddError(`Something went wrong. Please try again. ${err}`)
+        setAddError(`Something went wrong. Please try again.`)
       }
     } finally {
       setLoadingAdd(false)
@@ -331,6 +417,42 @@ export default function ManagePit() {
     }
   }
 
+  async function handleEdit(title: string, author: string) {
+    setNewBook(null)
+    setAddError(null)
+
+    if (!bookToEdit) return
+
+    title = title.trim()
+    author = author.trim()
+
+    if (title === bookToEdit.title && author === bookToEdit.author) {
+      setBookToEdit(null)
+      return
+    }
+
+    try {
+      const token = await getToken()
+
+      await apiFetch(`/books/${bookToEdit.id}`, token!, {
+        method: 'PATCH',
+        body: JSON.stringify({ title, author }),
+      })
+
+      setBooks((prev) =>
+        prev.map((b) => (b.id === bookToEdit.id ? { ...b, title: title, author: author } : b))
+      )
+      setBookToEdit(null)
+      setEditError(null)
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 409) {
+        setEditError(`${title}, by ${author}, is already in the pit!`)
+      } else {
+        setEditError(`Something went wrong. Please try again.`)
+      }
+    }
+  }
+
   async function handleReset() {
     setNewBook(null)
     setAddError(null)
@@ -345,6 +467,13 @@ export default function ManagePit() {
       setError('Failed to reset pit. Please try again.')
     } finally {
       setShowResetModal(false)
+    }
+  }
+
+  function handleKeyDown(e: KeyboardEvent<HTMLFormElement>) {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      e.currentTarget.requestSubmit()
     }
   }
 
@@ -368,6 +497,18 @@ export default function ManagePit() {
         <ImportModal
           onClose={() => setShowImportModal(false)}
           onImportSuccess={handleImportSuccess}
+        />
+      )}
+
+      {bookToEdit && (
+        <EditModal
+          book={bookToEdit}
+          onConfirm={handleEdit}
+          onCancel={() => {
+            setBookToEdit(null)
+            setEditError(null)
+          }}
+          error={editError}
         />
       )}
 
@@ -405,7 +546,8 @@ export default function ManagePit() {
             </p>
             <form
               className="flex w-full flex-col justify-between gap-3 font-calistoga text-base font-bold text-text sm:text-lg md:flex-row md:gap-0"
-              onSubmit={(e) => handleAdd(e)}
+              onKeyDown={handleKeyDown}
+              onSubmit={handleAdd}
             >
               <input
                 aria-label="Enter book title"
@@ -509,14 +651,24 @@ export default function ManagePit() {
               <table className="w-full table-fixed border-collapse rounded-md bg-button text-text shadow-lg">
                 <thead className={'text-left'}>
                   <tr className={'border-b-2 border-red-700 md:border-b-3'}>
-                    <th className={`w-[85%] md:w-[50%] ${thStyling}`}>
-                      <span className={''}>Title</span>
+                    <th className={`w-[81%] md:w-[50%] ${thStyling}`}>
+                      <span>Title</span>
                     </th>
                     <th className={`w-[40%] max-md:hidden ${thStyling}`}>Author</th>
-                    <th className={`w-[15%] text-center md:w-[10%] ${thStyling}`}>
-                      <span className={'max-md:hidden'}>Burn?</span>
-                      <div className={'flex justify-end pr-2.5 md:hidden'}>
-                        <FireSolid className={`size-5 self-end text-red-700`} />
+                    <th className={`w-[18%] text-center md:w-[10%] ${thStyling}`}>
+                      <div
+                        className={
+                          'flex justify-end gap-3.25 pr-2.5 md:justify-center md:gap-6 md:pr-0'
+                        }
+                      >
+                        <FireSolid
+                          className={`size-5 -translate-y-px self-end text-red-700 md:size-6.25`}
+                        />
+                        <PencilSimpleLineIcon
+                          weight={'fill'}
+                          aria-label="Edit this book"
+                          className="size-5 text-text/90 md:size-6"
+                        />
                       </div>
                     </th>
                   </tr>
@@ -528,7 +680,9 @@ export default function ManagePit() {
                       className={'border-b border-red-700/80 last:border-none md:border-b-2'}
                     >
                       <td className={`font-bold ${tdStyling}`}>
-                        <span className={`line-clamp-2 text-[16px] font-bold md:text-[18px]`}>
+                        <span
+                          className={`line-clamp-2 text-[16px] font-bold text-pretty md:text-[18px]`}
+                        >
                           {book.title}
                         </span>
                         <span className="line-clamp-1 font-zain text-[14px] font-normal opacity-75 md:hidden">
@@ -538,21 +692,39 @@ export default function ManagePit() {
                       <td className={`max-md:hidden max-md:text-[15px] ${tdStyling}`}>
                         <span className={`line-clamp-3`}>{book.author}</span>
                       </td>
-                      <td className={`pr-2.5 text-right md:pr-0 md:text-center`}>
-                        <button
-                          onClick={() => setBookToBurn(book)}
-                          title={'Delete book'}
-                          className={`group cursor-pointer transition-all hover:scale-120 hover:animate-pulse hover:brightness-120 active:scale-125`}
-                        >
-                          <FireOutline
-                            aria-label="Delete this book"
-                            className={`block size-5 translate-y-1 text-red-700 group-hover:hidden group-active:hidden md:size-6.25`}
-                          />
-                          <FireSolid
-                            aria-label="Delete this book"
-                            className={`hidden size-5.25 translate-y-1 text-red-700 group-hover:block group-active:block md:size-6.25`}
-                          />
-                        </button>
+                      <td className={`pr-2.5 text-right md:pr-0`}>
+                        <div className={'flex justify-end gap-3.25 md:justify-center md:gap-6'}>
+                          <button
+                            onClick={() => setBookToBurn(book)}
+                            title={'Delete book'}
+                            className={`group cursor-pointer transition-all hover:scale-120 hover:animate-pulse hover:brightness-120 active:scale-125`}
+                          >
+                            <FireOutline
+                              aria-label="Delete this book"
+                              className={`block size-5 text-red-700/95 group-hover:hidden group-active:hidden md:size-6.25`}
+                            />
+                            <FireSolid
+                              aria-label="Delete this book"
+                              className={`hidden size-5.25 text-red-700 group-hover:block group-active:block md:size-6.25`}
+                            />
+                          </button>
+                          <button
+                            onClick={() => setBookToEdit(book)}
+                            title="Edit book details"
+                            className={`group cursor-pointer transition-all hover:scale-120 hover:animate-pulse hover:brightness-120 active:scale-125`}
+                          >
+                            <PencilSimpleLineIcon
+                              weight={'duotone'}
+                              aria-label="Edit this book"
+                              className="block size-5 translate-y-px text-text/75 group-hover:hidden group-active:hidden md:size-6"
+                            />
+                            <PencilSimpleLineIcon
+                              weight={'fill'}
+                              aria-label="Edit this book"
+                              className="hidden size-5 translate-y-px text-text group-hover:block group-active:block md:size-6"
+                            />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
