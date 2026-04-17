@@ -3,19 +3,11 @@ import { useEffect, useState } from 'react'
 import { apiFetch } from '../api'
 import Placeholder from '../components/Placeholder'
 import PageHeading from '../components/PageHeading'
-import {
-  BadgeCheck,
-  CircleAlert,
-  CircleStar,
-  Sparkle,
-  SquareX,
-  Squircle,
-  Star,
-  Trophy,
-} from 'lucide-react'
+import { BadgeCheck, CircleAlert, SquareX, Squircle } from 'lucide-react'
 import { InformationCircleIcon as InfoCircleMini } from '@heroicons/react/16/solid'
 import { InformationCircleIcon as InfoCircle } from '@heroicons/react/20/solid'
 import { NavLink } from 'react-router-dom'
+import { SparkleIcon, StarFourIcon, StarIcon, TrophyIcon } from '@phosphor-icons/react'
 
 interface BookData {
   rank: number
@@ -208,7 +200,7 @@ export default function Leaderboard() {
           <div className="relative w-[99%] sm:max-w-279">
             <div className="h-7 w-full overflow-hidden rounded-full bg-primary/25 sm:h-8">
               <div
-                className="h-full rounded-full bg-linear-to-r from-red-500/90 to-button/90 transition-all duration-500"
+                className="h-full rounded-xs bg-linear-to-r from-red-500/90 to-button/90 transition-all duration-500"
                 style={{ width: `${Math.round(progress * 100)}%` }}
               />
             </div>
@@ -256,28 +248,33 @@ export default function Leaderboard() {
                     <div className={'flex h-full items-center justify-between'}>
                       {book.rank}
                       {book.rank == 1 && (
-                        <Trophy
-                          className={
-                            'hidden size-4.25 -translate-y-px stroke-3 text-yellow-800/80 sm:inline'
-                          }
+                        <TrophyIcon
+                          weight={'duotone'}
+                          className={'hidden size-4.5 -translate-y-px text-yellow-800/80 sm:inline'}
                         />
                       )}
                       {book.rank == 2 && (
-                        <CircleStar
+                        <StarIcon
+                          weight={'duotone'}
+                          alt={'Second place star'}
                           className={
-                            'hidden size-4.25 -translate-y-px stroke-2 text-yellow-800/70 sm:inline'
+                            'hidden size-4.25 -translate-y-px text-yellow-800/70 sm:inline'
                           }
                         />
                       )}
                       {book.rank == 3 && (
-                        <Star
+                        <SparkleIcon
+                          weight={'duotone'}
+                          alt={'Third place star'}
                           className={
-                            'hidden size-3.75 -translate-y-px text-yellow-800/60 sm:inline'
+                            'hidden size-4.25 -translate-y-px text-yellow-800/60 sm:inline'
                           }
                         />
                       )}
                       {book.rank == 4 && (
-                        <Sparkle
+                        <StarFourIcon
+                          weight={'duotone'}
+                          alt={'Fourth place sparkle'}
                           className={
                             'hidden size-3.75 -translate-y-px text-yellow-800/50 sm:inline'
                           }
@@ -293,30 +290,38 @@ export default function Leaderboard() {
                       {book.author}
                     </span>
                     {book.rank == 1 && (
-                      <Trophy
+                      <TrophyIcon
+                        weight="duotone"
+                        alt={'First place trophy'}
                         className={
-                          'absolute right-0.5 bottom-2 size-4.25 stroke-3 text-yellow-800/80 sm:hidden'
+                          'absolute right-0.5 bottom-2 size-4.75 text-yellow-800/80 sm:hidden'
                         }
                       />
                     )}
                     {book.rank == 2 && (
-                      <CircleStar
+                      <StarIcon
+                        weight="duotone"
+                        alt={'Second place star'}
                         className={
-                          'absolute right-0.5 bottom-2 size-4.25 text-yellow-800/70 sm:hidden'
+                          'absolute right-0.5 bottom-2 size-4.5 text-yellow-800/62 sm:hidden'
                         }
                       />
                     )}
                     {book.rank == 3 && (
-                      <Star
+                      <SparkleIcon
+                        weight="duotone"
+                        alt={'Third place star'}
                         className={
-                          'absolute right-0.5 bottom-2 size-4 text-yellow-800/60 sm:hidden'
+                          'absolute right-0.5 bottom-2 size-4.25 text-yellow-800/62 sm:hidden'
                         }
                       />
                     )}
                     {book.rank == 4 && (
-                      <Sparkle
+                      <StarFourIcon
+                        weight="duotone"
+                        alt={'Fourth place sparkle'}
                         className={
-                          'absolute right-0.5 bottom-2 size-4 text-yellow-800/50 sm:hidden'
+                          'absolute right-0.5 bottom-2 size-3.75 text-yellow-800/50 sm:hidden'
                         }
                       />
                     )}

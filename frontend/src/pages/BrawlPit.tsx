@@ -203,7 +203,7 @@ export default function BrawlPit() {
             </h1>
             <hr className="my-0 h-px w-full text-button opacity-60 md:my-0 md:hidden" />
             <div
-              className={`${transition ? 'translate-y-0 opacity-100' : 'pointer-events-none opacity-0 max-md:scale-96 sm:translate-y-3'} mt-6 mb-2 flex w-full grow flex-col items-center justify-center gap-7 transition-all duration-300 ease-in-out lg:my-0 lg:flex-row lg:gap-12 xl:gap-27`}
+              className={`${transition ? 'translate-y-0 opacity-100' : 'pointer-events-none opacity-0 max-md:scale-96 sm:translate-y-3'} mt-6 mb-2 flex w-full grow flex-col items-center justify-center gap-6 transition-all duration-300 ease-in-out lg:my-0 lg:flex-row lg:gap-12 xl:gap-27`}
             >
               <BookButton
                 book={match.book_a}
