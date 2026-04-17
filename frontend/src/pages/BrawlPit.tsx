@@ -55,7 +55,7 @@ function BookButton({
   }
 
   const selectedStyling = isSelected
-    ? 'scale-95 border-primary/80 bg-background text-primary shadow-2xl'
+    ? 'scale-90 -translate-y-3 border-primary/80 bg-background text-primary shadow-2xl'
     : 'text-text border-accent/80 bg-button/95 shadow-lg'
 
   const hoverStyling =
@@ -63,13 +63,17 @@ function BookButton({
 
   return (
     <button
-      className={`flex w-11/12 flex-1 basis-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-4xl border-4 py-2 font-calistoga text-balance wrap-break-word transition-all duration-250 md:border-3 lg:h-80 lg:w-116 lg:flex-none lg:rounded-lg xl:h-72 xl:w-134 ${hoverStyling} ${longTextStyling} ${selectedStyling}`}
+      className={`flex w-11/12 flex-1 basis-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-4xl border-4 py-2 font-calistoga shadow-xl transition-all duration-250 md:border-3 lg:h-80 lg:w-116 lg:flex-none lg:rounded-lg xl:h-72 xl:w-134 ${hoverStyling} ${longTextStyling} ${selectedStyling}`}
       onClick={onClick}
     >
-      <p className={`line-clamp-4 w-full p-1 font-medium lg:line-clamp-3 ${longTitleStyling}`}>
+      <p
+        className={`line-clamp-4 w-full p-1 font-medium text-balance wrap-break-word lg:line-clamp-3 ${longTitleStyling}`}
+      >
         {title}
       </p>
-      <p className={`line-clamp-2 w-full font-zain font-light ${longAuthorStyling}`}>
+      <p
+        className={`line-clamp-2 w-full font-zain font-light text-pretty wrap-break-word ${longAuthorStyling}`}
+      >
         by <span className={italic ? 'italic' : ''}>{author}</span>
       </p>
     </button>
@@ -121,10 +125,9 @@ export default function BrawlPit() {
 
     if (isMobile) {
       setSelectedBookId(winnerId)
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 150))
       setTransition(false)
-      await new Promise((resolve) => setTimeout(resolve, 300))
-      setSelectedBookId(null)
+      await new Promise((resolve) => setTimeout(resolve, 250))
     }
 
     if (nextMatch) {
@@ -189,7 +192,7 @@ export default function BrawlPit() {
         match && (
           <>
             <h1
-              className={`z-100 mt-4 text-center font-calistoga text-[52px]/18 font-extrabold tracking-wide text-primary/95 drop-shadow-md md:mt-12 lg:mt-24 lg:text-7xl`}
+              className={`z-100 mt-3 text-center font-calistoga text-[52px]/18 font-extrabold tracking-wide text-pretty text-primary/95 drop-shadow-md max-md:mb-3 md:mt-12 lg:mt-24 lg:text-7xl`}
             >
               Which means more to you?
             </h1>
@@ -198,8 +201,9 @@ export default function BrawlPit() {
             >
               ===============
             </h1>
+            <hr className="my-0 h-px w-full text-button opacity-60 md:my-0 md:hidden" />
             <div
-              className={`${transition ? 'translate-y-0 opacity-100' : 'pointer-events-none opacity-0 max-md:scale-96 sm:translate-y-3'} mt-7 mb-2 flex w-full grow flex-col items-center justify-center gap-7 transition-all duration-300 ease-in-out lg:my-0 lg:flex-row lg:gap-12 xl:gap-27`}
+              className={`${transition ? 'translate-y-0 opacity-100' : 'pointer-events-none opacity-0 max-md:scale-96 sm:translate-y-3'} mt-6 mb-2 flex w-full grow flex-col items-center justify-center gap-7 transition-all duration-300 ease-in-out lg:my-0 lg:flex-row lg:gap-12 xl:gap-27`}
             >
               <BookButton
                 book={match.book_a}

@@ -44,7 +44,11 @@ export default function App() {
               <RedirectToSignIn />
             </Show>
             <Show when={'signed-in'}>
-              <div className={'flex h-full min-h-dvh flex-col font-zain'}>
+              <div
+                className={
+                  'flex min-h-dvh flex-col bg-linear-to-b from-sky-800 to-sky-950 bg-fixed font-zain'
+                }
+              >
                 <Header />
                 <Routes>
                   <Route path={'/'} element={<Navigate to="/brawl" replace />} />

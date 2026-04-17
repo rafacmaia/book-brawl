@@ -131,7 +131,6 @@ export default function Leaderboard() {
 
   const [rankings, setRankings] = useState<BookData[]>([])
   const [progress, setProgress] = useState<number>(0)
-  const [bookCount, setBookCount] = useState<number>(0)
   const [showAccuracyModal, setShowAccuracyModal] = useState<boolean>(false)
 
   const [emptyPit, setEmptyPit] = useState<boolean>(false)
@@ -164,7 +163,6 @@ export default function Leaderboard() {
 
       setRankings(rankingsData)
       setProgress(progressData.progress)
-      setBookCount(progressData.book_count)
     } catch {
       setError('Failed to load leaderboard. Please try again.')
     } finally {
@@ -174,20 +172,15 @@ export default function Leaderboard() {
 
   const cellXPadding = 'px-2 '
   const thStyling = `md:pt-2 pt-1 first:pl-2 md:first:pl-5 pb-1 text-[16px] tracking-wider md:text-[20px] font-extrabold font-calistoga ${cellXPadding}`
-  const tdStyling = `md:py-1.75 py-1 first:pl-3 md:first:pl-6 last:max-md:pr-2.25 ${cellXPadding}`
+  const tdStyling = `md:py-2 py-1.25 first:pl-3 md:first:pl-6 last:max-md:pr-2.25 ${cellXPadding}`
 
   return (
-    <main className="mx-auto flex h-full min-h-0 w-[97%] grow flex-col items-center gap-4 overflow-y-auto p-2 text-primary/95 md:gap-8">
+    <main className="mx-auto flex h-full min-h-0 w-[97%] grow flex-col items-center gap-4 overflow-y-auto p-2 text-primary/95 md:gap-8 md:p-4">
       {showAccuracyModal && <AccuracyModal onClose={() => setShowAccuracyModal(false)} />}
+      <div className={'mb-6 hidden md:block'}>
+        <PageHeading title={'The Leaderboard'} />
+      </div>
 
-      <PageHeading
-        title={
-          <>
-            <span className="sm:hidden">Leaderboard</span>
-            <span className="hidden sm:inline">The Leaderboard</span>
-          </>
-        }
-      />
       {loading ? (
         <Placeholder message={'Loading...'} />
       ) : error ? (
@@ -195,7 +188,7 @@ export default function Leaderboard() {
       ) : emptyPit ? (
         <div
           className={
-            'mb-12 flex w-full grow flex-col items-center justify-center gap-0 text-center font-zain text-5xl/20 font-extrabold tracking-wide text-primary/85'
+            'flex w-full grow flex-col items-center justify-center gap-0 text-center font-zain text-5xl/20 font-extrabold tracking-wide text-primary/85 md:mb-12'
           }
         >
           <CircleAlert size={72} className={'mb-8'} />
@@ -211,15 +204,22 @@ export default function Leaderboard() {
           </p>
         </div>
       ) : (
-        <>
-          <h2
-            className={
-              'mt-4 rounded-full bg-button px-6 py-2 text-center font-calistoga text-[18px] font-bold tracking-wide text-text shadow-2xl md:px-10 md:text-[22px]'
-            }
-          >
-            {bookCount} Books<span className={'mx-3 md:mx-6'}>•</span>
-            {Math.round(progress * 100)}% Complete
-          </h2>
+        <section className={'mt-3 flex w-full flex-col items-center gap-3 md:mt-2 md:gap-4'}>
+          <div className="relative w-[99%] sm:max-w-279">
+            <div className="h-7 w-full overflow-hidden rounded-full bg-primary/25 sm:h-8">
+              <div
+                className="h-full rounded-full bg-linear-to-r from-red-500/90 to-button/90 transition-all duration-500"
+                style={{ width: `${Math.round(progress * 100)}%` }}
+              />
+            </div>
+            <p
+              className={
+                'absolute right-3 bottom-1 font-calistoga text-[14px] font-extrabold tracking-wider text-primary/90 drop-shadow-xl sm:right-4 sm:bottom-1.25 sm:text-[16px]'
+              }
+            >
+              {Math.round(progress * 100)}% Complete
+            </p>
+          </div>
           <table className="w-full table-fixed border-collapse rounded-md bg-button text-text shadow-lg sm:max-w-280">
             <thead className={'text-left'}>
               <tr className={'border-b-2 border-red-800 md:border-b-3'}>
@@ -339,7 +339,7 @@ export default function Leaderboard() {
               ))}
             </tbody>
           </table>
-        </>
+        </section>
       )}
     </main>
   )

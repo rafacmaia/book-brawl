@@ -349,16 +349,20 @@ export default function ManagePit() {
   }
 
   const cellXPadding = 'first:pl-2.25 md:px-2 md:first:pl-4'
-  const thStyling = `font-calistoga text-[16px] md:text-[20px] tracking-wider pt-1.25 md:pt-2 pb-1.25 font-extrabold ${cellXPadding}`
-  const tdStyling = `py-1 md:py-1.5 ${cellXPadding}`
+  const thStyling = `font-calistoga text-[16px] md:text-[20px] tracking-wider pt-1.5 md:pt-2 md:pb-1.5 pb-1.25 font-extrabold ${cellXPadding}`
+  const tdStyling = `py-1.25 md:py-1.75 ${cellXPadding}`
+
   const inputStyling = 'rounded-md border-b-3 border-primary/85 bg-blue-200 p-3 sm:p-2 shadow-lg'
+
   const addMessageStyling = `w-full md:self-end rounded-md md:rounded-lg bg-button px-4 py-2 text-base md:w-fit md:px-6 md:text-xl md:brightness-110`
 
   const addTriggered = newBook != null || addError != null || loadingAdd
 
   return (
-    <main className="mx-auto flex h-full min-h-0 w-[97%] grow flex-col items-center gap-3 overflow-y-auto p-2 text-primary/95 sm:max-w-6xl sm:gap-4 sm:p-4">
-      <PageHeading title={'Manage the Pit'} />
+    <main className="mx-auto flex h-full min-h-0 w-[97%] grow flex-col items-center gap-4 overflow-y-auto p-2 text-primary/95 sm:max-w-6xl sm:gap-4 md:p-4">
+      <div className={'mb-5 max-md:hidden'}>
+        <PageHeading title={'Manage the Pit'} />
+      </div>
 
       {showImportModal && (
         <ImportModal
@@ -387,15 +391,17 @@ export default function ManagePit() {
         <>
           {/* MANUAL INPUT */}
           <section
-            className={`mt-6 w-full sm:mt-12 ${addTriggered ? 'mb-0' : 'md:mb-15'} flex flex-col gap-4`}
+            className={`mt-2 w-full sm:mt-12 md:mt-1 ${addTriggered ? 'mb-0' : 'md:mb-15'} flex flex-col gap-4`}
           >
-            <h2 className="font-calistoga text-2xl font-bold tracking-wide decoration-accent/80 decoration-wavy underline-offset-8 drop-shadow-md sm:mb-4 sm:text-3xl sm:underline">
+            <h2 className="font-calistoga text-[28px] font-bold tracking-wide decoration-accent/80 decoration-wavy underline-offset-8 drop-shadow-md sm:mb-4 sm:text-3xl sm:underline">
               New Reads
             </h2>
-            <p className={`text-[18px] font-medium sm:text-[20px]/8 sm:tracking-wide`}>
-              <span className={`font-extrabold decoration-accent/80`}>Rating</span> (1-10) is
-              optional, but encouraged. It gives the book an initial placement, which the Brawl Pit
-              will put to the test.
+            <p
+              className={`rounded-md bg-button/95 px-3 py-2 text-[16px] font-medium text-pretty text-text/90 sm:text-[18px]/8 sm:tracking-wide sm:text-text`}
+            >
+              <span className={`font-extrabold decoration-accent/80`}>Rating</span> (1-10, decimals
+              welcome) is optional, but encouraged. It gives the book an initial placement for the
+              Brawl Pit to put to the test.
             </p>
             <form
               className="flex w-full flex-col justify-between gap-3 font-calistoga text-base font-bold text-text sm:text-lg md:flex-row md:gap-0"
@@ -471,10 +477,10 @@ export default function ManagePit() {
             )}
           </section>
 
-          <hr className="my-3 h-px w-full text-button opacity-65 md:my-0" />
+          <hr className="my-2 h-px w-full text-button opacity-65 md:my-0" />
 
           {/* TABLE OF CURRENT BOOKS */}
-          <section className="flex w-full flex-col gap-3">
+          <section className="flex w-full flex-col gap-3 md:mt-1">
             <div className="flex w-full justify-between">
               <p
                 className={
@@ -536,7 +542,7 @@ export default function ManagePit() {
                         <button
                           onClick={() => setBookToBurn(book)}
                           title={'Delete book'}
-                          className={`group cursor-pointer transition-all hover:scale-120 hover:animate-pulse hover:brightness-120 active:scale-120`}
+                          className={`group cursor-pointer transition-all hover:scale-120 hover:animate-pulse hover:brightness-120 active:scale-125`}
                         >
                           <FireOutline
                             aria-label="Delete this book"
