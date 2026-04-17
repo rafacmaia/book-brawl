@@ -172,4 +172,11 @@ def _get_k(book, books):
 
     confidence = confidence_score(book, books)
 
-    return next(k for threshold, k in K_TIERS if confidence <= threshold)
+    k = next(k for threshold, k in K_TIERS if confidence <= threshold)
+
+    # If the book has an initial rating and is in the lowest confidence tier, give it a
+    # boost to the next tier as broad positioning is likely already established.
+    if (book.rating is not None) and (k == K_TIERS[0][1]):
+        return K_TIERS[1][1]
+
+    return k
