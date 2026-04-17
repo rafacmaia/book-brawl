@@ -184,6 +184,26 @@ def import_books(file: UploadFile, reader_id: int = Depends(get_current_reader_i
     }
 
 
+@app.patch("/books/{book_id}")
+def update_book(
+    book_id: int, book: BookData, reader_id: int = Depends(get_current_reader_id)
+):
+    """Update the details of a book in the collection."""
+    try:
+        updated = books_repo.update(
+            reader_id, book_id, book.title.strip(), book.author.strip()
+        )
+        if not updated:
+            raise HTTPException(status_code=404, detail="Book not found")
+    except pg_errors.UniqueViolation:
+        raise HTTPException(
+            status_code=409,
+            detail="A book with that title and author already exists",
+        )
+
+    return {"id": book_id, "title": book.title.strip(), "author": book.author.strip()}
+
+
 @app.delete("/books/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_book(book_id: int, reader_id: int = Depends(get_current_reader_id)):
     """Remove a book from the collection."""

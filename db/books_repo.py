@@ -93,6 +93,17 @@ def insert_many(reader_id, books):
                 book.id = row["id"]
 
 
+def update(reader_id, book_id, title, author):
+    """Update an existing book."""
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "UPDATE book SET title = %s, author = %s WHERE reader_id = %s AND id = %s",
+                (title, author, reader_id, book_id),
+            )
+            return cur.rowcount > 0
+
+
 def delete(reader_id, book_id):
     """Delete a book by ID."""
     with get_connection() as conn:
