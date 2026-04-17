@@ -541,8 +541,8 @@ export default function ManagePit() {
               className={`rounded-md bg-button/95 px-3 py-2 text-[16px] font-medium text-pretty text-text/90 sm:text-[18px]/8 sm:tracking-wide sm:text-text`}
             >
               <span className={`font-extrabold decoration-accent/80`}>Rating</span> (1-10, decimals
-              welcome) is optional, but encouraged. It gives the book an initial placement for the
-              Brawl Pit to put to the test.
+              welcome) is optional, but encouraged. It provides an initial placement for the Brawl
+              Pit to put to the test.
             </p>
             <form
               className="flex w-full flex-col justify-between gap-3 font-calistoga text-base font-bold text-text sm:text-lg md:flex-row md:gap-0"
@@ -651,14 +651,14 @@ export default function ManagePit() {
               <table className="w-full table-fixed border-collapse rounded-md bg-button text-text shadow-lg">
                 <thead className={'text-left'}>
                   <tr className={'border-b-2 border-red-700 md:border-b-3'}>
-                    <th className={`w-[81%] md:w-[50%] ${thStyling}`}>
+                    <th className={`w-[80%] md:w-[50%] ${thStyling}`}>
                       <span>Title</span>
                     </th>
                     <th className={`w-[40%] max-md:hidden ${thStyling}`}>Author</th>
-                    <th className={`w-[18%] text-center md:w-[10%] ${thStyling}`}>
+                    <th className={`w-[20%] text-center md:w-[10%] ${thStyling}`}>
                       <div
                         className={
-                          'flex justify-end gap-3.25 pr-2.5 md:justify-center md:gap-6 md:pr-0'
+                          'flex justify-end gap-3.5 pr-2.5 md:justify-center md:gap-6 md:pr-0'
                         }
                       >
                         <FireSolid
@@ -679,7 +679,7 @@ export default function ManagePit() {
                       key={book.id}
                       className={'border-b border-red-700/80 last:border-none md:border-b-2'}
                     >
-                      <td className={`font-bold ${tdStyling}`}>
+                      <td className={`pr-1 font-bold md:pr-0 ${tdStyling}`}>
                         <span
                           className={`line-clamp-2 text-[16px] font-bold text-pretty md:text-[18px]`}
                         >
@@ -693,7 +693,7 @@ export default function ManagePit() {
                         <span className={`line-clamp-3`}>{book.author}</span>
                       </td>
                       <td className={`pr-2.5 text-right md:pr-0`}>
-                        <div className={'flex justify-end gap-3.25 md:justify-center md:gap-6'}>
+                        <div className={'flex justify-end gap-3.5 md:justify-center md:gap-6'}>
                           <button
                             onClick={() => setBookToBurn(book)}
                             title={'Delete book'}
