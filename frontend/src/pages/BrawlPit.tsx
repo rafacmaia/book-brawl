@@ -16,7 +16,15 @@ interface Match {
   book_b: Book
 }
 
-function BookButton({ book, onClick }: { book: Book; onClick: () => void }) {
+function BookButton({
+  book,
+  onClick,
+  isSelected,
+}: {
+  book: Book
+  onClick: () => void
+  isSelected: boolean
+}) {
   const title = book.title.trim()
   const author = book.author.trim()
 
@@ -46,12 +54,16 @@ function BookButton({ book, onClick }: { book: Book; onClick: () => void }) {
     longAuthorStyling = 'text-[24px] sm:text-[30px]'
   }
 
+  const selectedStyling = isSelected
+    ? 'scale-95 border-primary/80 bg-background text-primary shadow-2xl'
+    : 'text-text border-accent/80 bg-button/95 shadow-lg'
+
   const hoverStyling =
     'md:hover:-translate-y-2 md:hover:scale-[1.02] md:hover:border-primary/80 md:hover:bg-background md:hover:text-primary md:hover:shadow-2xl md:hover:brightness-110 max-md:active:scale-95 max-md:active:border-primary/80 max-md:active:bg-background max-md:active:text-primary max-md:active:shadow-2xl'
 
   return (
     <button
-      className={`flex w-11/12 flex-1 basis-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-4xl border-4 border-accent/80 bg-button/95 py-2 font-calistoga text-balance wrap-break-word text-text shadow-lg transition-all duration-250 md:border-3 lg:h-80 lg:w-116 lg:flex-none lg:rounded-lg xl:h-72 xl:w-134 ${hoverStyling} ${longTextStyling}`}
+      className={`flex w-11/12 flex-1 basis-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-4xl border-4 py-2 font-calistoga text-balance wrap-break-word transition-all duration-250 md:border-3 lg:h-80 lg:w-116 lg:flex-none lg:rounded-lg xl:h-72 xl:w-134 ${hoverStyling} ${longTextStyling} ${selectedStyling}`}
       onClick={onClick}
     >
       <p className={`line-clamp-4 w-full p-1 font-medium lg:line-clamp-3 ${longTitleStyling}`}>
@@ -69,10 +81,13 @@ export default function BrawlPit() {
 
   const [match, setMatch] = useState<Match | null>(null)
   const [nextMatch, setNextMatch] = useState<Match | null>(null)
+  const [selectedBookId, setSelectedBookId] = useState<number | null>(null)
+
   const [emptyPit, setEmptyPit] = useState<boolean>(false)
+
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [visible, setVisible] = useState(false)
+  const [transition, setTransition] = useState(false)
 
   useEffect(() => {
     void (async () => {
@@ -81,7 +96,7 @@ export default function BrawlPit() {
 
       setMatch(first ?? null)
       setLoading(false)
-      requestAnimationFrame(() => setVisible(true))
+      requestAnimationFrame(() => setTransition(true))
       setNextMatch(second ?? null)
     })()
   }, [])
@@ -102,12 +117,26 @@ export default function BrawlPit() {
   async function handleChoice(winnerId: number, loserId: number) {
     setError(null)
 
-    if (nextMatch) {
-      setVisible(false)
+    const isMobile = window.matchMedia('(max-width: 639px)').matches
+
+    if (isMobile) {
+      setSelectedBookId(winnerId)
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      setTransition(false)
       await new Promise((resolve) => setTimeout(resolve, 300))
+      setSelectedBookId(null)
+    }
+
+    if (nextMatch) {
+      if (!isMobile) {
+        await new Promise((resolve) => setTimeout(resolve, 300))
+      }
+
       setMatch(nextMatch)
+
       await new Promise((resolve) => setTimeout(resolve, 50))
-      setVisible(true)
+      setTransition(true)
+      setSelectedBookId(null)
 
       setNextMatch(null)
     }
@@ -170,15 +199,17 @@ export default function BrawlPit() {
               ===============
             </h1>
             <div
-              className={`${visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-1 opacity-0 sm:translate-y-3'} mt-7 mb-2 flex w-full grow flex-col items-center justify-center gap-7 transition-all duration-300 ease-in-out lg:my-0 lg:flex-row lg:gap-12 xl:gap-27`}
+              className={`${transition ? 'translate-y-0 opacity-100' : 'pointer-events-none opacity-0 max-md:scale-96 sm:translate-y-3'} mt-7 mb-2 flex w-full grow flex-col items-center justify-center gap-7 transition-all duration-300 ease-in-out lg:my-0 lg:flex-row lg:gap-12 xl:gap-27`}
             >
               <BookButton
                 book={match.book_a}
                 onClick={() => handleChoice(match.book_a.id, match.book_b.id)}
+                isSelected={selectedBookId === match.book_a.id}
               />
               <BookButton
                 book={match.book_b}
                 onClick={() => handleChoice(match.book_b.id, match.book_a.id)}
+                isSelected={selectedBookId === match.book_b.id}
               />
             </div>
           </>
