@@ -200,14 +200,12 @@ export default function Leaderboard() {
           <div className="relative w-[99%] sm:max-w-279">
             <div className="h-7 w-full overflow-hidden rounded-full bg-primary/25 sm:h-8">
               <div
-                className="h-full rounded-xs bg-linear-to-r from-red-500/90 to-button/90 transition-all duration-500"
+                className={`h-full rounded-xs bg-linear-to-r transition-all duration-500 ${progress > 0.4 ? 'from-green-600/90 via-button/90 to-red-500/90' : 'from-red-500/90 to-button/90'}`}
                 style={{ width: `${Math.round(progress * 100)}%` }}
               />
             </div>
             <p
-              className={
-                'absolute right-3 bottom-1 font-calistoga text-[14px] font-extrabold tracking-wider text-primary/90 drop-shadow-xl sm:right-4 sm:bottom-1.25 sm:text-[16px]'
-              }
+              className={`absolute font-calistoga text-[14px] font-extrabold tracking-wider drop-shadow-xl sm:text-[16px] ${progress >= 0.5 ? 'bottom-1 left-3 text-text sm:right-4 sm:bottom-1.25' : 'right-3 bottom-1 text-primary/90 sm:right-4 sm:bottom-1.25'}`}
             >
               {Math.round(progress * 100)}% Complete
             </p>

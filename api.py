@@ -73,24 +73,6 @@ def get_match(reader_id: int = Depends(get_current_reader_id)):
     }
 
 
-# TODO: finish implementing this!
-@app.get("/brawl/session")
-def get_session(reader_id: int = Depends(get_current_reader_id)):
-    books = books_repo.get_all_history(reader_id)
-
-    return [
-        {
-            "id": b.id,
-            "title": b.title,
-            "author": b.author,
-            "elo": b.elo,
-            "opponents": b.faced_opponents,
-            "won_over": b.won_over,
-        }
-        for b in books
-    ]
-
-
 @app.post("/brawl/resolve", status_code=status.HTTP_201_CREATED)
 def post_match(result: MatchResult, reader_id: int = Depends(get_current_reader_id)):
     """Resolve a match between two books and update their records."""

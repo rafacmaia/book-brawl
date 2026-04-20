@@ -39,8 +39,3 @@ build/
 
 # Frontend
 node_modules/
-
-# VPS Legacy
-cli/deploy.sh
-cli/.rsyncignore
-cli/VPS_NOTES.md

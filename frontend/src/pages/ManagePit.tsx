@@ -210,6 +210,9 @@ function EditModal({
     }
   }
 
+  const unchangedTitle = title === book.title
+  const unchangedAuthor = author === book.author
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="items-left relative flex w-[90%] flex-col justify-center gap-8 rounded-lg border-6 border-red-800/80 bg-button/95 p-6 font-zain text-text shadow-2xl md:w-xl md:gap-8 md:rounded-md md:border-4 md:p-8">
@@ -227,14 +230,14 @@ function EditModal({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="w-full rounded-md border-b-3 border-red-800/85 bg-blue-300/50 px-3 py-2 font-calistoga shadow-lg sm:p-2"
+            className={`w-full rounded-md border-b-3 border-red-800/85 bg-blue-300/50 px-3 py-2 font-calistoga placeholder-text/50 shadow-lg sm:p-2 ${unchangedTitle ? 'text-text/70' : 'text-text'}`}
           />
           <input
             type="text"
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="w-full rounded-md border-b-3 border-red-800/85 bg-blue-300/50 px-3 py-2 font-calistoga shadow-lg sm:p-2"
+            className={`w-full rounded-md border-b-3 border-red-800/85 bg-blue-300/50 px-3 py-2 font-calistoga shadow-lg sm:p-2 ${unchangedAuthor ? 'text-text/70' : 'text-text'}`}
           />
           <button
             onClick={() => onConfirm(title, author)}
@@ -697,7 +700,7 @@ export default function ManagePit() {
                           <button
                             onClick={() => setBookToBurn(book)}
                             title={'Delete book'}
-                            className={`group cursor-pointer transition-all hover:scale-120 hover:animate-pulse hover:brightness-120 active:scale-125`}
+                            className={`group cursor-pointer transition-all duration-200 hover:scale-120 hover:animate-pulse hover:brightness-120 active:scale-130 active:brightness-110`}
                           >
                             <FireOutline
                               aria-label="Delete this book"
@@ -711,7 +714,7 @@ export default function ManagePit() {
                           <button
                             onClick={() => setBookToEdit(book)}
                             title="Edit book details"
-                            className={`group cursor-pointer transition-all hover:scale-120 hover:animate-pulse hover:brightness-120 active:scale-125`}
+                            className={`group cursor-pointer transition-all duration-200 hover:scale-120 hover:animate-pulse hover:brightness-120 active:scale-130 active:brightness-110`}
                           >
                             <PencilSimpleLineIcon
                               weight={'duotone'}
