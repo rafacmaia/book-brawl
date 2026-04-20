@@ -205,7 +205,7 @@ export default function Leaderboard() {
               />
             </div>
             <p
-              className={`absolute font-calistoga text-[14px] font-extrabold tracking-wider drop-shadow-xl sm:text-[16px] ${progress >= 0.5 ? 'bottom-1 left-3 text-text sm:right-4 sm:bottom-1.25' : 'right-3 bottom-1 text-primary/90 sm:right-4 sm:bottom-1.25'}`}
+              className={`absolute font-calistoga text-[14px] font-extrabold tracking-wider text-primary/90 sm:text-[16px] ${progress > 0.75 ? 'bottom-1 left-4 drop-shadow-2xl sm:right-4 sm:bottom-1.25' : 'right-3 bottom-1 drop-shadow-xl sm:right-4 sm:bottom-1.25'}`}
             >
               {Math.round(progress * 100)}% Complete
             </p>

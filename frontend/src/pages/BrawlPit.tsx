@@ -85,7 +85,8 @@ export default function BrawlPit() {
 
   const [match, setMatch] = useState<Match | null>(null)
   const [nextMatch, setNextMatch] = useState<Match | null>(null)
-  const [selectedBookId, setSelectedBookId] = useState<number | null>(null)
+  const [matchCount, setMatchCount] = useState<number>(1)
+  const [selectedBook, setSelectedBook] = useState<number | null>(null)
 
   const [emptyPit, setEmptyPit] = useState<boolean>(false)
 
@@ -96,12 +97,12 @@ export default function BrawlPit() {
   useEffect(() => {
     void (async () => {
       const token = await getToken()
-      const [first, second] = await Promise.all([fetchMatch(token!), fetchMatch(token!)])
+      const [firstMatch, secondMatch] = await Promise.all([fetchMatch(token!), fetchMatch(token!)])
 
-      setMatch(first ?? null)
+      setMatch(firstMatch ?? null)
       setLoading(false)
       requestAnimationFrame(() => setTransition(true))
-      setNextMatch(second ?? null)
+      setNextMatch(secondMatch ?? null)
     })()
   }, [])
 
@@ -124,7 +125,7 @@ export default function BrawlPit() {
     const isMobile = window.matchMedia('(max-width: 639px)').matches
 
     if (isMobile) {
-      setSelectedBookId(winnerId)
+      setSelectedBook(winnerId)
       await new Promise((resolve) => setTimeout(resolve, 150))
       setTransition(false)
       await new Promise((resolve) => setTimeout(resolve, 250))
@@ -132,14 +133,15 @@ export default function BrawlPit() {
 
     if (nextMatch) {
       if (!isMobile) {
+        setTransition(false)
         await new Promise((resolve) => setTimeout(resolve, 300))
       }
-
+      setMatchCount((prevCount) => prevCount + 1)
       setMatch(nextMatch)
 
       await new Promise((resolve) => setTimeout(resolve, 50))
       setTransition(true)
-      setSelectedBookId(null)
+      setSelectedBook(null)
 
       setNextMatch(null)
     }
@@ -192,29 +194,56 @@ export default function BrawlPit() {
         match && (
           <>
             <h1
-              className={`z-100 mt-3 text-center font-calistoga text-[52px]/18 font-extrabold tracking-wide text-pretty text-primary/95 drop-shadow-md max-md:mb-3 md:mt-12 lg:mt-24 lg:text-7xl`}
+              className={`z-100 mt-3 text-center font-calistoga text-[52px]/16 font-extrabold tracking-wide text-pretty text-primary/95 drop-shadow-md max-lg:mb-3 md:mt-12 lg:mt-24 lg:text-7xl`}
             >
-              Which means more to you?
+              Which means more to{' '}
+              <span
+                className={
+                  'text-primary decoration-accent/80 decoration-3 underline-offset-4 max-lg:underline'
+                }
+              >
+                you
+              </span>
+              ?
             </h1>
             <h1
               className={`absolute z-0 mt-24 hidden text-center font-calistoga text-5xl font-extrabold tracking-wide text-background lg:block lg:text-7xl ${wavyUnderline}`}
             >
               ===============
             </h1>
-            <hr className="my-0 h-px w-full text-button opacity-60 md:my-0 md:hidden" />
+            <div className={'flex w-full items-center md:w-19/20 lg:hidden'}>
+              <hr className="my-0 h-px w-full text-button opacity-60" />
+              <p
+                className={`${transition ? 'opacity-80' : 'opacity-0'} mx-4 font-gaegu text-lg font-bold tracking-widest transition-opacity duration-250 ease-in-out`}
+              >
+                {matchCount}
+              </p>
+              <hr className="my-0 h-px w-full text-button opacity-60" />
+            </div>
             <div
-              className={`${transition ? 'translate-y-0 opacity-100' : 'pointer-events-none opacity-0 max-md:scale-96 sm:translate-y-3'} mt-6 mb-2 flex w-full grow flex-col items-center justify-center gap-6 transition-all duration-300 ease-in-out lg:my-0 lg:flex-row lg:gap-12 xl:gap-27`}
+              className={`${transition ? 'translate-y-0 opacity-100' : 'pointer-events-none opacity-0 max-md:scale-96 sm:translate-y-3'} mt-4 mb-2 flex w-full grow flex-col items-center justify-center gap-6 transition-all duration-300 ease-in-out lg:my-0 lg:flex-row lg:gap-12 xl:gap-27`}
             >
               <BookButton
                 book={match.book_a}
                 onClick={() => handleChoice(match.book_a.id, match.book_b.id)}
-                isSelected={selectedBookId === match.book_a.id}
+                isSelected={selectedBook === match.book_a.id}
               />
               <BookButton
                 book={match.book_b}
                 onClick={() => handleChoice(match.book_b.id, match.book_a.id)}
-                isSelected={selectedBookId === match.book_b.id}
+                isSelected={selectedBook === match.book_b.id}
               />
+            </div>
+            <div
+              className={
+                'absolute -bottom-2 left-1/2 hidden w-full -translate-x-1/2 items-center justify-center lg:flex'
+              }
+            >
+              <p
+                className={`${transition ? 'opacity-75' : 'opacity-0'} mx-4 font-gaegu text-[22px] font-black tracking-widest transition-opacity duration-250 ease-in-out`}
+              >
+                {matchCount}
+              </p>
             </div>
           </>
         )
