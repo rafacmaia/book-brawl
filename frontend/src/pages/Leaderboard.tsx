@@ -148,7 +148,7 @@ export default function Leaderboard() {
       const rankingsData = await rankingsRes.json()
       const progressData = await progressRes.json()
 
-      if (progressData.book_count === 0) {
+      if (rankingsData.length === 0) {
         setEmptyPit(true)
         return
       }
