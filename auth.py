@@ -18,6 +18,8 @@ if not CLERK_JWKS_URL:
         "Missing required Clerk config: CLERK_JWKS_URL must be set in .env"
     )
 
+_jwks_cache: dict | None = None
+
 # HTTPBearer extracts the JWT from the HTTP request Authorization: Bearer <token> header
 bearer_scheme = HTTPBearer()
 
@@ -52,30 +54,56 @@ def get_current_user(
 
 
 def _get_public_key(token: str) -> RSAPublicKey:
-    """Find the matching public key for the given token from Clerk's JWKS."""
-    jwks = _get_jwks()
+    """Find the matching public key for the given token from Clerk's JWKS.
 
+    Refetches JWKS once if the key isn't found.
+    """
     # Extract the metadata (header) from the yet unverified JWT
     headers = jwt.get_unverified_header(token)
-
     headers_kid = headers.get("kid")  # kid = key ID
+
     if not headers_kid:
         raise HTTPException(status_code=401, detail="Invalid token: missing kid")
 
+    public_key = _find_key(headers_kid)
+
+    if public_key is None:
+        public_key = _find_key(headers_kid, refetch=True)
+
+    if public_key is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="No matching public key found",
+        )
+
+    return public_key
+
+
+def _find_key(kid: str, refetch: bool = False) -> RSAPublicKey | None:
+    """Look up a key by kid in the cached JWKS. Return None if not found."""
+    jwks = _get_jwks(refetch)
+
     for key in jwks["keys"]:
-        if key.get("kid") == headers_kid:  # Find the matching key
+        if key.get("kid") == kid:  # Find the matching key
             return RSAAlgorithm.from_jwk(key)  # Convert the JWK to a public key object
 
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED, detail="No matching public key found"
-    )
+    return None
 
 
-def _get_jwks() -> dict:
-    """Fetch Clerk's public keys (JWKS) for JWT verification."""
-    response = requests.get(CLERK_JWKS_URL)
-    response.raise_for_status()  # Raise an exception if there's an HTTP error
-    return response.json()
+def _get_jwks(refetch: bool = False) -> dict:
+    """Fetch Clerk's public keys (JWKS) for JWT verification.
+
+    Uses a cached copy if available.
+    """
+    global _jwks_cache
+    if _jwks_cache is None or refetch:
+        response = requests.get(CLERK_JWKS_URL)
+        response.raise_for_status()  # Raise an exception if there's an HTTP error
+        jwks = response.json()
+        _jwks_cache = jwks
+        return jwks
+
+    return _jwks_cache
 
 
 def get_current_reader_id(clerk_id: Annotated[str, Depends(get_current_user)]) -> int:
