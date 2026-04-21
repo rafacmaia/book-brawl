@@ -81,9 +81,10 @@ function ImportModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="relative flex w-[90%] flex-col gap-4 rounded-lg border-6 border-background bg-button p-6 font-zain text-text shadow-2xl md:w-xl md:gap-6 md:rounded-md md:border-4 md:p-8">
-        <h2 className="font-calistoga text-3xl font-bold text-text">Import from a CSV</h2>
-
+      <div className="relative flex w-[90%] flex-col gap-4 rounded-lg border border-t-6 border-b-6 border-background bg-button/97 p-6 font-zain text-text shadow-2xl md:w-xl md:gap-6 md:rounded-md md:border-t-8 md:border-b-8 md:p-8">
+        <h2 className="font-calistoga text-[28px] font-bold text-text md:text-[30px]">
+          Import from a CSV
+        </h2>
         <button
           onClick={onClose}
           aria-label="Close CSV import modal"
@@ -91,7 +92,7 @@ function ImportModal({
         >
           <SquareX className="size-6 md:size-7" />
         </button>
-        <div className="flex flex-col gap-2 text-[20px] text-text/90">
+        <div className="flex flex-col gap-2 rounded-sm bg-background/95 px-3 py-2 text-[18px] tracking-wide text-primary md:px-4 md:py-3 md:text-[20px]">
           <p>
             Your CSV file must have <span className={fieldStyling}>title</span> and{' '}
             <span className={fieldStyling}>author</span> columns.
@@ -102,7 +103,7 @@ function ImportModal({
           </p>
         </div>
         <div className="flex flex-col gap-4">
-          <label className="w-fit cursor-pointer rounded-md border-b-4 border-red-600/80 bg-text/90 px-6 py-3 text-[18px] font-bold text-primary shadow-md transition-all hover:scale-104 hover:bg-text md:border-b-3">
+          <label className="w-fit cursor-pointer rounded-md border-b-4 border-red-600/80 bg-text/95 px-8 pt-3 pb-2.5 text-[18px] font-bold text-primary/95 shadow-md transition-all hover:scale-104 hover:bg-text">
             {loading ? 'Importing...' : 'Select CSV File'}
             <input
               type="file"
@@ -112,21 +113,24 @@ function ImportModal({
               className="sr-only"
             />
           </label>
-          {error && <p className="pl-1 text-[18px] font-bold text-red-700">{error}</p>}
+          {error && <p className="mt-1 pl-1 text-[18px] font-bold text-red-700">{error}</p>}
           {result && (
-            <div className="flex flex-col gap-2 pl-1 text-[20px] font-semibold tracking-wide">
+            <div className="mt-1 flex flex-col gap-2 pl-1 text-[18px] font-semibold tracking-wide">
               {result.skipped > 0 && (
                 <p className="text-text">
-                  Skipped{' '}
+                  <span className={'opacity-80'}>❌</span> Skipped{' '}
                   <span className="underline decoration-accent underline-offset-2">
                     {result.skipped}
                   </span>{' '}
-                  {result.skipped === 1 ? 'book' : 'books'} already in the pit.
+                  {result.skipped === 1 ? 'book' : 'books'} already present.
                 </p>
               )}
               {result.imported > 0 ? (
                 <p className="font-bold text-text">
-                  ✔ Imported <span className="text-background">{result.imported}</span>{' '}
+                  ✔ Imported{' '}
+                  <span className="underline decoration-accent underline-offset-2">
+                    {result.imported}
+                  </span>{' '}
                   {result.imported === 1 ? 'book' : 'books'}!
                 </p>
               ) : (
@@ -155,16 +159,18 @@ function DeleteModal({
   onCancel: () => void
 }) {
   const buttonStyling =
-    'cursor-pointer rounded-md border-b-4 md:border-b-3 md:w-3/10 w-1/3 px-4 pb-1 pt-2 md:py-2 font-zain text-[16px] md:text-[18px] font-extrabold tracking-wider text-primary drop-shadow-md transition-all hover:scale-104 active:scale-95 '
+    'cursor-pointer rounded-md border-b-4 md:border-b-3 w-1/3 pb-1.25 pt-2.5 md:py-1.5 md:pt-2.5 font-zain text-[16px] md:text-[18px] font-extrabold tracking-wider text-primary drop-shadow-md transition-all hover:scale-104 active:scale-95 '
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="flex w-[90%] flex-col items-center justify-center gap-5 rounded-lg border-6 border-red-800/80 bg-button p-6 font-zain text-text shadow-2xl md:w-xl md:gap-6 md:rounded-md md:border-4 md:p-8">
+      <div className="flex w-[90%] flex-col items-center justify-center gap-5 rounded-lg border border-t-6 border-b-6 border-red-800/80 bg-button/97 p-6 font-zain text-text shadow-2xl md:w-xl md:gap-7 md:rounded-md md:border-t-8 md:border-b-8 md:px-10 md:py-8">
         <h2 className="font-calistoga text-3xl font-bold">Burn this book?</h2>
-        <p className="text-left font-zain text-[20px] md:text-[22px]">
-          <span className="font-calistoga text-[18px] font-bold md:text-[20px]">{book.title}</span>,
-          by{' '}
-          <span className={'font-calistoga text-[18px] font-semibold md:text-[20px]'}>
+        <p className="text-left font-zain text-[20px] text-text/95 md:text-[22px]">
+          <span className="font-calistoga text-[18px] font-bold tracking-wide md:text-[20px]">
+            {book.title}
+          </span>
+          , by{' '}
+          <span className={'font-calistoga text-[18px] font-semibold tracking-wide md:text-[20px]'}>
             {book.author}
           </span>
           , will be permanently removed from the Book Pit.
@@ -215,7 +221,7 @@ function EditModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="items-left relative flex w-[90%] flex-col justify-center gap-8 rounded-lg border-6 border-red-800/80 bg-button/95 p-6 font-zain text-text shadow-2xl md:w-xl md:gap-8 md:rounded-md md:border-4 md:p-8">
+      <div className="items-left relative flex w-[90%] flex-col justify-center gap-8 rounded-lg border border-t-6 border-b-6 border-red-800/80 bg-button/97 px-8 py-6 font-zain text-text shadow-2xl md:w-xl md:gap-8 md:rounded-md md:border-t-8 md:border-b-8 md:p-8">
         <h2 className="font-calistoga text-3xl font-bold">Edit Book</h2>
         <button
           onClick={onCancel}
@@ -241,9 +247,9 @@ function EditModal({
           />
           <button
             onClick={() => onConfirm(title, author)}
-            className={`mt-3 cursor-pointer self-center rounded-md border-b-4 border-red-800/85 bg-background/90 px-10 pt-2.5 pb-1.25 font-zain text-[16px] font-extrabold tracking-widest text-primary drop-shadow-md transition-all hover:scale-104 hover:border-background/90 hover:bg-red-800 active:scale-95 active:bg-red-800 md:border-b-3 md:px-12 md:py-2 md:text-[18px]`}
+            className={`mt-3 cursor-pointer self-center rounded-md border-b-4 border-red-800/85 bg-background/90 px-10 pt-2.5 pb-1.25 font-zain text-[16px] font-extrabold tracking-widest text-primary drop-shadow-md transition-all hover:scale-104 hover:border-background/90 hover:bg-red-800 active:scale-95 active:bg-red-800 md:px-12 md:py-1.5 md:pt-2.5 md:text-[18px]`}
           >
-            Save
+            SAVE
           </button>
           {error && (
             <p
@@ -263,34 +269,68 @@ function EditModal({
 }
 
 function ResetModal({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
+  const [finalConfirmation, setFinalConfirmation] = useState(false)
+  const [resetTimer, setResetTimer] = useState(3)
+
+  useEffect(() => {
+    if (!finalConfirmation || resetTimer === 0) return
+
+    const interval = setInterval(() => {
+      setResetTimer((prev) => prev - 1)
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [finalConfirmation, resetTimer])
+
   const buttonStyling =
-    'cursor-pointer rounded-md border-b-4 md:border-b-3 md:w-3/10 w-1/3 px-4 pb-1 pt-2 md:py-2 font-zain text-[16px] md:text-[18px] font-extrabold tracking-wider text-primary drop-shadow-md transition-all hover:scale-104 active:scale-95 '
+    'rounded-md border-b-4 md:border-b-3 md:w-3/10 w-1/3 px-4 pb-1.25 pt-2.5 md:py-2 md:pt-3 md:pb-1.75 font-zain text-[16px] md:text-[18px] font-extrabold tracking-wider text-primary drop-shadow-md transition-all '
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="flex w-[90%] flex-col items-center justify-center gap-4 rounded-lg border-6 border-red-800/80 bg-button p-5 font-zain text-text shadow-2xl md:w-xl md:gap-6 md:rounded-md md:border-4 md:p-8">
-        <h2 className="font-calistoga text-3xl font-bold tracking-wide">Burn it all?</h2>
-        <p className="text-center font-zain text-[20px] md:text-[22px]">
-          This will <span className={'font-extrabold'}>permanently</span> delete all books and
-          trigger a complete Pit reset.
+      <div className="flex w-[90%] flex-col items-center justify-center gap-5 rounded-lg border border-t-6 border-b-6 border-red-800/80 bg-button/97 p-6 font-zain text-text shadow-2xl md:w-xl md:gap-5 md:rounded-md md:border-t-8 md:border-b-8 md:p-8">
+        <h2 className="font-calistoga text-3xl font-bold tracking-wide md:mb-2 md:text-[32px]">
+          Burn it all?
+        </h2>
+        <p className="rounded-sm bg-background/90 px-3 py-2 text-left font-zain text-[18px] tracking-wide text-primary md:px-4 md:py-3 md:text-[20px]">
+          This will{' '}
+          <span className={'font-extrabold underline decoration-red-600/70'}>permanently</span>{' '}
+          delete all books and trigger a complete Pit reset.
         </p>
-        <p className="text-center font-zain text-[20px] font-semibold md:text-[22px]">
-          This cannot be undone. All data will be lost.
-        </p>
-        <div className="flex w-full items-center justify-center gap-10 md:gap-12">
+        <div className="flex w-full items-center justify-center gap-6 md:gap-8">
           <button
-            onClick={onConfirm}
-            className={`border-background bg-red-800/75 hover:bg-red-800 active:bg-red-800 ${buttonStyling}`}
+            onClick={() => setFinalConfirmation(true)}
+            className={`flex-1 cursor-pointer border-background bg-red-800/75 hover:scale-104 hover:bg-red-800 active:scale-95 active:bg-red-800 ${buttonStyling}`}
           >
             RESET
           </button>
           <button
             onClick={onCancel}
-            className={`border-red-800 bg-background/90 hover:bg-background active:bg-background ${buttonStyling}`}
+            className={`flex-2 cursor-pointer border-red-800 bg-background/80 hover:scale-104 hover:bg-background active:scale-95 active:bg-background ${buttonStyling}`}
           >
             CANCEL
           </button>
         </div>
+        {finalConfirmation && (
+          <>
+            <p className="rounded-sm bg-red-800/85 px-3 py-2 font-zain text-[18px] font-semibold text-primary/95 md:px-4 md:py-3 md:text-[20px]">
+              Last warning: this cannot be undone. All data will be lost. Do you wish to continue?
+            </p>
+            <button
+              onClick={onConfirm}
+              disabled={resetTimer > 0}
+              className={`w-full border-background bg-red-800/85 pt-2.75 pb-1.5 hover:bg-red-800 active:bg-red-800 ${resetTimer === 0 ? 'cursor-pointer hover:scale-104 active:scale-95' : 'cursor-not-allowed'} ${buttonStyling}`}
+            >
+              {resetTimer > 0 ? (
+                `Wait... ${resetTimer}`
+              ) : (
+                <BombIcon
+                  weight={'fill'}
+                  className={`inline size-4.75 -translate-y-0.5 sm:-translate-y-0.5`}
+                />
+              )}
+            </button>
+          </>
+        )}
       </div>
     </div>
   )
