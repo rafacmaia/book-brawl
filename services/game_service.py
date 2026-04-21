@@ -18,7 +18,7 @@ class NotEnoughBooksError(Exception):
     pass
 
 
-def select_opponents(reader_id):
+def select_opponents(reader_id: int) -> tuple[Book, Book]:
     """Select two books using weighted random selection.
 
     Favor low-confidence books (i.e., books with fewer unique matches played), books
@@ -47,7 +47,7 @@ def select_opponents(reader_id):
     return book_a, book_b
 
 
-def _sampling_weight(book, b_confidence, books):
+def _sampling_weight(book: Book, b_confidence: float, books: list[Book]) -> float:
     """Calculate selection weight based on confidence level and absolute_score.
 
     Ensures a minimum weight of 0.1. Absolute_score is used to highly prioritize newer
@@ -65,7 +65,9 @@ def _sampling_weight(book, b_confidence, books):
     return max(0.1, confidence_weight, early_boost)
 
 
-def _opponent_weights(book_a, con_scores, books):
+def _opponent_weights(
+    book_a: Book, con_scores: dict[int, float], books: list[Book]
+) -> list[tuple[Book, float]]:
     """Adjust weights for book_b selection based on the selected book_a.
 
     Prioritize rarer pairings and books with similar Elo scores.
@@ -88,7 +90,9 @@ def _opponent_weights(book_a, con_scores, books):
     return candidates
 
 
-def resolve_comparison(reader_id, winner_id, loser_id):
+def resolve_comparison(
+    reader_id: int, winner_id: int, loser_id: int
+) -> tuple[Book, Book]:
     """Update book records after a match is resolved.
 
     Update Elo scores, persist match, and update book opponents and wins.

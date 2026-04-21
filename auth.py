@@ -4,6 +4,7 @@ from typing import Annotated
 
 import jwt
 import requests
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 from fastapi import HTTPException, status
 from fastapi.params import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -23,7 +24,7 @@ bearer_scheme = HTTPBearer()
 
 def get_current_user(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(bearer_scheme)],
-):
+) -> str:
     """Verify the JWT and return the Clerk user ID.
 
     Inject this into every endpoint that requires authentication.
@@ -50,7 +51,7 @@ def get_current_user(
         )
 
 
-def _get_public_key(token):
+def _get_public_key(token: str) -> RSAPublicKey:
     """Find the matching public key for the given token from Clerk's JWKS."""
     jwks = _get_jwks()
 
@@ -70,14 +71,14 @@ def _get_public_key(token):
     )
 
 
-def _get_jwks():
+def _get_jwks() -> dict:
     """Fetch Clerk's public keys (JWKS) for JWT verification."""
     response = requests.get(CLERK_JWKS_URL)
     response.raise_for_status()  # Raise an exception if there's an HTTP error
     return response.json()
 
 
-def get_current_reader_id(clerk_id: Annotated[str, Depends(get_current_user)]):
+def get_current_reader_id(clerk_id: Annotated[str, Depends(get_current_user)]) -> int:
     """Resolve Clerk ID to internal reader ID."""
     reader = readers_repo.get_by_clerk_id(clerk_id)
 

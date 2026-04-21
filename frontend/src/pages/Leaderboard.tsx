@@ -154,7 +154,7 @@ export default function Leaderboard() {
       }
 
       setRankings(rankingsData)
-      setProgress(progressData.progress)
+      setProgress(progressData)
     } catch {
       setError('Failed to load leaderboard. Please try again.')
     } finally {

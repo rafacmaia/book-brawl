@@ -16,7 +16,7 @@ from services.game_service import (
     resolve_comparison,
     select_opponents,
 )
-from services.library_service import add_book as insert_book
+from services.library_service import add_book as add_b
 from services.ranking_service import build_leaderboard
 from services.scoring_service import calculate_progress
 
@@ -52,7 +52,9 @@ class MatchResult(BaseModel):
 
 
 @app.get("/brawl")
-def get_match(reader_id: int = Depends(get_current_reader_id)):
+def get_match(
+    reader_id: int = Depends(get_current_reader_id),
+) -> dict[str, dict[str, int | str]]:
     """Return two books to face off"""
     try:
         book_a, book_b = select_opponents(reader_id)
@@ -74,7 +76,9 @@ def get_match(reader_id: int = Depends(get_current_reader_id)):
 
 
 @app.post("/brawl/resolve", status_code=status.HTTP_201_CREATED)
-def post_match(result: MatchResult, reader_id: int = Depends(get_current_reader_id)):
+def post_match(
+    result: MatchResult, reader_id: int = Depends(get_current_reader_id)
+) -> dict[str, dict[str, int]]:
     """Resolve a match between two books and update their records."""
     try:
         winner, loser = resolve_comparison(reader_id, result.winner_id, result.loser_id)
@@ -82,7 +86,6 @@ def post_match(result: MatchResult, reader_id: int = Depends(get_current_reader_
         raise HTTPException(status_code=404, detail="Books not found")
 
     return {
-        "status": "ok",
         "winner": {"id": winner.id, "elo": winner.elo},
         "loser": {"id": loser.id, "elo": loser.elo},
     }
@@ -92,18 +95,19 @@ def post_match(result: MatchResult, reader_id: int = Depends(get_current_reader_
 
 
 @app.get("/progress")
-def get_progress(reader_id: int = Depends(get_current_reader_id)):
+def get_progress(
+    reader_id: int = Depends(get_current_reader_id),
+) -> float:
     """Return the user's overall progress in the game."""
     books = books_repo.get_all_history(reader_id)
 
-    return {
-        "progress": round(calculate_progress(books), 4),
-        "book_count": len(books),
-    }
+    return round(calculate_progress(books), 4)
 
 
 @app.get("/leaderboard")
-def get_leaderboard(reader_id: int = Depends(get_current_reader_id)):
+def get_leaderboard(
+    reader_id: int = Depends(get_current_reader_id),
+) -> list[dict[str, int | str | float]]:
     return build_leaderboard(reader_id)
 
 
@@ -117,16 +121,20 @@ class BookData(BaseModel):
 
 
 @app.get("/books")
-def get_books(reader_id: int = Depends(get_current_reader_id)):
+def get_books(
+    reader_id: int = Depends(get_current_reader_id),
+) -> list[dict[str, int | str]]:
     """Return the user's collection of books, sorted alphabetically by title."""
     return books_repo.get_all(reader_id)
 
 
 @app.post("/books", status_code=status.HTTP_201_CREATED)
-def add_book(book: BookData, reader_id: int = Depends(get_current_reader_id)):
+def add_book(
+    book: BookData, reader_id: int = Depends(get_current_reader_id)
+) -> dict[str, int | str]:
     """Add a new book to the collection."""
     try:
-        new_book = insert_book(reader_id, book.title, book.author, book.rating)
+        new_book = add_b(reader_id, book.title, book.author, book.rating)
     except pg_errors.UniqueViolation:
         raise HTTPException(status_code=409, detail="Book already exists")
     except ValueError as e:
@@ -136,7 +144,9 @@ def add_book(book: BookData, reader_id: int = Depends(get_current_reader_id)):
 
 
 @app.post("/books/import", status_code=status.HTTP_201_CREATED)
-def import_books(file: UploadFile, reader_id: int = Depends(get_current_reader_id)):
+def import_books(
+    file: UploadFile, reader_id: int = Depends(get_current_reader_id)
+) -> dict[str, int | bool]:
     """Import books from a CSV file."""
     filename = file.filename or ""
     if not filename.lower().endswith(".csv"):
@@ -169,7 +179,7 @@ def import_books(file: UploadFile, reader_id: int = Depends(get_current_reader_i
 @app.patch("/books/{book_id}")
 def update_book(
     book_id: int, book: BookData, reader_id: int = Depends(get_current_reader_id)
-):
+) -> dict[str, int | str]:
     """Update the details of a book in the collection."""
     try:
         updated = books_repo.update(
@@ -187,14 +197,14 @@ def update_book(
 
 
 @app.delete("/books/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_book(book_id: int, reader_id: int = Depends(get_current_reader_id)):
+def delete_book(book_id: int, reader_id: int = Depends(get_current_reader_id)) -> None:
     """Remove a book from the collection."""
     if not books_repo.delete(reader_id, book_id):
         raise HTTPException(status_code=404, detail="Book not found")
 
 
 @app.delete("/books", status_code=status.HTTP_204_NO_CONTENT)
-def delete_all_books(reader_id: int = Depends(get_current_reader_id)):
+def delete_all_books(reader_id: int = Depends(get_current_reader_id)) -> None:
     """Remove all books from the collection."""
     books_repo.delete_all(reader_id)
 
@@ -208,7 +218,9 @@ class UserSync(BaseModel):
 
 
 @app.post("/readers")
-def sync_user(data: UserSync, clerk_id: str = Depends(get_current_user)):
+def sync_user(
+    data: UserSync, clerk_id: str = Depends(get_current_user)
+) -> dict[str, int | str | bool]:
     """Create a new user record on the first login or return an existing one."""
     user = readers_repo.get_by_clerk_id(clerk_id)
 

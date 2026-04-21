@@ -1,26 +1,28 @@
+from typing import Any
+
 from psycopg2.extras import RealDictCursor, execute_values
 
 from db.connection import get_connection
-from models import Book
+from models import Book, BookDraft
 
 
-def get_all(reader_id):
+def get_all(reader_id: int) -> list[dict[str, Any]]:
     """Return a reader's collection of books, sorted alphabetically by title."""
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
                 """
-                SELECT id, title, author, rating FROM book
+                SELECT id, title, author FROM book
                 WHERE reader_id = %s
                 ORDER BY
                     REGEXP_REPLACE(title, '^(a|an|the)\\s+', '', 'i')
                 """,
                 (reader_id,),
             )
-            return [dict(row) for row in cur.fetchall()]
+            return [dict(row) for row in cur.fetchall()]  # type: ignore[return-value]
 
 
-def get_all_history(reader_id):
+def get_all_history(reader_id: int) -> list[Book]:
     """Load all books, set their opponent/wins history, and set global Elo min/max."""
     Book.elo_min = 800
     Book.elo_max = 1200
@@ -64,8 +66,8 @@ def get_all_history(reader_id):
     return books
 
 
-def insert(reader_id, book):
-    """Insert a new book and set its ID."""
+def insert(reader_id: int, book: BookDraft) -> int:
+    """Insert a new book."""
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
@@ -76,24 +78,21 @@ def insert(reader_id, book):
                 """,
                 (reader_id, book.title, book.author, book.rating, book.elo),
             )
-            book.id = cur.fetchone()["id"]
+            return cur.fetchone()["id"]
 
 
-def insert_many(reader_id, books):
-    """Insert multiple books and set their IDs."""
+def insert_many(reader_id: int, books: list[BookDraft]) -> None:
+    """Insert multiple books."""
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            rows = execute_values(
+            execute_values(
                 cur,
                 "INSERT INTO book (reader_id, title, author, rating, elo) VALUES %s RETURNING id",
                 [(reader_id, b.title, b.author, b.rating, b.elo) for b in books],
-                fetch=True,
             )
-            for book, row in zip(books, rows):
-                book.id = row["id"]
 
 
-def update(reader_id, book_id, title, author):
+def update(reader_id: int, book_id: int, title: str, author: str) -> bool:
     """Update an existing book."""
     with get_connection() as conn:
         with conn.cursor() as cur:
@@ -104,7 +103,7 @@ def update(reader_id, book_id, title, author):
             return cur.rowcount > 0
 
 
-def delete(reader_id, book_id):
+def delete(reader_id: int, book_id: int) -> bool:
     """Delete a book by ID."""
     with get_connection() as conn:
         with conn.cursor() as cur:
@@ -115,21 +114,21 @@ def delete(reader_id, book_id):
             return cur.rowcount > 0
 
 
-def delete_all(reader_id):
+def delete_all(reader_id: int) -> None:
     """Delete all books for a reader."""
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("DELETE FROM book WHERE reader_id = %s", (reader_id,))
 
 
-def update_elo(book):
+def update_elo(book: Book) -> None:
     """Update the Elo score for a book."""
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("UPDATE book SET elo = %s WHERE id = %s", (book.elo, book.id))
 
 
-def get_elo_range(reader_id):
+def get_elo_range(reader_id: int) -> dict | None:
     """Return min, max, and median Elo across all books."""
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:

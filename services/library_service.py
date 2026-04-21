@@ -1,13 +1,14 @@
 from dataclasses import dataclass
+from typing import Iterable
 
 from config import BOOK_LIMIT
 from db.books_repo import get_all, get_elo_range, insert, insert_many
-from models import Book
+from models import Book, BookDraft
 from services.scoring_service import K_TIERS
 
 ELO_DEFAULT = 1040
-ELO_MIN_DEFAULT = 800
-ELO_MAX_DEFAULT = 1200
+E_MIN_DEFAULT = 800
+E_MAX_DEFAULT = 1200
 
 
 RATING_FLOOR = 3
@@ -16,7 +17,7 @@ RATING_FLOOR_BUMP = K_TIERS[0][1]  # One initial K-value above the floor
 
 @dataclass
 class ImportResult:
-    new_books: list
+    new_books: list[BookDraft]
     skipped: int
     interrupted: bool
 
@@ -28,28 +29,30 @@ class BookData:
     rating: float | None = None
 
 
-def add_book(reader_id, title, author, rating):
+def add_book(
+    reader_id: int, title: str, author: str, rating: float | None = None
+) -> Book:
     """Add a single book to the database, ensuring no duplicates."""
     if rating is not None and not (1 <= rating <= 10):
         raise ValueError("Rating must be between 1 and 10")
 
-    if not (title and author):
+    if not (title.strip() and author.strip()):
         raise ValueError("Title and author are required")
 
     elo_range = get_elo_range(reader_id) or {
-        "elo_min": ELO_MIN_DEFAULT,
-        "elo_max": ELO_MAX_DEFAULT,
+        "elo_min": E_MIN_DEFAULT,
+        "elo_max": E_MAX_DEFAULT,
     }
     elo = _rating_to_elo(elo_range, rating)
 
-    new_book = Book(title, author, rating, elo)
+    book_id = insert(reader_id, BookDraft(title, author, elo, rating))
 
-    insert(reader_id, new_book)
-
-    return new_book
+    return Book(book_id, title, author, elo, rating)
 
 
-def import_books(reader_id, file_reader):
+def import_books(
+    reader_id: int, file_reader: Iterable[dict[str, str | None]]
+) -> ImportResult:
     """Process each row of the CSV, adding new books to the database.
 
     Validates each row, skipping duplicate and invalid entries.
@@ -58,13 +61,13 @@ def import_books(reader_id, file_reader):
     existing_books = {(b["title"].lower(), b["author"].lower()) for b in books}
 
     elo_range = get_elo_range(reader_id) or {
-        "elo_min": ELO_MIN_DEFAULT,
-        "elo_max": ELO_MAX_DEFAULT,
+        "elo_min": E_MIN_DEFAULT,
+        "elo_max": E_MAX_DEFAULT,
     }
 
     result = ImportResult(new_books=[], skipped=0, interrupted=False)
 
-    for i, row in enumerate(file_reader, start=2):
+    for row in file_reader:
         if len(existing_books) >= BOOK_LIMIT:
             result.interrupted = True
             return result
@@ -72,7 +75,7 @@ def import_books(reader_id, file_reader):
         book_data = _process_row(row, existing_books, result)
         if book_data:
             elo = _rating_to_elo(elo_range, book_data.rating)
-            book = Book(book_data.title, book_data.author, book_data.rating, elo)
+            book = BookDraft(book_data.title, book_data.author, elo, book_data.rating)
             result.new_books.append(book)
             existing_books.add((book_data.title.lower(), book_data.author.lower()))
 
@@ -81,7 +84,11 @@ def import_books(reader_id, file_reader):
     return result
 
 
-def _process_row(row, existing_books, result):
+def _process_row(
+    row: dict[str, str | None],
+    existing_books: set[tuple[str, str]],
+    result: ImportResult,
+) -> BookData | None:
     """Validate and process a single CSV row, updating the import result in place."""
     title = (row.get("title") or "").strip()
     author = (row.get("author") or "").strip()
@@ -112,23 +119,23 @@ def _process_row(row, existing_books, result):
         return BookData(title, author, rating)
 
 
-def _rating_to_elo(elo_range, rating):
+def _rating_to_elo(elo_range: dict[str, int], raw_rating: float | None) -> int:
     """Convert a user rating, or lack of, to an Elo score."""
-    if rating is None:
+    if raw_rating is None:
         return ELO_DEFAULT
 
     elo_min = elo_range["elo_min"]
     elo_max = elo_range["elo_max"]
 
-    if elo_min >= ELO_MIN_DEFAULT and elo_max <= ELO_MAX_DEFAULT:
+    if elo_min >= E_MIN_DEFAULT and elo_max <= E_MAX_DEFAULT:
         # Map rating to the starting 800-1200 Elo range
-        elo = ELO_MIN_DEFAULT + (rating - 1) * ((ELO_MAX_DEFAULT - ELO_MIN_DEFAULT) / 9)
+        elo = E_MIN_DEFAULT + (raw_rating - 1) * ((E_MAX_DEFAULT - E_MIN_DEFAULT) / 9)
         return round(elo)
     else:
         # Maps rating to Elo using a floor of 3 rather than 1, reflecting that
         # real-world ratings rarely fall below 3/10. The floor bump ensures a book
         # rated at the floor doesn't start at the literal Elo minimum — it begins one
         # K-value above, within reach of the bottom but not pinned there.
-        rating = max(RATING_FLOOR, rating)
+        rating = max(RATING_FLOOR, raw_rating)
         elo = round(elo_min + (rating - 3) * ((elo_max - elo_min) / 7))
         return max(elo, elo_min + RATING_FLOOR_BUMP)

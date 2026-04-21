@@ -1,9 +1,10 @@
 from config import ACCURACY_TIERS
 from db.books_repo import get_all_history
+from models import Book
 from services.scoring_service import confidence_score
 
 
-def build_leaderboard(reader_id):
+def build_leaderboard(reader_id: int) -> list[dict[str, int | str | float]]:
     """Return a list of (rank, book) tuples."""
     books = get_all_history(reader_id)
 
@@ -31,7 +32,7 @@ def build_leaderboard(reader_id):
     return ranked_books
 
 
-def _rank_books(books):
+def _rank_books(books: list[Book]) -> list[tuple[int, Book]]:
     """Rank all books based on their Elo score.
 
     Ties are broken by head-to-head comparisons (i.e., number of wins against other
@@ -61,7 +62,7 @@ def _rank_books(books):
     return ranked
 
 
-def _tiebreak(tied_group, rank):
+def _tiebreak(tied_group: list[Book], rank: int) -> list[tuple[int, Book]]:
     """Sort a tied group by head-to-head wins, then initial user rating"""
     tiebreak_scores = {b.id: _head_to_head_score(b, tied_group) for b in tied_group}
     tied_group.sort(
@@ -85,7 +86,7 @@ def _tiebreak(tied_group, rank):
     return ranked
 
 
-def _head_to_head_score(book, tied_books):
+def _head_to_head_score(book: Book, tied_books: list[Book]) -> int:
     tied_opponents = {b.id for b in tied_books if b.id != book.id}
     wins = sum(book.won_over.get(opp_id, 0) for opp_id in tied_opponents)
     return wins

@@ -23,7 +23,7 @@ if not math.isclose(ABS_SCORE_WEIGHT + LOC_SCORE_WEIGHT + DEN_SCORE_WEIGHT, 1):
     )
 
 
-def calculate_progress(books):
+def calculate_progress(books: list[Book]) -> float:
     """Return the average confidence score of all books."""
     if not books:
         return 0
@@ -33,7 +33,7 @@ def calculate_progress(books):
     return sum(confidence_scores) / len(confidence_scores)
 
 
-def confidence_score(book, books):
+def confidence_score(book: Book, books: list[Book]) -> float:
     """Return a confidence score indicating the certainty of a book's ranking.
 
     Use a weighted combination of the number of opponents faced, number of faced
@@ -58,7 +58,7 @@ def confidence_score(book, books):
     return abs_score_weighted + loc_score_weighted + den_score_weighted
 
 
-def _absolute_score(book, books):
+def _absolute_score(book: Book, books: list[Book]) -> float:
     """Calculates a book's absolute score.
 
     Measures if a book has faced a minimum number of opponents, scaling with
@@ -73,7 +73,7 @@ def _absolute_score(book, books):
     return min(len(book.faced_opponents) / absolute_cap, 1)
 
 
-def _local_score(book, books):
+def _local_score(book: Book, books: list[Book]) -> float:
     """Calculates a book's local score.
 
     Measures how many opponents a book has faced that are similar to the book's Elo.
@@ -91,7 +91,7 @@ def _local_score(book, books):
     return relevant_opp_faced / relevant_opponents if relevant_opponents else 1
 
 
-def _stability_score(book, books):
+def _stability_score(book: Book, books: list[Book]) -> float:
     """Calculates a book's stability score.
 
     Measures how many books have a close Elo to the book. High score density implies a
@@ -114,7 +114,7 @@ def _stability_score(book, books):
     return 1 - density
 
 
-def score_breakdown(book, books):
+def score_breakdown(book: Book, books: list[Book]) -> dict:
     """Return a dictionary of detailed calculations pertaining to a given book.
 
     Calculate absolute, local, and density scores and use those to derive, inline
@@ -147,7 +147,7 @@ def score_breakdown(book, books):
 # ====== ELO CALCULATION
 
 
-def calculate_elo(winner, loser, books):
+def calculate_elo(winner: Book, loser: Book, books: list[Book]) -> tuple[int, int]:
     """Calculates each book's new Elo scores after a match."""
     expected_w = _expected_score(winner.elo, loser.elo)
     expected_l = _expected_score(loser.elo, winner.elo)
@@ -157,12 +157,12 @@ def calculate_elo(winner, loser, books):
     return new_winner_elo, new_loser_elo
 
 
-def _expected_score(elo_a, elo_b):
+def _expected_score(elo_a: int, elo_b: int) -> float:
     """Calculates the expected score of a book given the Elo of a potential opponent."""
     return 1 / (1 + 10 ** ((elo_b - elo_a) / 400))
 
 
-def _get_k(book, books):
+def _get_k(book: Book, books: list[Book]) -> int:
     """Calculates and returns k value.
 
     Calculation is based on the percentage of unique opponents, i.e., confidence level.
