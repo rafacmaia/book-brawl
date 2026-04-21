@@ -38,7 +38,7 @@ function BookButton({
 
   if ((longTitle && longAuthor) || veryLongTitle) {
     longTextStyling = 'gap-2 px-6 sm:gap-4 sm:px-7 sm:py-3'
-    longTitleStyling = 'text-[32px]/10 sm:text-[40px]/13'
+    longTitleStyling = 'text-[32px]/10 sm:text-[38px]/13'
     longAuthorStyling = 'text-[22px]/7 sm:text-[26px]/10'
   } else if (longTitle || longAuthor) {
     longTextStyling = 'gap-3 px-6 sm:gap-4 sm:px-8 sm:py-3'
@@ -128,7 +128,7 @@ export default function BrawlPit() {
 
     if (isMobile) {
       setSelectedBook(winnerId)
-      await new Promise((resolve) => setTimeout(resolve, 150))
+      await new Promise((resolve) => setTimeout(resolve, 125))
       setTransition(false)
       await new Promise((resolve) => setTimeout(resolve, 275))
     }

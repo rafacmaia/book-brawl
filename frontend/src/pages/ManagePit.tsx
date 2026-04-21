@@ -10,10 +10,16 @@ import {
 import { API_BASE, ApiError, apiFetch } from '../api.ts'
 import Placeholder from '../components/Placeholder'
 import PageHeading from '../components/PageHeading'
-import { Ban, Download, SquareX } from 'lucide-react'
+import { Ban, Download } from 'lucide-react'
 import { FireIcon as FireSolid } from '@heroicons/react/24/solid'
 import { FireIcon as FireOutline } from '@heroicons/react/24/outline'
-import { BombIcon, PencilSimpleLineIcon } from '@phosphor-icons/react'
+import {
+  BombIcon,
+  CheckCircleIcon,
+  PencilSimpleLineIcon,
+  SkipForwardCircleIcon,
+  XCircleIcon,
+} from '@phosphor-icons/react'
 
 interface Book {
   id: number
@@ -81,18 +87,11 @@ function ImportModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="relative flex w-[90%] flex-col gap-4 rounded-lg border border-t-6 border-b-6 border-background bg-button/97 p-6 font-zain text-text shadow-2xl md:w-xl md:gap-6 md:rounded-md md:border-t-8 md:border-b-8 md:p-8">
+      <div className="relative flex w-[90%] flex-col gap-4 rounded-lg border border-t-6 border-b-6 border-background bg-button/97 px-7 py-5 font-zain text-text shadow-2xl md:w-lg md:gap-6 md:rounded-md md:border-t-8 md:border-b-8 md:p-8">
         <h2 className="font-calistoga text-[28px] font-bold text-text md:text-[30px]">
           Import from a CSV
         </h2>
-        <button
-          onClick={onClose}
-          aria-label="Close CSV import modal"
-          className="absolute top-2 right-2 cursor-pointer font-extrabold text-red-800/80 hover:scale-112 active:scale-95 md:top-3 md:right-4"
-        >
-          <SquareX className="size-6 md:size-7" />
-        </button>
-        <div className="flex flex-col gap-2 rounded-sm bg-background/95 px-3 py-2 text-[18px] tracking-wide text-primary md:px-4 md:py-3 md:text-[20px]">
+        <div className="flex flex-col gap-2 rounded-md bg-background/95 px-3 py-2 text-[18px] tracking-wide text-primary md:px-4 md:py-3 md:text-[20px]">
           <p>
             Your CSV file must have <span className={fieldStyling}>title</span> and{' '}
             <span className={fieldStyling}>author</span> columns.
@@ -103,23 +102,39 @@ function ImportModal({
           </p>
         </div>
         <div className="flex flex-col gap-4">
-          <label className="w-fit cursor-pointer rounded-md border-b-4 border-red-600/80 bg-text/95 px-8 pt-3 pb-2.5 text-[18px] font-bold text-primary/95 shadow-md transition-all hover:scale-104 hover:bg-text">
-            {loading ? 'Importing...' : 'Select CSV File'}
-            <input
-              type="file"
-              accept=".csv"
-              onChange={handleFileUpload}
-              disabled={loading}
-              className="sr-only"
-            />
-          </label>
+          <div className="flex gap-4 md:gap-6">
+            <label
+              className={`flex-3 cursor-pointer rounded-t-md rounded-b-2xl border-b-4 border-red-600/80 bg-text/95 px-6 pt-3 pb-2.5 text-center text-[18px] font-extrabold tracking-wide text-primary/95 shadow-md transition-all hover:scale-104 hover:bg-text hover:opacity-100 md:flex-2 md:py-1.5 md:pt-2.5 ${result ? 'opacity-85' : 'opacity-95'}`}
+            >
+              {loading ? 'Importing...' : 'Select File'}
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleFileUpload}
+                disabled={loading}
+                className="sr-only"
+              />
+            </label>
+            <button
+              onClick={onClose}
+              aria-label="Close CSV import modal"
+              className={`flex-2 cursor-pointer rounded-t-md rounded-b-2xl border-b-4 border-red-800 bg-background px-4 pt-3 pb-2.5 font-zain text-[16px] font-extrabold tracking-wider text-primary/90 drop-shadow-md transition-all hover:scale-104 hover:bg-background hover:opacity-100 active:scale-95 active:bg-background md:py-1.5 md:pt-2.5 md:text-[18px] ${result ? 'opacity-95' : 'opacity-80'}`}
+            >
+              {result ? 'CLOSE' : 'CANCEL'}
+            </button>
+          </div>
           {error && <p className="mt-1 pl-1 text-[18px] font-bold text-red-700">{error}</p>}
           {result && (
             <div className="mt-1 flex flex-col gap-2 pl-1 text-[18px] font-semibold tracking-wide">
               {result.skipped > 0 && (
                 <p className="text-text">
-                  <span className={'opacity-80'}>❌</span> Skipped{' '}
-                  <span className="underline decoration-accent underline-offset-2">
+                  <SkipForwardCircleIcon
+                    weight={'fill'}
+                    aria-label="Edit this book"
+                    className="text-text80 inline size-5 -translate-y-0.5 md:size-5.75"
+                  />{' '}
+                  Skipped{' '}
+                  <span className="underline decoration-red-700/90 underline-offset-2">
                     {result.skipped}
                   </span>{' '}
                   {result.skipped === 1 ? 'book' : 'books'} already present.
@@ -127,17 +142,29 @@ function ImportModal({
               )}
               {result.imported > 0 ? (
                 <p className="font-bold text-text">
-                  ✔ Imported{' '}
+                  <CheckCircleIcon
+                    weight={'fill'}
+                    aria-label="Edit this book"
+                    className="inline size-5 -translate-y-0.5 opacity-90 md:size-5.75"
+                  />{' '}
+                  Imported{' '}
                   <span className="underline decoration-accent underline-offset-2">
                     {result.imported}
                   </span>{' '}
                   {result.imported === 1 ? 'book' : 'books'}!
                 </p>
               ) : (
-                <p className="text-red-700">❌ No books imported. Check file and try again.</p>
+                <p className="text-red-700/95">
+                  <XCircleIcon
+                    weight={'fill'}
+                    aria-label="Edit this book"
+                    className="inline size-5 -translate-y-0.5 opacity-90 md:size-5.75"
+                  />{' '}
+                  No books imported. Check file and try again.
+                </p>
               )}
               {result.interrupted && (
-                <p className="font-bold text-accent">
+                <p className="font-bold text-red-700/95">
                   Book limit reached — not all books were imported.
                 </p>
               )}
@@ -159,11 +186,11 @@ function DeleteModal({
   onCancel: () => void
 }) {
   const buttonStyling =
-    'cursor-pointer rounded-md border-b-4 md:border-b-3 w-1/3 pb-1.25 pt-2.5 md:py-1.5 md:pt-2.5 font-zain text-[16px] md:text-[18px] font-extrabold tracking-wider text-primary drop-shadow-md transition-all hover:scale-104 active:scale-95 '
+    'cursor-pointer rounded-t-md rounded-b-2xl border-b-4 md:border-b-3 w-3/8 pb-1.5 pt-2.75 md:py-1.5 md:pt-2.5 font-zain text-[16px] md:text-[18px] font-extrabold tracking-wider text-primary drop-shadow-md transition-all hover:scale-104 active:scale-95'
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="flex w-[90%] flex-col items-center justify-center gap-5 rounded-lg border border-t-6 border-b-6 border-red-800/80 bg-button/97 p-6 font-zain text-text shadow-2xl md:w-xl md:gap-7 md:rounded-md md:border-t-8 md:border-b-8 md:px-10 md:py-8">
+      <div className="flex w-[90%] flex-col items-center justify-center gap-5 rounded-lg border border-t-6 border-b-6 border-red-800/80 bg-button/97 px-8 py-6 font-zain text-text shadow-2xl md:w-xl md:gap-7 md:rounded-md md:border-t-8 md:border-b-8 md:px-10 md:py-8">
         <h2 className="font-calistoga text-3xl font-bold">Burn this book?</h2>
         <p className="text-left font-zain text-[20px] text-text/95 md:text-[22px]">
           <span className="font-calistoga text-[18px] font-bold tracking-wide md:text-[20px]">
@@ -175,16 +202,16 @@ function DeleteModal({
           </span>
           , will be permanently removed from the Book Pit.
         </p>
-        <div className="flex w-full items-center justify-center gap-10 md:gap-12">
+        <div className="flex w-full items-center justify-center gap-8 md:gap-12">
           <button
             onClick={onConfirm}
             className={`border-background bg-red-800/75 hover:bg-red-800 active:bg-red-800 ${buttonStyling}`}
           >
-            BURN
+            <FireSolid className="inline size-5.25 -translate-y-0.5 sm:-translate-y-0.5" />
           </button>
           <button
             onClick={onCancel}
-            className={`border-red-800 bg-background/90 hover:bg-background active:bg-background ${buttonStyling}`}
+            className={`border-red-800 bg-background/90 opacity-95 hover:bg-background active:bg-background ${buttonStyling}`}
           >
             KEEP
           </button>
@@ -226,9 +253,9 @@ function EditModal({
         <button
           onClick={onCancel}
           aria-label="Close edit modal"
-          className="absolute top-2 right-2 cursor-pointer text-red-800/80 hover:scale-112 active:scale-95 md:top-3 md:right-4"
+          className="absolute top-2 right-2 cursor-pointer text-red-800/80 transition-all hover:scale-112 active:scale-95 md:top-3 md:right-3"
         >
-          <SquareX className="size-6 md:size-7" />
+          <XCircleIcon weight={'duotone'} className="size-6.25 md:size-7" />
         </button>
         <div className="flex flex-col gap-3 font-zain text-[16px] md:gap-4 md:text-[18px]">
           <input
@@ -247,7 +274,7 @@ function EditModal({
           />
           <button
             onClick={() => onConfirm(title, author)}
-            className={`mt-3 cursor-pointer self-center rounded-md border-b-4 border-red-800/85 bg-background/90 px-10 pt-2.5 pb-1.25 font-zain text-[16px] font-extrabold tracking-widest text-primary drop-shadow-md transition-all hover:scale-104 hover:border-background/90 hover:bg-red-800 active:scale-95 active:bg-red-800 md:px-12 md:py-1.5 md:pt-2.5 md:text-[18px]`}
+            className={`mt-3 cursor-pointer self-center rounded-t-md rounded-b-2xl border-b-4 border-red-800/85 bg-background/90 px-12 pt-2.5 pb-1.25 font-zain text-[16px] font-extrabold tracking-widest text-primary drop-shadow-md transition-all hover:scale-104 hover:border-background/90 hover:bg-red-800 active:scale-95 active:bg-red-800 md:px-16 md:py-1.5 md:pt-2.5 md:text-[18px]`}
           >
             SAVE
           </button>
@@ -283,40 +310,46 @@ function ResetModal({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: 
   }, [finalConfirmation, resetTimer])
 
   const buttonStyling =
-    'rounded-md border-b-4 md:border-b-3 md:w-3/10 w-1/3 px-4 pb-1.25 pt-2.5 md:py-2 md:pt-3 md:pb-1.75 font-zain text-[16px] md:text-[18px] font-extrabold tracking-wider text-primary drop-shadow-md transition-all '
+    'rounded-t-md rounded-b-2xl border-b-4 md:border-b-3 px-4 pb-1.25 pt-2.5 md:py-2 md:pt-3 md:pb-1.75 font-zain text-[16px] md:text-[18px] font-extrabold tracking-wider text-primary drop-shadow-md transition-all'
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="flex w-[90%] flex-col items-center justify-center gap-5 rounded-lg border border-t-6 border-b-6 border-red-800/80 bg-button/97 p-6 font-zain text-text shadow-2xl md:w-xl md:gap-5 md:rounded-md md:border-t-8 md:border-b-8 md:p-8">
+      <div className="flex w-[90%] flex-col items-center justify-center gap-5 rounded-lg border border-t-6 border-b-6 border-red-800/80 bg-button/97 p-6 font-zain text-text shadow-2xl md:w-xl md:rounded-md md:border-t-8 md:border-b-8 md:p-8">
         <h2 className="font-calistoga text-3xl font-bold tracking-wide md:mb-2 md:text-[32px]">
           Burn it all?
         </h2>
-        <p className="rounded-sm bg-background/90 px-3 py-2 text-left font-zain text-[18px] tracking-wide text-primary md:px-4 md:py-3 md:text-[20px]">
+        <p className="rounded-md bg-background/90 px-3 py-2 text-left font-zain text-[18px] tracking-wide text-primary md:px-4 md:py-3 md:text-[20px]">
           This will{' '}
-          <span className={'font-extrabold underline decoration-red-600/70'}>permanently</span>{' '}
+          <span className={'font-extrabold underline decoration-primary/70 underline-offset-2'}>
+            permanently
+          </span>{' '}
           delete all books and trigger a complete Pit reset.
         </p>
-        <div className="flex w-full items-center justify-center gap-6 md:gap-8">
+        <div className="flex w-full items-center justify-center gap-6">
           <button
             onClick={() => setFinalConfirmation(true)}
-            className={`flex-1 cursor-pointer border-background bg-red-800/75 hover:scale-104 hover:bg-red-800 active:scale-95 active:bg-red-800 ${buttonStyling}`}
+            disabled={finalConfirmation}
+            aria-label="Delete all books and reset the pit"
+            className={`w-1/3 flex-2 border-background bg-red-800/75 md:w-3/10 ${buttonStyling} ${finalConfirmation ? 'cursor-not-allowed' : 'cursor-pointer hover:scale-104 hover:bg-red-800 active:scale-95 active:bg-red-800'}`}
           >
             RESET
           </button>
           <button
             onClick={onCancel}
-            className={`flex-2 cursor-pointer border-red-800 bg-background/80 hover:scale-104 hover:bg-background active:scale-95 active:bg-background ${buttonStyling}`}
+            aria-label="Close reset modal and cancel reset"
+            className={`w-1/3 flex-3 cursor-pointer border-red-800 bg-background hover:scale-104 hover:bg-background hover:opacity-100 active:scale-95 active:bg-background active:opacity-90 md:w-3/10 ${buttonStyling} ${finalConfirmation ? 'opacity-85' : 'opacity-75'}`}
           >
             CANCEL
           </button>
         </div>
         {finalConfirmation && (
-          <>
-            <p className="rounded-sm bg-red-800/85 px-3 py-2 font-zain text-[18px] font-semibold text-primary/95 md:px-4 md:py-3 md:text-[20px]">
+          <div className="flex w-full flex-col items-center justify-center gap-5">
+            <p className="rounded-md bg-red-800/85 px-3 py-2 font-zain text-[18px] font-extrabold tracking-wide text-primary/95 md:px-4 md:py-3 md:text-[20px]">
               Last warning: this cannot be undone. All data will be lost. Do you wish to continue?
             </p>
             <button
               onClick={onConfirm}
+              aria-label="Confirm reset"
               disabled={resetTimer > 0}
               className={`w-full border-background bg-red-800/85 pt-2.75 pb-1.5 hover:bg-red-800 active:bg-red-800 ${resetTimer === 0 ? 'cursor-pointer hover:scale-104 active:scale-95' : 'cursor-not-allowed'} ${buttonStyling}`}
             >
@@ -329,7 +362,7 @@ function ResetModal({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: 
                 />
               )}
             </button>
-          </>
+          </div>
         )}
       </div>
     </div>
@@ -577,7 +610,7 @@ export default function ManagePit() {
           <section
             className={`mt-2 w-full sm:mt-12 md:mt-1 ${addTriggered ? 'mb-0' : 'md:mb-15'} flex flex-col gap-4`}
           >
-            <h2 className="font-calistoga text-[28px] font-bold tracking-wide decoration-accent/80 decoration-wavy underline-offset-8 drop-shadow-md sm:mb-4 sm:text-3xl sm:underline">
+            <h2 className="font-calistoga text-[28px] font-bold tracking-wide drop-shadow-md sm:mb-2 sm:text-3xl">
               New Reads
             </h2>
             <p
