@@ -32,10 +32,8 @@ fun **and** mathematically robust way to reflect on their books._
 <details>
 <summary>&nbsp;<b>Book Pit (main game loop)</b></summary>
 
-<h4>Desktop:</h4>
 <img src="screenshots/web-brawlpit-1.png" alt="Brawl Pit Start">
 <img src="screenshots/web-brawlpit-2.png" alt="Brawl Pit Hover">
-<h4>Mobile:</h4>
 <p align="center">
 <img src="screenshots/mobile-brawlpit-1.jpeg" alt="Brawl Pit mobile" width="300">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -46,9 +44,7 @@ fun **and** mathematically robust way to reflect on their books._
 <details>
 <summary>&nbsp;<b>Leaderboard</b></summary>
 
-<h4>Desktop:</h4>
 <img src="screenshots/web-leaderboard-1.png" alt="Rankings display">
-<h4>Mobile:</h4>
 <p align="center">
 <img src="screenshots/mobile-leaderboard-1.jpeg" alt="Rankings display mobile" width="300">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -59,9 +55,7 @@ fun **and** mathematically robust way to reflect on their books._
 <details>
 <summary>&nbsp;<b>Manage the Pit</b></summary>
 
-<h4>Desktop:</h4>
 <img src="screenshots/web-managepit-1.png" alt="Manage the Pit">
-<h4>Mobile:</h4>
 <p align="center">
 <img src="screenshots/mobile-managepit-1.jpeg" alt="Manage the Pit" width="300">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

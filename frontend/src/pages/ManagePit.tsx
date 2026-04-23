@@ -17,6 +17,7 @@ import {
   BombIcon,
   CheckCircleIcon,
   PencilSimpleLineIcon,
+  ProhibitInsetIcon,
   SkipForwardCircleIcon,
   XCircleIcon,
 } from '@phosphor-icons/react'
@@ -553,13 +554,13 @@ export default function ManagePit() {
     }
   }
 
-  const cellXPadding = 'first:pl-2.25 md:px-2 md:first:pl-4'
-  const thStyling = `font-calistoga text-[16px] md:text-[20px] tracking-wider pt-1.5 md:pt-2 md:pb-1.5 pb-1.25 font-extrabold ${cellXPadding}`
-  const tdStyling = `py-1.25 md:py-1.75 ${cellXPadding}`
+  const cellXPadding = 'first:pl-2.25 lg:px-2 lg:first:pl-4'
+  const thStyling = `font-calistoga text-[16px] md:text-[18px] lg:text-[20px] tracking-wider pt-1.5 lg:pt-2 lg:pb-1.5 pb-1.25 font-extrabold ${cellXPadding}`
+  const tdStyling = `py-1.25 lg:py-1.75 ${cellXPadding}`
 
   const inputStyling = 'rounded-md border-b-3 border-primary/85 bg-blue-200 p-3 sm:p-2 shadow-lg'
 
-  const addMessageStyling = `w-full md:self-end rounded-md md:rounded-lg bg-button px-4 py-2 text-base md:w-fit md:px-6 md:text-xl md:brightness-110`
+  const addMessageStyling = `w-full md:self-end rounded-md md:rounded-lg bg-button px-4 pb-1.75 pt-2.25 text-[18px] md:w-fit md:px-6 md:text-[20px] md:brightness-110`
 
   const addTriggered = newBook != null || addError != null || loadingAdd
 
@@ -608,7 +609,7 @@ export default function ManagePit() {
         <>
           {/* MANUAL INPUT */}
           <section
-            className={`mt-2 w-full sm:mt-12 md:mt-1 ${addTriggered ? 'mb-0' : 'md:mb-15'} flex flex-col gap-4`}
+            className={`mt-1.5 flex w-full flex-col gap-4 md:mt-2 ${addTriggered ? 'mb-0' : 'md:mb-15.5'}`}
           >
             <h2 className="font-calistoga text-[28px] font-bold tracking-wide drop-shadow-md sm:mb-2 sm:text-3xl">
               New Reads
@@ -661,11 +662,11 @@ export default function ManagePit() {
             </form>
             {addError && (
               <p
-                className={`font-extrabold text-red-700 opacity-96 md:text-red-800 md:opacity-90 ${addMessageStyling}`}
+                className={`font-extrabold text-red-800 opacity-96 md:opacity-90 ${addMessageStyling}`}
               >
-                <Ban
-                  strokeWidth={3}
-                  className={'mr-2 inline size-4 -translate-y-px sm:-translate-y-0.5 md:size-4.25'}
+                <ProhibitInsetIcon
+                  weight={'duotone'}
+                  className={'mr-1.5 inline size-5 -translate-y-0.5 md:size-5.25'}
                 />
                 {addError}
               </p>
@@ -673,7 +674,13 @@ export default function ManagePit() {
 
             {newBook && (
               <p className={`text-text ${addMessageStyling}`}>
-                ✔ Added:{' '}
+                <CheckCircleIcon
+                  weight={'duotone'}
+                  className={
+                    'mr-1.5 inline size-5 -translate-y-0.5 md:size-5.25 md:-translate-y-0.75'
+                  }
+                />
+                Added:{' '}
                 <span
                   className={
                     'font-bold decoration-accent/70 underline-offset-3 md:ml-1 md:underline'
@@ -726,50 +733,50 @@ export default function ManagePit() {
             {books.length > 0 && (
               <table className="w-full table-fixed border-collapse rounded-md bg-button text-text shadow-lg">
                 <thead className={'text-left'}>
-                  <tr className={'border-b-2 border-red-700 md:border-b-3'}>
-                    <th className={`w-[80%] md:w-[50%] ${thStyling}`}>
+                  <tr className={'border-b-2 border-red-700 lg:border-b-3'}>
+                    <th className={`w-[80%] lg:w-[50%] ${thStyling}`}>
                       <span>Title</span>
                     </th>
-                    <th className={`w-[40%] max-md:hidden ${thStyling}`}>Author</th>
-                    <th className={`w-[20%] text-center md:w-[10%] ${thStyling}`}>
+                    <th className={`w-[40%] max-lg:hidden ${thStyling}`}>Author</th>
+                    <th className={`w-[20%] text-center lg:w-[10%] ${thStyling}`}>
                       <div
                         className={
-                          'flex justify-end gap-3.5 pr-2.5 md:justify-center md:gap-6 md:pr-0'
+                          'flex justify-end gap-3.5 pr-2.5 lg:justify-center lg:gap-6 lg:pr-0'
                         }
                       >
                         <FireSolid
-                          className={`size-5 -translate-y-px self-end text-red-700 md:size-6.25`}
+                          className={`size-5 shrink-0 -translate-y-px self-end text-red-700 md:size-5.5 lg:size-6.25`}
                         />
                         <PencilSimpleLineIcon
                           weight={'fill'}
                           aria-label="Edit this book"
-                          className="size-5 text-text/90 md:size-6"
+                          className="size-5 shrink-0 text-text/90 md:size-5.5 lg:size-6"
                         />
                       </div>
                     </th>
                   </tr>
                 </thead>
-                <tbody className={'text-[16px] opacity-95 md:text-[18px]'}>
+                <tbody className={'text-[16px] opacity-95 lg:text-[18px]'}>
                   {books.map((book) => (
                     <tr
                       key={book.id}
-                      className={'border-b border-red-700/80 last:border-none md:border-b-2'}
+                      className={'border-b border-red-700/80 last:border-none lg:border-b-2'}
                     >
-                      <td className={`pr-1 font-bold md:pr-0 ${tdStyling}`}>
+                      <td className={`pr-1 font-bold lg:pr-0 ${tdStyling}`}>
                         <span
                           className={`line-clamp-2 text-[16px] font-bold text-pretty md:text-[18px]`}
                         >
                           {book.title}
                         </span>
-                        <span className="line-clamp-1 font-zain text-[14px] font-normal opacity-75 md:hidden">
+                        <span className="line-clamp-1 font-zain text-[14px] font-normal opacity-75 md:text-[16px] lg:hidden">
                           {book.author}
                         </span>
                       </td>
-                      <td className={`max-md:hidden max-md:text-[15px] ${tdStyling}`}>
+                      <td className={`max-lg:hidden max-lg:text-[15px] ${tdStyling}`}>
                         <span className={`line-clamp-3`}>{book.author}</span>
                       </td>
-                      <td className={`pr-2.5 text-right md:pr-0`}>
-                        <div className={'flex justify-end gap-3.5 md:justify-center md:gap-6'}>
+                      <td className={`pr-2.5 text-right lg:pr-0`}>
+                        <div className={'flex justify-end gap-3.5 lg:justify-center lg:gap-6'}>
                           <button
                             onClick={() => setBookToBurn(book)}
                             title={'Delete book'}
@@ -777,11 +784,11 @@ export default function ManagePit() {
                           >
                             <FireOutline
                               aria-label="Delete this book"
-                              className={`block size-5 text-red-700/95 group-hover:hidden group-active:hidden md:size-6.25`}
+                              className={`block size-5 text-red-700/95 group-hover:hidden group-active:hidden md:size-5.75 lg:size-6.25`}
                             />
                             <FireSolid
                               aria-label="Delete this book"
-                              className={`hidden size-5.25 text-red-700 group-hover:block group-active:block md:size-6.25`}
+                              className={`hidden size-5.25 text-red-700 group-hover:block group-active:block md:size-5.75 lg:size-6.25`}
                             />
                           </button>
                           <button
@@ -792,12 +799,12 @@ export default function ManagePit() {
                             <PencilSimpleLineIcon
                               weight={'duotone'}
                               aria-label="Edit this book"
-                              className="block size-5 translate-y-px text-text/75 group-hover:hidden group-active:hidden md:size-6"
+                              className="block size-5 translate-y-px text-text/75 group-hover:hidden group-active:hidden md:size-5.5 lg:size-6"
                             />
                             <PencilSimpleLineIcon
                               weight={'fill'}
                               aria-label="Edit this book"
-                              className="hidden size-5 translate-y-px text-text group-hover:block group-active:block md:size-6"
+                              className="hidden size-5 translate-y-px text-text group-hover:block group-active:block md:size-5.5 lg:size-6"
                             />
                           </button>
                         </div>

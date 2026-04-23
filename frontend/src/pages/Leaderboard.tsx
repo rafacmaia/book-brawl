@@ -3,11 +3,11 @@ import { useEffect, useState } from 'react'
 import { apiFetch } from '../api'
 import Placeholder from '../components/Placeholder'
 import PageHeading from '../components/PageHeading'
-import { BadgeCheck, CircleAlert, SquareX, Squircle } from 'lucide-react'
+import { BadgeCheck, CircleAlert, Squircle } from 'lucide-react'
 import { InformationCircleIcon as InfoCircleMini } from '@heroicons/react/16/solid'
 import { InformationCircleIcon as InfoCircle } from '@heroicons/react/20/solid'
 import { NavLink } from 'react-router-dom'
-import { SparkleIcon, StarFourIcon, StarIcon, TrophyIcon } from '@phosphor-icons/react'
+import { SparkleIcon, StarFourIcon, StarIcon, TrophyIcon, XCircleIcon } from '@phosphor-icons/react'
 
 interface BookData {
   rank: number
@@ -45,13 +45,13 @@ function AccuracyModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="relative flex w-[90%] flex-col gap-4 rounded-lg border-6 border-background bg-button p-6 font-zain text-text shadow-2xl md:w-lg md:gap-6 md:rounded-md md:border-4 md:px-10 md:py-8">
+      <div className="relative flex w-[90%] flex-col gap-4 rounded-lg border border-t-6 border-b-6 border-background bg-button/97 px-8 py-6 font-zain text-text shadow-2xl md:w-lg md:gap-6 md:rounded-md md:border-t-8 md:border-b-8 md:px-10 md:py-8">
         <h2 className="font-calistoga text-3xl font-bold text-text">Accuracy Tiers</h2>
         <button
           onClick={onClose}
           className="absolute top-2 right-2 cursor-pointer font-extrabold text-red-700 transition-all hover:scale-112 active:scale-95 md:top-3 md:right-3"
         >
-          <SquareX className="size-5.75 md:size-7" />
+          <XCircleIcon weight={'duotone'} className="size-5.75 md:size-7" />
         </button>
         <div className="flex flex-col gap-2 text-lg text-text/90 md:gap-3">
           <p className="">
@@ -59,7 +59,7 @@ function AccuracyModal({ onClose }: { onClose: () => void }) {
             higher its rank accuracy.
           </p>
           <hr className="my-1 h-px border-background/60" />
-          <table className="w-full table-fixed border-collapse [&_td]:p-1">
+          <table className="w-full table-fixed border-collapse [&_td]:p-1 max-sm:[&_td]:pl-1.5">
             <colgroup>
               <col className="w-1/10 align-top" />
               <col className="w-9/10" />
