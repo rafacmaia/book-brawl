@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Support for Goodreads book import.
+
 ### Changed
 
-- Uniform icons and modal layouts across all pages.
+- Uniform modal layouts and icons across all pages.
 
 ## [1.0.0] - 2026-04-22
 

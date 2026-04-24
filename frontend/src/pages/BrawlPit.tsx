@@ -177,15 +177,15 @@ export default function BrawlPit() {
       ) : emptyPit ? (
         <div
           className={
-            'mb-12 flex grow flex-col items-center justify-center gap-0 text-center font-zain text-5xl/20 font-extrabold tracking-wide text-primary/85'
+            'mb-12 flex grow flex-col items-center justify-center gap-2 text-center font-zain text-4xl/12 font-extrabold tracking-wide text-pretty text-primary/85 sm:text-5xl/20'
           }
         >
-          <CircleAlert size={72} className={'mb-8'} />
-          <p>Not enough books to brawl!</p>
+          <CircleAlert className={'mb-6 size-18 sm:size-20'} />
+          <p className={``}>Not enough books to brawl!</p>
           <p>
             <NavLink
               to={'/manage'}
-              className={`font-black text-primary/90 underline decoration-accent/80 decoration-4 underline-offset-4 transition-all hover:text-[52px] hover:text-primary hover:decoration-wavy hover:underline-offset-8`}
+              className={`font-black text-primary/90 underline decoration-accent/80 decoration-4 underline-offset-4 transition-all duration-350 hover:text-5xl hover:text-primary hover:decoration-wavy hover:underline-offset-8 sm:hover:text-6xl`}
             >
               Feed the Pit
             </NavLink>{' '}
@@ -196,7 +196,7 @@ export default function BrawlPit() {
         match && (
           <>
             <h1
-              className={`z-100 mt-4 text-center font-calistoga text-[50px]/16 font-extrabold tracking-wide text-pretty text-primary/95 drop-shadow-md max-lg:mb-4 md:mt-12 lg:mt-24 lg:text-7xl`}
+              className={`z-100 mt-4 px-2 text-center font-calistoga text-5xl/15 font-extrabold tracking-wide text-balance text-primary/95 drop-shadow-md max-lg:mb-4 md:mt-12 lg:mt-24 lg:text-7xl`}
             >
               Which means more to you?
             </h1>
@@ -234,7 +234,7 @@ export default function BrawlPit() {
               }
             >
               <p
-                className={`${transition ? 'opacity-75' : 'opacity-0'} mx-4 font-gaegu text-[22px] font-black tracking-widest transition-opacity duration-250 ease-in-out`}
+                className={`${transition ? 'opacity-75' : 'opacity-0'} mx-4 font-gaegu text-xl font-black tracking-widest transition-opacity duration-250 ease-in-out`}
               >
                 {matchCount}
               </p>

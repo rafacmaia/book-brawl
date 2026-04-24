@@ -21,6 +21,7 @@ def build_leaderboard(reader_id: int) -> list[dict[str, int | str | float]]:
 
         ranked_books.append(
             {
+                "id": book.id,
                 "rank": rank,
                 "title": book.title,
                 "author": book.author,
