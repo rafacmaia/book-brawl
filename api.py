@@ -1,8 +1,9 @@
 import csv
 import io
 from contextlib import asynccontextmanager
+from typing import Literal
 
-from fastapi import Depends, FastAPI, HTTPException, UploadFile, status
+from fastapi import Depends, FastAPI, Form, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from psycopg2 import errors as pg_errors
 from pydantic import BaseModel
@@ -145,7 +146,9 @@ def add_book(
 
 @app.post("/books/import", status_code=status.HTTP_201_CREATED)
 def import_books(
-    file: UploadFile, reader_id: int = Depends(get_current_reader_id)
+    file: UploadFile,
+    source: Literal["custom", "goodreads"] = Form("custom"),
+    reader_id: int = Depends(get_current_reader_id),
 ) -> dict[str, int | bool]:
     """Import books from a CSV file."""
     filename = file.filename or ""
@@ -163,7 +166,7 @@ def import_books(
         raise HTTPException(status_code=400, detail="CSV file missing required columns")
 
     try:
-        result = library_service.import_books(reader_id, file_reader)
+        result = library_service.import_books(reader_id, source, file_reader)
     except pg_errors.UniqueViolation:
         raise HTTPException(status_code=409, detail="Book already exists")
     except ValueError as e:

@@ -45,15 +45,23 @@ function ImportModal({
 }) {
   const { getToken } = useAuth()
 
-  const [loading, setLoading] = useState(false)
+  const [loadingGoodreads, setLoadingGoodreads] = useState(false)
+  const [loadingCustom, setLoadingCustom] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<ImportResult | null>(null)
 
-  async function handleFileUpload(e: ChangeEvent<HTMLInputElement>) {
+  async function handleFileUpload(
+    e: ChangeEvent<HTMLInputElement>,
+    source: 'custom' | 'goodreads'
+  ) {
     const file = e.target.files?.[0]
     if (!file) return
 
-    setLoading(true)
+    if (source === 'goodreads') {
+      setLoadingGoodreads(true)
+    } else {
+      setLoadingCustom(true)
+    }
     setError(null)
     setResult(null)
 
@@ -61,6 +69,7 @@ function ImportModal({
       const token = await getToken()
       const formData = new FormData()
       formData.append('file', file)
+      formData.append('source', source)
 
       const response = await fetch(`${API_BASE}/books/import`, {
         method: 'POST',
@@ -80,7 +89,8 @@ function ImportModal({
     } catch (e: any) {
       setError(e.message ?? 'Something went wrong. Please try again.')
     } finally {
-      setLoading(false)
+      setLoadingCustom(false)
+      setLoadingGoodreads(false)
     }
   }
 
@@ -88,13 +98,24 @@ function ImportModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="relative flex w-[90%] flex-col gap-4 rounded-lg border border-t-6 border-b-6 border-background bg-button/97 px-7 py-5 font-zain text-text shadow-2xl md:w-lg md:gap-6 md:rounded-md md:border-t-8 md:border-b-8 md:p-8">
+      <div className="relative flex w-[90%] flex-col gap-4 rounded-lg border border-t-6 border-b-6 border-background bg-button/97 px-6 py-5 font-zain text-text shadow-2xl md:w-lg md:gap-6 md:rounded-md md:border-t-8 md:border-b-8 md:p-8">
         <h2 className="font-calistoga text-[28px] font-bold text-text md:text-[30px]">
           Import from a CSV
         </h2>
-        <div className="flex flex-col gap-2 rounded-md bg-background/95 px-3 py-2 text-[18px] tracking-wide text-primary md:px-4 md:py-3 md:text-[20px]">
+        <button
+          onClick={onClose}
+          aria-label="Close edit modal"
+          className="absolute top-2 right-2 cursor-pointer text-red-800/80 transition-all hover:scale-112 active:scale-95 md:top-3 md:right-3"
+        >
+          <XCircleIcon weight={'duotone'} className="size-6.25 md:size-7" />
+        </button>
+        <div className="flex flex-col gap-3 rounded-md bg-background/95 px-3 py-2 text-[18px] tracking-wide text-primary md:px-4 md:py-3 md:text-[20px]">
+          <p className="border-b border-button/60 pb-2 font-bold">
+            You can import from a <span className={fieldStyling}>custom CSV</span> or a{' '}
+            <span className={fieldStyling}>Goodreads</span> export file.
+          </p>
           <p>
-            Your CSV file must have <span className={fieldStyling}>title</span> and{' '}
+            If using a custom file, it must have <span className={fieldStyling}>title</span> and{' '}
             <span className={fieldStyling}>author</span> columns.
           </p>
           <p>
@@ -103,26 +124,33 @@ function ImportModal({
           </p>
         </div>
         <div className="flex flex-col gap-4">
-          <div className="flex gap-4 md:gap-6">
-            <label
-              className={`flex-3 cursor-pointer rounded-t-md rounded-b-2xl border-b-4 border-red-600/80 bg-text/95 px-6 pt-3 pb-2.5 text-center text-[18px] font-extrabold tracking-wide text-primary/95 shadow-md transition-all hover:scale-104 hover:bg-text hover:opacity-100 md:flex-2 md:py-1.5 md:pt-2.5 ${result ? 'opacity-85' : 'opacity-95'}`}
-            >
-              {loading ? 'Importing...' : 'Select File'}
-              <input
-                type="file"
-                accept=".csv"
-                onChange={handleFileUpload}
-                disabled={loading}
-                className="sr-only"
-              />
-            </label>
-            <button
-              onClick={onClose}
-              aria-label="Close CSV import modal"
-              className={`flex-2 cursor-pointer rounded-t-md rounded-b-2xl border-b-4 border-red-800 bg-background px-4 pt-3 pb-2.5 font-zain text-[16px] font-extrabold tracking-wider text-primary/90 drop-shadow-md transition-all hover:scale-104 hover:bg-background hover:opacity-100 active:scale-95 active:bg-background md:py-1.5 md:pt-2.5 md:text-[18px] ${result ? 'opacity-95' : 'opacity-80'}`}
-            >
-              {result ? 'CLOSE' : 'CANCEL'}
-            </button>
+          <div className="flex flex-col gap-4 md:gap-6">
+            <div className="flex gap-4 md:gap-6">
+              <label
+                className={`flex-1 cursor-pointer rounded-t-md rounded-b-2xl border-b-4 border-red-600/80 bg-text/95 pt-3 pb-2.5 text-center text-[18px] font-extrabold tracking-wide text-primary/95 shadow-md transition-all hover:scale-104 hover:bg-text hover:opacity-100 md:flex-2 md:py-1.5 md:pt-2.5 ${result ? 'opacity-85' : 'opacity-95'}`}
+              >
+                {loadingCustom ? 'Importing...' : 'Custom CSV'}
+                <input
+                  type="file"
+                  accept=".csv"
+                  onChange={(e) => handleFileUpload(e, 'custom')}
+                  disabled={loadingCustom}
+                  className="sr-only"
+                />
+              </label>
+              <label
+                className={`flex-1 cursor-pointer rounded-t-md rounded-b-2xl border-b-4 border-red-600/80 bg-text/95 pt-3 pb-2.5 text-center text-[18px] font-extrabold tracking-wide text-primary/95 shadow-md transition-all hover:scale-104 hover:bg-text hover:opacity-100 md:flex-2 md:py-1.5 md:pt-2.5 ${result ? 'opacity-85' : 'opacity-95'}`}
+              >
+                {loadingGoodreads ? 'Importing...' : 'Goodreads'}
+                <input
+                  type="file"
+                  accept=".csv"
+                  onChange={(e) => handleFileUpload(e, 'goodreads')}
+                  disabled={loadingGoodreads}
+                  className="sr-only"
+                />
+              </label>
+            </div>
           </div>
           {error && <p className="mt-1 pl-1 text-[18px] font-bold text-red-700">{error}</p>}
           {result && (
@@ -132,13 +160,12 @@ function ImportModal({
                   <SkipForwardCircleIcon
                     weight={'fill'}
                     aria-label="Edit this book"
-                    className="text-text80 inline size-5 -translate-y-0.5 md:size-5.75"
+                    className="inline size-5 -translate-y-0.5 opacity-90 md:size-5.75"
                   />{' '}
-                  Skipped{' '}
                   <span className="underline decoration-red-700/90 underline-offset-2">
                     {result.skipped}
                   </span>{' '}
-                  {result.skipped === 1 ? 'book' : 'books'} already present.
+                  {result.skipped === 1 ? 'book' : 'books'} skipped.
                 </p>
               )}
               {result.imported > 0 ? (
