@@ -122,7 +122,7 @@ export default function BrawlPit() {
       if (err instanceof ApiError && err.status === 400) {
         setEmptyPit(true)
       } else {
-        setError("You shouldn't be here! Trying refreshing!")
+        setError("You shouldn't be here! Try refreshing!")
       }
     }
   }

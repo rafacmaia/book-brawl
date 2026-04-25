@@ -13,7 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Responsive design for shorter screen sizes
 - Uniform modal layouts and icons across all pages.
+
+### Fixed
+
+- A race condition where pages would fire API calls before users were fully registered,
+  causing 404 errors on first load.
+- Removed an unnecessary uniqueness constraint on usernames, firing 409 errors when
+  different users had the same username.
 
 ## [1.0.0] - 2026-04-22
 
