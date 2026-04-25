@@ -45,16 +45,23 @@ function AccuracyModal({ onClose }: { onClose: () => void }) {
   const fieldStyling = 'font-bold'
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="relative flex w-[90%] flex-col gap-4 rounded-lg border border-t-6 border-b-6 border-background bg-button/97 px-8 py-6 font-zain text-text shadow-2xl md:w-lg md:gap-6 md:rounded-md md:border-t-8 md:border-b-8 md:px-10 md:py-8">
-        <h2 className="font-calistoga text-3xl font-bold text-text">Accuracy Tiers</h2>
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+    >
+      <div className="relative flex w-[90%] flex-col gap-4 rounded-lg border border-y-8 border-background bg-button/97 px-8 py-6 font-zain text-text shadow-2xl md:w-lg md:gap-6 md:rounded-md md:px-10 md:py-8">
+        <h2 className="font-calistoga text-2xl font-bold text-text [@media(min-height:700px)]:text-3xl">
+          Accuracy Tiers
+        </h2>
         <button
           onClick={onClose}
           className="absolute top-2 right-2 cursor-pointer font-extrabold text-red-700 transition-all hover:scale-112 active:scale-95 md:top-3 md:right-3"
         >
           <XCircleIcon weight={'duotone'} className="size-5.75 md:size-7" />
         </button>
-        <div className="flex flex-col gap-2 text-lg text-text/90 md:gap-3">
+        <div className="flex flex-col gap-2 text-base text-text/90 md:gap-3 [@media(min-height:700px)]:text-lg">
           <p className="">
             Accuracy measures how trustworthy a book's current rank is. The more a book brawls, the
             higher its rank accuracy.
@@ -68,7 +75,10 @@ function AccuracyModal({ onClose }: { onClose: () => void }) {
             <tbody>
               <tr>
                 <td>
-                  <TierSymbol accuracyTier={1} styling="size-7 max-sm:-translate-x-1.25" />
+                  <TierSymbol
+                    accuracyTier={1}
+                    styling="size-6 [@media(min-height:700px)]:size-7 max-sm:-translate-x-1.25"
+                  />
                 </td>
                 <td>
                   <span className={fieldStyling}>Very Low</span> – Just added, ranking mostly based
@@ -77,7 +87,10 @@ function AccuracyModal({ onClose }: { onClose: () => void }) {
               </tr>
               <tr>
                 <td>
-                  <TierSymbol accuracyTier={2} styling="size-7 max-sm:-translate-x-1.25" />
+                  <TierSymbol
+                    accuracyTier={2}
+                    styling="size-6 [@media(min-height:700px)]:size-7 max-sm:-translate-x-1.25"
+                  />
                 </td>
                 <td>
                   <span className={fieldStyling}>Low</span> – Some brawls in, broad tier likely
@@ -86,7 +99,10 @@ function AccuracyModal({ onClose }: { onClose: () => void }) {
               </tr>
               <tr>
                 <td>
-                  <TierSymbol accuracyTier={3} styling="size-7 max-sm:-translate-x-1.25" />
+                  <TierSymbol
+                    accuracyTier={3}
+                    styling="size-6 [@media(min-height:700px)]:size-7 max-sm:-translate-x-1.25"
+                  />
                 </td>
                 <td>
                   <span className={fieldStyling}>Moderate</span> – Position is fairly reliable,
@@ -95,7 +111,10 @@ function AccuracyModal({ onClose }: { onClose: () => void }) {
               </tr>
               <tr>
                 <td>
-                  <TierSymbol accuracyTier={4} styling="size-7 max-sm:-translate-x-1.25" />
+                  <TierSymbol
+                    accuracyTier={4}
+                    styling="size-6 [@media(min-height:700px)]:size-7 max-sm:-translate-x-1.25"
+                  />
                 </td>
                 <td>
                   <span className={fieldStyling}>High</span> – Position is well established, likely
@@ -104,7 +123,10 @@ function AccuracyModal({ onClose }: { onClose: () => void }) {
               </tr>
               <tr>
                 <td>
-                  <TierSymbol accuracyTier={5} styling="size-7 max-sm:-translate-x-1.25" />
+                  <TierSymbol
+                    accuracyTier={5}
+                    styling="size-6 [@media(min-height:700px)]:size-7 max-sm:-translate-x-1.25"
+                  />
                 </td>
                 <td>
                   <span className={fieldStyling}>Very High</span> – Locked in, unlikely to shift by
@@ -248,7 +270,7 @@ export default function Leaderboard() {
               />
             </div>
             <p
-              className={`absolute font-calistoga text-sm font-extrabold tracking-wider text-primary/90 sm:text-base ${progress > 0.75 ? 'bottom-1 left-4 drop-shadow-2xl sm:right-4 sm:bottom-1.25' : 'right-3 bottom-1 drop-shadow-xl sm:right-4 sm:bottom-1.25'}`}
+              className={`absolute font-gaegu text-lg font-black tracking-wider text-primary/90 drop-shadow-2xl sm:text-lg ${progress > 0.66 ? 'bottom-0 left-4 sm:right-4 sm:bottom-0.5' : 'right-3 bottom-0 sm:right-4 sm:bottom-0.5'}`}
             >
               {Math.round(progress * 100)}% Complete
             </p>
@@ -269,10 +291,8 @@ export default function Leaderboard() {
                   <button onClick={() => setShowAccuracyModal(true)} className={'inline-flex'}>
                     <span className={'lg:hidden'}>Acc.</span>
                     <span className={'hidden lg:inline'}>Accuracy</span>
-                    <InfoCircleMini className={'size-3 shrink-0 translate-y-px lg:hidden'} />
-                    <InfoCircle
-                      className={'ml-1 hidden size-4 shrink-0 translate-y-px lg:inline'}
-                    />
+                    <InfoCircleMini className={'size-3.5 shrink-0 -translate-x-0.5 lg:hidden'} />
+                    <InfoCircle className={'ml-1 hidden size-4.25 shrink-0 lg:inline'} />
                   </button>
                 </th>
               </tr>
@@ -302,13 +322,15 @@ export default function Leaderboard() {
                     <span className={'line-clamp-3'}>{book.author}</span>
                   </td>
                   <td className={`text-right opacity-90 sm:pr-4 lg:pr-2 lg:text-left ${tdStyle}`}>
-                    <TierSymbol
-                      accuracyTier={book.accuracy_tier}
-                      styling="inline lg:-translate-y-0.5 size-5.75 sm:size-6"
-                    />
-                    <span className={'ml-1.25 hidden opacity-90 lg:inline'}>
-                      {TIER_LABELS[book.accuracy_tier]}
-                    </span>
+                    <div onClick={() => setShowAccuracyModal(true)}>
+                      <TierSymbol
+                        accuracyTier={book.accuracy_tier}
+                        styling="inline lg:-translate-y-0.5 size-5.75 sm:size-6"
+                      />
+                      <span className={'ml-1.25 hidden opacity-90 lg:inline'}>
+                        {TIER_LABELS[book.accuracy_tier]}
+                      </span>
+                    </div>
                   </td>
                 </tr>
               ))}

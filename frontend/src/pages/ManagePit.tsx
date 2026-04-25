@@ -108,7 +108,7 @@ function ImportModal({
       }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
     >
-      <div className="relative flex w-[90%] flex-col gap-4 rounded-lg border border-t-6 border-b-6 border-background/90 bg-button/97 px-6 py-5 font-zain text-text shadow-2xl md:w-lg md:gap-4 md:rounded-md md:border-t-8 md:border-b-8 md:p-8">
+      <div className="relative flex w-[90%] flex-col gap-4 rounded-lg border border-y-8 border-background/90 bg-button/97 px-6 py-5 font-zain text-text shadow-2xl md:w-lg md:gap-4 md:rounded-md md:border-t-8 md:border-b-8 md:p-8">
         <h2 className={`mb-2 ${modalHeadingStyle}`}>Import from a CSV</h2>
         <button
           onClick={onClose}
@@ -593,13 +593,14 @@ export default function ManagePit() {
   const cellXPadding = 'first:pl-2.25 lg:px-2 lg:first:pl-4'
   const thStyle = `font-calistoga text-base tracking-wider pt-1.5 lg:pt-2 lg:pb-1.5 pb-1.25 font-extrabold md:text-lg lg:text-xl  ${cellXPadding}`
   const tdStyle = `py-1.25 lg:py-1.75 ${cellXPadding}`
-  const inputStyle = 'rounded-md border-b-3 border-primary/85 bg-blue-200 p-3 sm:p-2 shadow-lg'
+  const inputStyle =
+    'rounded-md border-b-3 border-primary/85 bg-blue-200 py-2.5 px-3 sm:p-2 shadow-lg'
   const addMessageStyle = `w-full md:self-end rounded-md md:rounded-lg bg-button px-4 pb-1.75 pt-2.25 text-lg md:w-fit md:px-6 md:text-xl md:brightness-110`
 
   const addTriggered = newBook != null || addError != null || loadingAdd
 
   return (
-    <main className="mx-auto flex h-full min-h-0 w-[97%] grow flex-col items-center gap-4 overflow-y-auto p-2 text-primary/95 sm:max-w-6xl sm:gap-4 md:p-4">
+    <main className="mx-auto flex h-full min-h-0 w-[97%] grow flex-col items-center gap-4 overflow-y-auto px-2 pb-2 text-primary/95 sm:max-w-6xl sm:gap-4 md:p-4">
       <div className={'mb-5 max-md:hidden'}>
         <PageHeading title={'Manage the Pit'} />
       </div>
@@ -643,9 +644,9 @@ export default function ManagePit() {
         <>
           {/* MANUAL INPUT */}
           <section
-            className={`mt-1.5 flex w-full flex-col gap-4 md:mt-2 ${addTriggered ? 'mb-0' : 'md:mb-15'}`}
+            className={`mt-0 flex w-full flex-col gap-4 [@media(min-height:700px)]:mt-1.5 [@media(min-height:700px)]:md:mt-2 ${addTriggered ? 'mb-0' : 'md:mb-15'}`}
           >
-            <h2 className="pl-px font-calistoga text-3xl font-bold tracking-wide drop-shadow-md sm:mb-2">
+            <h2 className="pl-px font-calistoga text-[1.6rem] font-bold tracking-wide drop-shadow-md sm:mb-2 [@media(min-height:700px)]:text-3xl">
               New Reads
             </h2>
             <p
@@ -688,7 +689,7 @@ export default function ManagePit() {
               <button
                 type="submit"
                 title={'Add new book'}
-                className="cursor-pointer rounded-md border-b-3 border-primary/75 bg-accent/80 pt-2.75 pb-1.5 text-center font-zain text-xl font-extrabold text-primary/90 shadow-md transition-all hover:scale-102 hover:bg-accent/85 active:scale-97 active:bg-accent/70 md:w-[8%] md:bg-accent/75 md:pt-1.75 md:pb-0.75"
+                className="cursor-pointer rounded-md border-b-3 border-primary/75 bg-accent/80 pt-2.25 pb-1.5 text-center font-zain text-lg font-extrabold text-primary/90 shadow-md transition-all hover:scale-102 hover:bg-accent/85 active:scale-97 active:bg-accent/70 md:w-[8%] md:bg-accent/75 md:pt-1.75 md:pb-0.75 md:text-xl"
               >
                 <span className="inline md:hidden">Add Book</span>
                 <span className="hidden md:inline">Add</span>

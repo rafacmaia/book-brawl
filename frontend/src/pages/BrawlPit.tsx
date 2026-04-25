@@ -34,24 +34,30 @@ function BookButton({
 
   const italic = /\b(?:anonymous|various)\b/i.test(author)
 
-  let longTextStyling: string, longTitleStyling: string, longAuthorStyling: string
+  let cardStyle: string, titleStyle: string, authorStyle: string
 
   if ((longTitle && longAuthor) || veryLongTitle) {
-    longTextStyling = 'gap-2 px-6 sm:gap-4 sm:px-7 sm:py-3'
-    longTitleStyling = 'text-[32px]/10 sm:text-[38px]/13'
-    longAuthorStyling = 'text-[22px]/7 sm:text-[26px]/10'
+    cardStyle = 'gap-1 px-4 [@media(min-height:600px)]:px-5 sm:gap-4 sm:px-7 sm:py-3'
+    titleStyle =
+      'text-[1.4rem]/8 [@media(min-height:700px)]:text-[2rem]/10 [@media(min-height:700px)]:sm:text-[2.3rem]/13'
+    authorStyle =
+      'text-[1.2rem] [@media(min-height:700px)]:text-[1.375rem]/7 [@media(min-height:700px)]:sm:text-[1.6rem]/10'
   } else if (longTitle || longAuthor) {
-    longTextStyling = 'gap-3 px-6 sm:gap-4 sm:px-8 sm:py-3'
-    longTitleStyling = longTitle
-      ? 'text-[32px]/11 sm:text-[42px]/14'
-      : 'text-[34px]/11 sm:text-[44px]/14'
-    longAuthorStyling = longAuthor
-      ? 'text-[22px]/8 sm:text-[26px]/10'
-      : 'text-[24px] sm:text-[28px]'
+    cardStyle =
+      'gap-1 px-6 [@media(min-height:700px)]:gap-3 [@media(min-height:700px)]:sm:gap-4 [@media(min-height:700px)]:sm:px-8 sm:py-3'
+    titleStyle = longTitle
+      ? 'text-[1.4rem]/8 [@media(min-height:600px)]:text-[1.7rem]/8 [@media(min-height:700px)]:text-[2rem]/11 [@media(min-height:700px)]:sm:text-[2.265rem]/14'
+      : 'text-[1.6rem]/8 [@media(min-height:600px)]:text-[1.9rem] [@media(min-height:700px)]:text-[2.125rem]/11 [@media(min-height:700px)]:sm:text-[2.75rem]/14'
+    authorStyle = longAuthor
+      ? 'text-[1.2rem]/8 [@media(min-height:700px)]:text-[1.35rem]/8 [@media(min-height:700px)]:sm:text-[1.6rem]/10'
+      : 'text-[1.2rem]/8 [@media(min-height:600px)]:text-[1.35rem]/8 [@media(min-height:700px)]:text-[1.5rem] [@media(min-height:700px)]:sm:text-[1.8rem]'
   } else {
-    longTextStyling = 'gap-4 px-8 sm:gap-6 sm:py-4'
-    longTitleStyling = 'text-[34px]/11 sm:text-[44px]/16'
-    longAuthorStyling = 'text-[24px] sm:text-[30px]'
+    cardStyle =
+      'gap-1 px-6 [@media(min-height:600px)]:gap-1.75 [@media(min-height:700px)]:gap-4 [@media(min-height:700px)]:sm:gap-6 [@media(min-height:700px)]:sm:py-4'
+    titleStyle =
+      'text-[1.6rem]/8 [@media(min-height:600px)]:text-[1.9rem]/9 [@media(min-height:700px)]:text-[2.2rem]/11 [@media(min-height:700px)]:sm:text-[2.75rem]/16'
+    authorStyle =
+      'text-[1.2rem] [@media(min-height:600px)]:text-[1.35rem]/8 [@media(min-height:700px)]:text-[1.5rem] [@media(min-height:700px)]:sm:text-[1.875rem]'
   }
 
   const selectedStyling = isSelected
@@ -65,16 +71,16 @@ function BookButton({
       style={{
         boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.20)',
       }}
-      className={`flex w-10/11 flex-1 basis-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-b-8 py-2 font-calistoga shadow-xl transition-all duration-250 md:border-b-8 lg:h-80 lg:w-116 lg:flex-none lg:rounded-xl xl:h-72 xl:w-134 ${hoverStyling} ${longTextStyling} ${selectedStyling}`}
+      className={`flex w-[95%] flex-1 basis-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-b-8 py-2 font-calistoga shadow-xl transition-all duration-250 md:border-b-8 lg:h-80 lg:flex-none lg:rounded-xl xl:h-72 [@media(min-height:700px)]:w-11/12 [@media(min-height:700px)]:lg:w-116 [@media(min-height:700px)]:xl:w-134 ${hoverStyling} ${cardStyle} ${selectedStyling}`}
       onClick={onClick}
     >
       <p
-        className={`line-clamp-4 w-full p-1 font-medium text-balance wrap-break-word lg:line-clamp-3 ${longTitleStyling}`}
+        className={`line-clamp-3 w-full p-1 font-medium text-balance wrap-break-word lg:line-clamp-3 [@media(min-height:600px)]:line-clamp-4 ${titleStyle}`}
       >
         {title}
       </p>
       <p
-        className={`line-clamp-2 w-full font-zain font-light text-pretty wrap-break-word opacity-85 ${longAuthorStyling}`}
+        className={`line-clamp-2 w-full font-zain font-light text-pretty wrap-break-word opacity-85 ${authorStyle}`}
       >
         by <span className={italic ? 'italic' : ''}>{author}</span>
       </p>
@@ -116,7 +122,7 @@ export default function BrawlPit() {
       if (err instanceof ApiError && err.status === 400) {
         setEmptyPit(true)
       } else {
-        setError('Failed to load brawl, please try again!')
+        setError("You shouldn't be here! Trying refreshing!")
       }
     }
   }
@@ -196,12 +202,18 @@ export default function BrawlPit() {
         match && (
           <>
             <h1
-              className={`z-100 mt-4 px-2 text-center font-calistoga text-5xl/15 font-extrabold tracking-wide text-balance text-primary/95 drop-shadow-md max-lg:mb-4 md:mt-12 lg:mt-24 lg:text-7xl`}
+              className={`z-100 mb-1 flex-none text-center font-calistoga text-[1.4rem] tracking-wide text-balance text-primary/95 drop-shadow-md [@media(min-height:600px)]:text-[2.5rem]/12 [@media(min-height:600px)]:font-extrabold [@media(min-height:600px)]:tracking-wide [@media(min-height:700px)]:mt-4 [@media(min-height:700px)]:mb-2 [@media(min-height:700px)]:text-5xl/14 [@media(min-height:700px)]:md:mt-12 [@media(min-height:700px)]:lg:mt-24 [@media(min-height:700px)]:lg:text-7xl`}
             >
-              Which means more to you?
+              Which means more to{' '}
+              <span
+                className={`underline decoration-accent/60 decoration-3 underline-offset-3 [@media(min-height:700px)]:no-underline`}
+              >
+                you
+              </span>
+              ?
             </h1>
             <h1
-              className={`absolute z-0 mt-24 hidden text-center font-calistoga text-5xl font-extrabold tracking-wide text-background lg:block lg:text-7xl ${wavyUnderline}`}
+              className={`absolute z-0 mt-24 hidden text-center font-calistoga text-5xl font-extrabold tracking-wide text-background/0 lg:block lg:text-7xl ${wavyUnderline}`}
             >
               ===============
             </h1>
@@ -215,7 +227,7 @@ export default function BrawlPit() {
               <hr className="my-0 h-px w-full text-button opacity-70" />
             </div>
             <div
-              className={`${transition ? 'translate-y-0 opacity-100' : 'pointer-events-none opacity-0 max-md:scale-96 sm:translate-y-3'} mt-5 mb-4 flex w-full grow flex-col items-center justify-center gap-6 transition-all duration-275 ease-in-out lg:my-0 lg:flex-row lg:gap-12 xl:gap-27`}
+              className={`${transition ? 'translate-y-0 opacity-100' : 'pointer-events-none opacity-0 max-md:scale-96 sm:translate-y-3'} mt-2 mb-1 flex w-full grow flex-col items-center justify-center gap-3 transition-all duration-275 ease-in-out [@media(min-height:700px)]:mt-3 [@media(min-height:700px)]:mb-3 [@media(min-height:700px)]:gap-6 [@media(min-height:700px)]:lg:my-0 [@media(min-height:700px)]:lg:flex-row [@media(min-height:700px)]:lg:gap-12 [@media(min-height:700px)]:xl:gap-27`}
             >
               <BookButton
                 book={match.book_a}
