@@ -184,12 +184,104 @@ function RankIcon({ rank, mobile }: { rank: number; mobile: boolean }) {
   }
 }
 
+function LeaderboardContent({ progress, rankings }: { progress: number; rankings: BookData[] }) {
+  const [showAccuracyModal, setShowAccuracyModal] = useState<boolean>(false)
+
+  const thStyle = `px-2 pt-1.25 pb-1 first:pl-2 md:first:pl-5 text-base tracking-wider md:pb-1.25 md:pt-2 md:text-xl font-extrabold font-calistoga `
+  const tdStyle = `md:py-2 py-1.25 first:pl-3 md:first:pl-6 last:max-md:pr-2.25 px-2`
+
+  return (
+    <>
+      {showAccuracyModal && <AccuracyModal onClose={() => setShowAccuracyModal(false)} />}
+
+      <div className={'mb-6 hidden md:block'}>
+        <PageHeading title={'The Leaderboard'} />
+      </div>
+      <section className={'mt-3 flex w-full flex-col items-center gap-3 md:mt-2 md:gap-4'}>
+        <div className="relative w-[99%] sm:max-w-279">
+          <div className="h-7 w-full overflow-hidden rounded-full bg-primary/25 sm:h-8">
+            <div
+              className={`h-full rounded-xs bg-linear-to-r transition-all duration-500 ${progress > 0.33 ? 'from-green-600/90 via-button/90 to-red-500/90' : 'from-red-500/90 to-button/90'}`}
+              style={{ width: `${Math.round(progress * 100)}%` }}
+            />
+          </div>
+          <p
+            className={`absolute font-gaegu text-lg font-black tracking-wider text-primary/90 drop-shadow-2xl sm:text-lg ${progress > 0.66 ? 'bottom-0 left-4 sm:right-4 sm:bottom-0.5' : 'right-3 bottom-0 sm:right-4 sm:bottom-0.5'}`}
+          >
+            {Math.round(progress * 100)}% Complete
+          </p>
+        </div>
+        <table className="w-full table-fixed border-collapse rounded-md bg-button text-text shadow-lg sm:max-w-280">
+          <thead className={'text-left'}>
+            <tr className={'border-b-2 border-red-800 md:border-b-3'}>
+              <th className={`w-[10%] md:w-[10%] ${thStyle}`}>
+                <span className={'lg:hidden'}>#</span>
+                <span className={'hidden lg:inline'}>Rank</span>
+              </th>
+              <th className={`w-[74%] md:w-[46%] ${thStyle}`}>
+                <span className={'sm:hidden'}>Book</span>
+                <span className={'hidden sm:inline'}>Title</span>
+              </th>
+              <th className={`max-md:hidden md:w-[31%] ${thStyle}`}>Author</th>
+              <th className={`w-[16%] text-right md:w-[13%] lg:text-left ${thStyle}`}>
+                <button onClick={() => setShowAccuracyModal(true)} className={'inline-flex'}>
+                  <span className={'lg:hidden'}>Acc.</span>
+                  <span className={'hidden lg:inline'}>Accuracy</span>
+                  <InfoCircleMini className={'size-3.5 shrink-0 -translate-x-0.5 lg:hidden'} />
+                  <InfoCircle className={'ml-1 hidden size-4.25 shrink-0 lg:inline'} />
+                </button>
+              </th>
+            </tr>
+          </thead>
+          <tbody className={'text-base opacity-95 sm:text-lg'}>
+            {rankings.map((book) => (
+              <tr
+                key={book.id}
+                className={`border-b border-red-800/80 last:border-none md:border-b-2`}
+              >
+                <td
+                  className={`relative font-calistoga font-black ${tdStyle} ${book.rank < 100 ? 'max-sm:text-base' : book.rank < 1000 ? 'text-[0.9rem] max-sm:pl-2!' : 'max-sm:pl-1! max-sm:text-[0.8rem]'}`}
+                >
+                  <div className={'flex h-full items-center justify-between'}>
+                    {book.rank}
+                    {progress > 0.05 && <RankIcon rank={book.rank} mobile={false} />}
+                  </div>
+                </td>
+                <td className={`relative ${tdStyle}`}>
+                  <span className={`line-clamp-2 font-bold`}>{book.title}</span>
+                  <span className="line-clamp-1 pr-3 font-zain text-[0.9rem] font-normal opacity-75 md:hidden">
+                    {book.author}
+                  </span>
+                  {progress > 0.05 && <RankIcon rank={book.rank} mobile={true} />}
+                </td>
+                <td className={`${tdStyle} max-md:hidden`}>
+                  <span className={'line-clamp-3'}>{book.author}</span>
+                </td>
+                <td className={`text-right opacity-90 sm:pr-4 lg:pr-2 lg:text-left ${tdStyle}`}>
+                  <div onClick={() => setShowAccuracyModal(true)}>
+                    <TierSymbol
+                      accuracyTier={book.accuracy_tier}
+                      styling="inline lg:-translate-y-0.5 size-5.75 sm:size-6"
+                    />
+                    <span className={'ml-1.25 hidden opacity-90 lg:inline'}>
+                      {TIER_LABELS[book.accuracy_tier]}
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    </>
+  )
+}
+
 export default function Leaderboard() {
   const { getToken } = useAuth()
 
   const [rankings, setRankings] = useState<BookData[]>([])
   const [progress, setProgress] = useState<number>(0)
-  const [showAccuracyModal, setShowAccuracyModal] = useState<boolean>(false)
 
   const [emptyPit, setEmptyPit] = useState<boolean>(false)
   const [loading, setLoading] = useState(true)
@@ -228,16 +320,8 @@ export default function Leaderboard() {
     }
   }
 
-  const thStyle = `px-2 pt-1.25 pb-1 first:pl-2 md:first:pl-5 text-base tracking-wider md:pb-1.25 md:pt-2 md:text-xl font-extrabold font-calistoga `
-  const tdStyle = `md:py-2 py-1.25 first:pl-3 md:first:pl-6 last:max-md:pr-2.25 px-2`
-
   return (
     <main className="mx-auto flex h-full min-h-0 w-[97%] grow flex-col items-center gap-4 overflow-y-auto p-2 text-primary/95 md:gap-8 md:p-4">
-      {showAccuracyModal && <AccuracyModal onClose={() => setShowAccuracyModal(false)} />}
-      <div className={'mb-6 hidden md:block'}>
-        <PageHeading title={'The Leaderboard'} />
-      </div>
-
       {loading ? (
         <Placeholder message={'Loading...'} />
       ) : error ? (
@@ -261,82 +345,7 @@ export default function Leaderboard() {
           </p>
         </div>
       ) : (
-        <section className={'mt-3 flex w-full flex-col items-center gap-3 md:mt-2 md:gap-4'}>
-          <div className="relative w-[99%] sm:max-w-279">
-            <div className="h-7 w-full overflow-hidden rounded-full bg-primary/25 sm:h-8">
-              <div
-                className={`h-full rounded-xs bg-linear-to-r transition-all duration-500 ${progress > 0.33 ? 'from-green-600/90 via-button/90 to-red-500/90' : 'from-red-500/90 to-button/90'}`}
-                style={{ width: `${Math.round(progress * 100)}%` }}
-              />
-            </div>
-            <p
-              className={`absolute font-gaegu text-lg font-black tracking-wider text-primary/90 drop-shadow-2xl sm:text-lg ${progress > 0.66 ? 'bottom-0 left-4 sm:right-4 sm:bottom-0.5' : 'right-3 bottom-0 sm:right-4 sm:bottom-0.5'}`}
-            >
-              {Math.round(progress * 100)}% Complete
-            </p>
-          </div>
-          <table className="w-full table-fixed border-collapse rounded-md bg-button text-text shadow-lg sm:max-w-280">
-            <thead className={'text-left'}>
-              <tr className={'border-b-2 border-red-800 md:border-b-3'}>
-                <th className={`w-[10%] md:w-[10%] ${thStyle}`}>
-                  <span className={'lg:hidden'}>#</span>
-                  <span className={'hidden lg:inline'}>Rank</span>
-                </th>
-                <th className={`w-[74%] md:w-[46%] ${thStyle}`}>
-                  <span className={'sm:hidden'}>Book</span>
-                  <span className={'hidden sm:inline'}>Title</span>
-                </th>
-                <th className={`max-md:hidden md:w-[31%] ${thStyle}`}>Author</th>
-                <th className={`w-[16%] text-right md:w-[13%] lg:text-left ${thStyle}`}>
-                  <button onClick={() => setShowAccuracyModal(true)} className={'inline-flex'}>
-                    <span className={'lg:hidden'}>Acc.</span>
-                    <span className={'hidden lg:inline'}>Accuracy</span>
-                    <InfoCircleMini className={'size-3.5 shrink-0 -translate-x-0.5 lg:hidden'} />
-                    <InfoCircle className={'ml-1 hidden size-4.25 shrink-0 lg:inline'} />
-                  </button>
-                </th>
-              </tr>
-            </thead>
-            <tbody className={'text-base opacity-95 sm:text-lg'}>
-              {rankings.map((book) => (
-                <tr
-                  key={book.id}
-                  className={`border-b border-red-800/80 last:border-none md:border-b-2`}
-                >
-                  <td
-                    className={`relative font-calistoga font-black ${tdStyle} ${book.rank < 100 ? 'max-sm:text-base' : book.rank < 1000 ? 'text-[0.9rem] max-sm:pl-2!' : 'max-sm:pl-1! max-sm:text-[0.8rem]'}`}
-                  >
-                    <div className={'flex h-full items-center justify-between'}>
-                      {book.rank}
-                      {progress > 0.05 && <RankIcon rank={book.rank} mobile={false} />}
-                    </div>
-                  </td>
-                  <td className={`relative ${tdStyle}`}>
-                    <span className={`line-clamp-2 font-bold`}>{book.title}</span>
-                    <span className="line-clamp-1 pr-3 font-zain text-[0.9rem] font-normal opacity-75 md:hidden">
-                      {book.author}
-                    </span>
-                    {progress > 0.05 && <RankIcon rank={book.rank} mobile={true} />}
-                  </td>
-                  <td className={`${tdStyle} max-md:hidden`}>
-                    <span className={'line-clamp-3'}>{book.author}</span>
-                  </td>
-                  <td className={`text-right opacity-90 sm:pr-4 lg:pr-2 lg:text-left ${tdStyle}`}>
-                    <div onClick={() => setShowAccuracyModal(true)}>
-                      <TierSymbol
-                        accuracyTier={book.accuracy_tier}
-                        styling="inline lg:-translate-y-0.5 size-5.75 sm:size-6"
-                      />
-                      <span className={'ml-1.25 hidden opacity-90 lg:inline'}>
-                        {TIER_LABELS[book.accuracy_tier]}
-                      </span>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
+        <LeaderboardContent progress={progress} rankings={rankings} />
       )}
     </main>
   )
