@@ -44,6 +44,12 @@ app.add_middleware(
 )
 
 
+# Health check endpoint
+@app.get("/health")
+def health() -> dict[str, str]:
+    return {"status": "ok"}
+
+
 # ====== MATCHES: MAIN GAME LOOP
 
 
