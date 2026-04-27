@@ -152,7 +152,7 @@ function RankIcon({ rank, mobile }: { rank: number; mobile: boolean }) {
         <TrophyIcon
           weight="duotone"
           alt="First place trophy"
-          className={`${baseClass} size-4.75 text-yellow-800/80`}
+          className={`${baseClass} size-5 text-amber-800/80`}
         />
       )
     case 2:
@@ -160,7 +160,7 @@ function RankIcon({ rank, mobile }: { rank: number; mobile: boolean }) {
         <StarIcon
           weight="duotone"
           alt="Second place star"
-          className={`${baseClass} size-4.25 text-yellow-800/65`}
+          className={`${baseClass} size-4.5 text-amber-800/65`}
         />
       )
     case 3:
@@ -168,7 +168,7 @@ function RankIcon({ rank, mobile }: { rank: number; mobile: boolean }) {
         <SparkleIcon
           weight="duotone"
           alt="Third place star"
-          className={`${baseClass} size-4.25 text-yellow-800/60`}
+          className={`${baseClass} size-4.5 text-amber-800/60`}
         />
       )
     case 4:
@@ -176,7 +176,7 @@ function RankIcon({ rank, mobile }: { rank: number; mobile: boolean }) {
         <StarFourIcon
           weight="duotone"
           alt="Fourth place sparkle"
-          className={`${baseClass} size-3.75 -translate-x-px text-yellow-800/50`}
+          className={`${baseClass} size-4 -translate-x-px text-amber-800/50`}
         />
       )
     default:

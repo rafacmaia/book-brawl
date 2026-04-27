@@ -36,9 +36,10 @@ interface ImportResult {
 
 // ====== MODAL SUBCOMPONENTS
 
-const modalHeadingStyle = 'mb-1 font-calistoga text-3xl font-bold tracking-wide'
+const modalHeadingStyle =
+  'mb-1 font-calistoga text-2xl [@media(min-height:700px)]:text-3xl font-bold tracking-wide'
 const modalButtonStyle =
-  'cursor-pointer rounded-t-lg rounded-b-3xl border-b-3 px-4 pb-1.25 pt-2.5 font-zain text-center text-base font-extrabold tracking-wider text-primary drop-shadow-md transition-all md:text-lg md:pt-2.75 md:pb-1.5 hover:scale-104 active:scale-95'
+  'cursor-pointer rounded-t-lg rounded-b-3xl border-b-3 px-4 pb-1.25 pt-2.5 font-zain text-sm text-center [@media(min-height:700px)]:text-base font-extrabold tracking-wider text-primary drop-shadow-md transition-all md:text-lg md:pt-2.75 md:pb-1.5 hover:scale-104 active:scale-95'
 const textEmphasisStyle = 'font-bold underline underline-offset-2 decoration-red-600/60'
 
 function ImportModal({
@@ -118,7 +119,7 @@ function ImportModal({
         >
           <XCircleIcon weight={'duotone'} className="size-6.25 md:size-7" />
         </button>
-        <div className="flex flex-col gap-3 rounded-lg bg-background/95 px-4 py-3 text-lg tracking-wide text-primary/95 md:px-5 md:py-4">
+        <div className="flex flex-col gap-3 rounded-lg bg-background/95 px-4 py-3 text-base tracking-wide text-primary/95 md:px-5 md:py-4 [@media(min-height:700px)]:text-lg">
           <p className="border-b border-button/60 pb-2 font-bold">
             You can import from a <span className={textEmphasisStyle}>custom CSV</span> or a{' '}
             <span className={textEmphasisStyle}>Goodreads</span> export file.
@@ -226,7 +227,7 @@ function DeleteModal({
     >
       <div className="flex w-[90%] flex-col justify-center gap-4 rounded-lg border border-y-6 border-red-800/80 bg-button/97 px-8 py-6 font-zain text-text shadow-2xl md:w-lg md:border-y-8 md:py-8">
         <h2 className={modalHeadingStyle}>Burn this book?</h2>
-        <p className="rounded-lg bg-background/90 px-4 py-3 text-left font-zain text-lg text-primary/90 md:text-xl">
+        <p className="rounded-lg bg-background/90 px-4 py-3 text-left font-zain text-base text-primary/90 md:text-xl [@media(min-height:700px)]:text-lg">
           <span className={`font-calistoga tracking-wider ${textEmphasisStyle}`}>{book.title}</span>
           , by{' '}
           <span className={`font-calistoga tracking-wider ${textEmphasisStyle}`}>
