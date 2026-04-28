@@ -2,8 +2,7 @@ import { useAuth } from '@clerk/react'
 import { useEffect, useState } from 'react'
 import { ApiError, apiFetch } from '../api'
 import Placeholder from '../components/Placeholder'
-import { CircleAlert } from 'lucide-react'
-import { NavLink } from 'react-router-dom'
+import { EmptyStateMessage } from '../components/EmptyStateMessage.tsx'
 
 interface Book {
   id: number
@@ -182,23 +181,7 @@ export default function BrawlPit() {
       ) : error ? (
         <Placeholder message={error} />
       ) : emptyPit ? (
-        <div
-          className={
-            'mb-12 flex grow flex-col items-center justify-center gap-2 text-center font-zain text-4xl/12 font-extrabold tracking-wide text-pretty text-primary/85 sm:text-5xl/20'
-          }
-        >
-          <CircleAlert className={'mb-6 size-18 sm:size-20'} />
-          <p className={``}>Not enough books to brawl!</p>
-          <p>
-            <NavLink
-              to={'/manage'}
-              className={`font-black text-primary/90 underline decoration-accent/80 decoration-4 underline-offset-4 transition-all duration-350 hover:text-5xl hover:text-primary hover:decoration-wavy hover:underline-offset-8 sm:hover:text-6xl`}
-            >
-              Feed the Pit
-            </NavLink>{' '}
-            and try again.
-          </p>
-        </div>
+        <EmptyStateMessage message={'No books to brawl!'} />
       ) : (
         match && (
           <>

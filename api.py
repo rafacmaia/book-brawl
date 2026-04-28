@@ -9,7 +9,7 @@ from psycopg2 import errors as pg_errors
 from pydantic import BaseModel
 
 from auth import get_current_reader_id, get_current_user
-from db import books_repo, readers_repo
+from db import books_repo, comparisons_repo, readers_repo
 from db.connection import init_db
 from services import library_service
 from services.game_service import (
@@ -106,6 +106,11 @@ def get_progress(
     reader_id: int = Depends(get_current_reader_id),
 ) -> float:
     """Return the user's overall progress in the game."""
+    matches_played = comparisons_repo.count(reader_id)
+
+    if matches_played <= 3:
+        return 0.0
+
     books = books_repo.get_all_history(reader_id)
 
     return round(calculate_progress(books), 4)

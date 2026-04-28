@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Support for Goodreads book import.
+- Support for Goodreads export files during CSV import.
+- Leaderboard now requires at least three brawls before rankings are shown.
+- Responsive design for shorter screen sizes and landscape orientation.
 
 ### Changed
 

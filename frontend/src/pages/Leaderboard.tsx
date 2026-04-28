@@ -3,11 +3,19 @@ import { useEffect, useState } from 'react'
 import { apiFetch } from '../api'
 import Placeholder from '../components/Placeholder'
 import PageHeading from '../components/PageHeading'
-import { BadgeCheck, CircleAlert, Squircle } from 'lucide-react'
+import { BadgeCheck, Squircle, Swords } from 'lucide-react'
 import { InformationCircleIcon as InfoCircleMini } from '@heroicons/react/16/solid'
 import { InformationCircleIcon as InfoCircle } from '@heroicons/react/20/solid'
+import {
+  BookIcon,
+  SparkleIcon,
+  StarFourIcon,
+  StarIcon,
+  TrophyIcon,
+  XCircleIcon,
+} from '@phosphor-icons/react'
+import { EmptyStateMessage } from '../components/EmptyStateMessage.tsx'
 import { NavLink } from 'react-router-dom'
-import { SparkleIcon, StarFourIcon, StarIcon, TrophyIcon, XCircleIcon } from '@phosphor-icons/react'
 
 interface BookData {
   id: number
@@ -327,21 +335,27 @@ export default function Leaderboard() {
       ) : error ? (
         <Placeholder message={error} />
       ) : emptyPit ? (
+        <EmptyStateMessage message={'No books to show!'} />
+      ) : progress < 1 ? (
         <div
           className={
-            'flex w-full grow flex-col items-center justify-center gap-0 text-center font-zain text-4xl/18 font-extrabold tracking-wide text-primary/85 sm:text-5xl/20 md:mb-12'
+            'flex w-full grow flex-col items-center justify-center gap-4 text-center font-zain text-4xl/12 font-extrabold tracking-wider text-balance text-primary/85 sm:text-5xl/20 md:mb-12 md:w-2xl'
           }
         >
-          <CircleAlert className={'mb-8 size-18 sm:size-20'} />
-          <p>No books to show!</p>
+          <div className="mb-4 flex items-center justify-center gap-4 md:gap-6">
+            <BookIcon weight={'duotone'} className={'size-12 sm:size-16'} />
+            <Swords className={'size-14 sm:size-20'} />
+            <BookIcon weight={'duotone'} className={'size-12 -scale-x-100 sm:size-16'} />
+          </div>
           <p>
+            The books must{' '}
             <NavLink
-              to={'/manage'}
+              to={'/brawl'}
               className={`font-black text-primary/90 underline decoration-accent/80 decoration-4 underline-offset-4 transition-all duration-350 hover:text-5xl hover:text-primary hover:decoration-wavy hover:underline-offset-8 sm:hover:text-6xl`}
             >
-              Feed the Pit
+              Brawl
             </NavLink>{' '}
-            and try again.
+            first!
           </p>
         </div>
       ) : (
