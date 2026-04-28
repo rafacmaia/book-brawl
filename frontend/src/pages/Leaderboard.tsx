@@ -224,7 +224,7 @@ function LeaderboardContent({ progress, rankings }: { progress: number; rankings
             />
           </div>
           <p
-            className={`absolute font-gaegu text-lg font-black tracking-wider text-primary/90 drop-shadow-2xl md:text-xl ${progress > 0.66 ? 'bottom-0 left-4 sm:bottom-0.5 md:left-5' : 'right-4 bottom-0 sm:bottom-0.5 md:right-5'}`}
+            className={`absolute font-gaegu text-[1.15rem] font-black tracking-wider text-primary/95 drop-shadow-2xl md:text-xl ${progress > 0.66 ? 'bottom-0 left-4 sm:bottom-0.5' : 'right-4 bottom-0 sm:bottom-0.5'}`}
           >
             {Math.round(progress * 100)}%{' '}
             {PROGRESS_LABELS.find(([threshold]) => progress < threshold)![1]}
