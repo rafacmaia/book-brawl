@@ -79,12 +79,12 @@ function BookButton({
       onClick={onClick}
     >
       <p
-        className={`line-clamp-3 w-full p-1 font-medium text-balance wrap-break-word lg:line-clamp-3 [@media(min-height:600px)]:line-clamp-4 ${titleStyle}`}
+        className={`line-clamp-3 w-full p-1 font-medium text-balance wrap-break-word lg:line-clamp-3 [@media(max-height:500px)]:text-[1.6rem]/8 [@media(min-height:600px)]:line-clamp-4 ${titleStyle}`}
       >
         {title}
       </p>
       <p
-        className={`line-clamp-2 w-full font-zain font-light text-pretty wrap-break-word opacity-85 ${authorStyle}`}
+        className={`line-clamp-2 w-full font-zain font-light text-pretty wrap-break-word opacity-85 [@media(max-height:500px)]:text-[1.2rem]/6 ${authorStyle}`}
       >
         by <span className={italic ? 'italic' : ''}>{author}</span>
       </p>
@@ -190,7 +190,7 @@ export default function BrawlPit() {
         match && (
           <>
             <h1
-              className={`z-100 flex-none text-center font-calistoga text-[1.4rem] tracking-wide text-balance text-primary/95 drop-shadow-md md:text-left [@media(max-height:500px)]:w-[94%] [@media(max-height:500px)]:text-2xl/7 [@media(min-height:500px)]:mb-0.5 [@media(min-height:600px)]:text-[2.5rem]/12 [@media(min-height:600px)]:font-extrabold [@media(min-height:600px)]:tracking-wide [@media(min-height:600px)]:md:text-center [@media(min-height:700px)]:mt-4 [@media(min-height:700px)]:mb-2 [@media(min-height:700px)]:text-5xl/14 [@media(min-height:700px)]:md:mt-12 [@media(min-height:700px)]:lg:mt-24 [@media(min-height:700px)]:lg:text-7xl`}
+              className={`z-100 flex-none text-center font-calistoga text-[1.4rem] tracking-wide text-balance text-primary/95 drop-shadow-md [@media(max-height:400px)]:mt-1 [@media(max-height:500px)]:w-[94%] [@media(max-height:500px)]:text-left [@media(max-height:500px)]:text-2xl/7 [@media(min-height:500px)]:mb-0.5 [@media(min-height:600px)]:text-[2.5rem]/12 [@media(min-height:600px)]:font-extrabold [@media(min-height:600px)]:tracking-wide [@media(min-height:700px)]:mt-4 [@media(min-height:700px)]:mb-2 [@media(min-height:700px)]:text-5xl/14 [@media(min-height:700px)]:md:mt-12 [@media(min-height:700px)]:lg:mt-24 [@media(min-height:700px)]:lg:text-7xl`}
             >
               Which means more to{' '}
               <span
@@ -205,14 +205,18 @@ export default function BrawlPit() {
             >
               ===============
             </h1>
-            <div className={'flex w-[97%] items-center justify-center md:w-19/20 lg:hidden'}>
+            <div
+              className={
+                'flex w-[97%] items-center justify-center md:w-19/20 lg:hidden [@media(max-height:500px)]:opacity-90'
+              }
+            >
               <hr className="my-0 h-px w-full text-button opacity-70" />
               <p
-                className={`${transition ? 'opacity-80' : 'opacity-0'} mx-4 font-gaegu text-lg font-bold tracking-widest transition-opacity duration-250 ease-in-out`}
+                className={`${transition ? 'opacity-80' : 'opacity-0'} mx-4 font-gaegu text-lg font-bold tracking-widest transition-opacity duration-250 ease-in-out [@media(max-height:500px)]:mx-3 [@media(max-height:500px)]:text-base`}
               >
                 {matchCount}
               </p>
-              <hr className="my-0 h-px w-full text-button opacity-70" />
+              <hr className="my-0 h-px w-full text-button opacity-70 [@media(max-height:500px)]:w-6" />
             </div>
             <div
               className={`${transition ? 'translate-y-0 opacity-100' : 'pointer-events-none opacity-0 max-md:scale-96 sm:translate-y-3'} my-1 flex w-full grow flex-col items-center justify-center gap-1 transition-all duration-275 ease-in-out md:mb-3 [@media(min-height:500px)]:mt-1.5 [@media(min-height:500px)]:gap-3 [@media(min-height:700px)]:mt-3 [@media(min-height:700px)]:mb-3 [@media(min-height:700px)]:gap-6 [@media(min-height:700px)]:md:mb-1 [@media(min-height:700px)]:lg:my-0 [@media(min-height:700px)]:lg:flex-row [@media(min-height:700px)]:lg:gap-12 [@media(min-height:700px)]:xl:gap-27`}

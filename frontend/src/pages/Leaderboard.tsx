@@ -33,6 +33,17 @@ const TIER_LABELS: Record<number, string> = {
   5: 'Very High',
 }
 
+const PROGRESS_LABELS: [number, string][] = [
+  [0.1, "Don't trust this yet..."],
+  [0.2, 'Early days...'],
+  [0.5, 'Cooking...'],
+  [0.7, 'Getting there!'],
+  [0.8, 'Nearly there...'],
+  [0.9, 'Final calibration...'],
+  [0.99, 'Locking in...'],
+  [Infinity, 'The brawl pit has spoken!'],
+]
+
 function TierSymbol({ accuracyTier, styling }: { accuracyTier: number; styling: string }) {
   if (accuracyTier === 1) {
     return <Squircle stroke={'none'} className={`fill-red-500/90 ${styling}`} />
@@ -202,20 +213,21 @@ function LeaderboardContent({ progress, rankings }: { progress: number; rankings
     <>
       {showAccuracyModal && <AccuracyModal onClose={() => setShowAccuracyModal(false)} />}
 
-      <PageHeading title={'Leaderboard'} style={'mb-6 hidden md:block'} />
+      <PageHeading title={'Leaderboard'} style={'mt-2 mb-5 hidden md:block'} />
 
       <section className={'mt-3 flex w-full flex-col items-center gap-3 md:mt-2 md:gap-4'}>
-        <div className="relative w-full sm:max-w-279">
-          <div className="h-7 w-full overflow-hidden rounded-md bg-primary/25 sm:h-8 sm:rounded-full">
+        <div className="relative w-full md:max-w-279">
+          <div className="mx-auto h-7 w-[99%] overflow-hidden rounded-full bg-primary/25 md:h-8 md:w-full">
             <div
               className={`h-full rounded-xs bg-linear-to-r transition-all duration-500 ${progress > 0.33 ? 'from-green-600/90 via-button/90 to-red-500/90' : 'from-red-500/90 to-button/90'}`}
               style={{ width: `${Math.round(progress * 100)}%` }}
             />
           </div>
           <p
-            className={`absolute font-calistoga text-base font-semibold tracking-wider text-primary/90 drop-shadow-2xl sm:text-lg ${progress > 0.66 ? 'bottom-0.5 left-2 sm:bottom-0.5 sm:left-4' : 'right-2 bottom-0.5 sm:right-4 sm:bottom-0.5'}`}
+            className={`absolute font-gaegu text-lg font-black tracking-wider text-primary/90 drop-shadow-2xl md:text-xl ${progress > 0.66 ? 'bottom-0 left-4 sm:bottom-0.5 md:left-5' : 'right-4 bottom-0 sm:bottom-0.5 md:right-5'}`}
           >
-            {Math.round(progress * 100)}% Complete
+            {Math.round(progress * 100)}%{' '}
+            {PROGRESS_LABELS.find(([threshold]) => progress < threshold)![1]}
           </p>
         </div>
 

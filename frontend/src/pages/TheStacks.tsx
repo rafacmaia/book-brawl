@@ -602,7 +602,7 @@ export default function TheStacks() {
 
   return (
     <main className="mx-auto flex h-full min-h-0 w-[97%] grow flex-col items-center gap-4 overflow-y-auto px-2 pb-2 text-primary/95 sm:max-w-6xl sm:gap-4 md:p-4">
-      <PageHeading title={'The Stacks'} style={'mb-5 max-md:hidden'} />
+      <PageHeading title={'The Stacks'} style={'mb-5 mt-2 max-md:hidden'} />
 
       {showImportModal && (
         <ImportModal
