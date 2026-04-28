@@ -15,7 +15,7 @@ export default function Header() {
 
   return (
     <header className={'flex w-full px-1 py-3 md:px-6 md:py-3 [@media(max-height:500px)]:pb-0'}>
-      <nav className="flex items-center justify-around align-middle font-zain text-lg font-extrabold text-primary/95 decoration-accent/80 max-md:w-full md:ml-auto md:justify-end md:gap-10 md:tracking-wide [@media(max-height:400px)]:scale-85 [@media(max-height:400px)]:justify-end [@media(max-height:400px)]:gap-10 [@media(max-height:500px)]:text-base [@media(min-height:700px)]:text-lg">
+      <nav className="flex items-center justify-around align-middle font-zain text-lg font-extrabold text-primary/95 decoration-accent/80 max-md:w-full md:ml-auto md:justify-end md:gap-10 md:tracking-wide [@media(max-height:400px)]:scale-85 [@media(max-height:400px)]:justify-end [@media(max-height:400px)]:gap-10 [@media(max-height:400px)]:md:scale-100 [@media(max-height:500px)]:text-base [@media(min-height:700px)]:text-lg">
         <NavLink
           to={'/brawl'}
           className={({ isActive }) => `${activeStyle({ isActive })} transition-all duration-200`}
