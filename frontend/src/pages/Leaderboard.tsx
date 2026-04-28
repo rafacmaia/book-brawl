@@ -336,7 +336,7 @@ export default function Leaderboard() {
         <Placeholder message={error} />
       ) : emptyPit ? (
         <EmptyStateMessage message={'No books to show!'} />
-      ) : progress < 1 ? (
+      ) : progress < 0.002 ? (
         <div
           className={
             'flex w-full grow flex-col items-center justify-center gap-4 text-center font-zain text-4xl/12 font-extrabold tracking-wider text-balance text-primary/85 sm:text-5xl/20 md:mb-12 md:w-2xl'

@@ -108,7 +108,7 @@ def get_progress(
     """Return the user's overall progress in the game."""
     matches_played = comparisons_repo.count(reader_id)
 
-    if matches_played <= 3:
+    if matches_played < 3:
         return 0.0
 
     books = books_repo.get_all_history(reader_id)

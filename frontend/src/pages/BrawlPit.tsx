@@ -186,18 +186,18 @@ export default function BrawlPit() {
         match && (
           <>
             <h1
-              className={`z-100 flex-none text-center font-calistoga text-[1.4rem] tracking-wide text-balance text-primary/95 drop-shadow-md md:text-left [@media(max-height:500px)]:w-[94%] [@media(max-height:500px)]:text-2xl [@media(min-height:500px)]:mb-1 [@media(min-height:600px)]:text-[2.5rem]/12 [@media(min-height:600px)]:font-extrabold [@media(min-height:600px)]:tracking-wide [@media(min-height:600px)]:md:text-center [@media(min-height:700px)]:mt-4 [@media(min-height:700px)]:mb-2 [@media(min-height:700px)]:text-5xl/14 [@media(min-height:700px)]:md:mt-12 [@media(min-height:700px)]:lg:mt-24 [@media(min-height:700px)]:lg:text-7xl`}
+              className={`z-100 flex-none text-center font-calistoga text-[1.4rem] tracking-wide text-balance text-primary/95 drop-shadow-md md:text-left [@media(max-height:500px)]:w-[94%] [@media(max-height:500px)]:text-2xl/7 [@media(min-height:500px)]:mb-1 [@media(min-height:600px)]:text-[2.5rem]/12 [@media(min-height:600px)]:font-extrabold [@media(min-height:600px)]:tracking-wide [@media(min-height:600px)]:md:text-center [@media(min-height:700px)]:mt-4 [@media(min-height:700px)]:mb-2 [@media(min-height:700px)]:text-5xl/14 [@media(min-height:700px)]:md:mt-12 [@media(min-height:700px)]:lg:mt-24 [@media(min-height:700px)]:lg:text-7xl`}
             >
               Which means more to{' '}
               <span
-                className={`underline decoration-accent/60 decoration-3 underline-offset-3 [@media(min-height:700px)]:no-underline`}
+                className={`decoration-accent/65 decoration-3 underline-offset-3 [@media(max-height:700px)]:underline`}
               >
                 you
               </span>
               ?
             </h1>
             <h1
-              className={`absolute z-0 mt-24 hidden text-center font-calistoga text-5xl font-extrabold tracking-wide text-background/0 lg:block lg:text-7xl ${wavyUnderline}`}
+              className={`absolute z-0 mt-24 hidden text-center font-calistoga text-5xl font-extrabold tracking-wide text-background/0 lg:text-7xl [@media(min-height:700px)]:lg:block ${wavyUnderline}`}
             >
               ===============
             </h1>
@@ -226,7 +226,7 @@ export default function BrawlPit() {
             </div>
             <div
               className={
-                'absolute -bottom-2 left-1/2 hidden w-full -translate-x-1/2 items-center justify-center lg:flex'
+                'absolute -bottom-2 left-1/2 hidden w-full -translate-x-1/2 items-center justify-center [@media(min-height:700px)]:lg:flex'
               }
             >
               <p
