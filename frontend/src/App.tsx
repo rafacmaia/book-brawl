@@ -5,7 +5,7 @@ import { ApiError, apiFetch } from './api'
 import Header from './components/Header'
 import BrawlPit from './pages/BrawlPit'
 import Leaderboard from './pages/Leaderboard'
-import ManagePit from './pages/ManagePit'
+import TheStacks from './pages/TheStacks.tsx'
 import Footer from './components/Footer'
 import Placeholder from './components/Placeholder.tsx'
 
@@ -74,7 +74,7 @@ export default function App() {
                     <Route path={'/'} element={<Navigate to="/brawl" replace />} />
                     <Route path={'/brawl'} element={<BrawlPit />} />
                     <Route path={'/leaderboard'} element={<Leaderboard />} />
-                    <Route path={'/manage'} element={<ManagePit />} />
+                    <Route path={'/stacks'} element={<TheStacks />} />
                   </Routes>
                 ) : syncError ? (
                   <Placeholder

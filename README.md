@@ -53,13 +53,13 @@ fun **and** mathematically robust way to reflect on their books._
 
 </details>
 <details>
-<summary>&nbsp;<b>Manage the Pit</b></summary>
+<summary>&nbsp;<b>The Stacks</b></summary>
 
-<img src="screenshots/web-managepit-1.png" alt="Manage the Pit">
+<img src="screenshots/web-managepit-1.png" alt="The Stacks">
 <p align="center">
-<img src="screenshots/mobile-managepit-1.jpeg" alt="Manage the Pit" width="300">
+<img src="screenshots/mobile-managepit-1.jpeg" alt="The Stacks on Mobile" width="300">
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="screenshots/mobile-managepit-2.jpeg" alt="Manage the Pit" width="300">
+<img src="screenshots/mobile-managepit-2.jpeg" alt="The Stacks on Mobile" width="300">
 </p>
 
 </details>
@@ -87,7 +87,7 @@ fun **and** mathematically robust way to reflect on their books._
   pairings
 - **Multifactor accuracy scoring:** tracks individual and overall rank accuracy and
   stability
-- **Manage the Pit:** import books via CSV, add/edit/delete books manually, or factory
+- **The Stacks:** import books via CSV, add/edit/delete books manually, or factory
   reset your collection
 - **Per-user data isolation:** full multi-user support via Clerk authentication (JWT
   verification with PyJWT and JWKS)
@@ -225,7 +225,7 @@ built with both a web app and a CLI in mind.
 | [`src/App.tsx`](frontend/src/App.tsx)                             | Root component with routing and auth              |
 | [`src/pages/BrawlPit.tsx`](frontend/src/pages/BrawlPit.tsx)       | Main game loop; head-to-head matches              |
 | [`src/pages/Leaderboard.tsx`](frontend/src/pages/Leaderboard.tsx) | Rankings and progress page                        |
-| [`src/pages/ManagePit.tsx`](frontend/src/pages/ManagePit.tsx)     | Collection management page: add/edit/delete books |
+| [`src/pages/TheStacks.tsx`](frontend/src/pages/TheStacks.tsx)     | Collection management page: add/edit/delete books |
 | [`src/components/Header.tsx`](frontend/src/components/Header.tsx) | Shared header and nav                             |
 | [`src/components/Footer.tsx`](frontend/src/components/Footer.tsx) | Shared footer                                     |
 | [`src/api.ts`](frontend/src/api.ts)                               | Authenticated API fetch helper                    |

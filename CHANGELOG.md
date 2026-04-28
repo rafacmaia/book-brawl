@@ -15,7 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Responsive design for shorter screen sizes
+- "Manage Pit" page is now "The Stacks"
+- Redesigned nav bar: icon-only on mobile, icon and label on desktop.
 - Uniform modal layouts and icons across all pages.
 
 ### Fixed
