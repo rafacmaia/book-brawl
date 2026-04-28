@@ -5,12 +5,12 @@ export default function Header() {
   function activeStyle({ isActive }: { isActive: boolean }): string {
     return isActive
       ? 'underline scale-108 [@media(min-height:700px)]:max-md:scale-110 max-md:translate-y-0.5 decoration-wavy decoration-2 underline-offset-4 '
-      : 'opacity-90 active:opacity-100 active:scale-96 hover:sm:opacity-100 hover:sm:scale-102 hover:sm:-translate-y-0.5'
+      : 'opacity-90 active:opacity-100 active:scale-96 hover:md:opacity-100 hover:md:scale-104 hover:md:-translate-y-0.5'
   }
 
   return (
-    <header className={'flex w-full px-1 py-3 sm:px-6 sm:py-3'}>
-      <nav className="flex w-full items-center justify-around align-middle font-zain text-base font-extrabold text-primary/95 decoration-accent/80 sm:tracking-wide md:justify-end md:gap-8 [@media(min-height:700px)]:text-lg">
+    <header className={'flex w-full px-1 py-3 md:px-6 md:py-3 [@media(max-height:500px)]:pb-0'}>
+      <nav className="flex items-center justify-around align-middle font-zain text-lg font-extrabold text-primary/95 decoration-accent/80 max-md:w-full md:ml-auto md:justify-end md:gap-10 md:tracking-wide [@media(max-height:500px)]:text-base [@media(min-height:700px)]:text-lg">
         <NavLink
           to={'/brawl'}
           className={({ isActive }) => `${activeStyle({ isActive })} transition-all duration-200`}
@@ -30,7 +30,7 @@ export default function Header() {
           <span className={`hidden sm:inline`}>Manage the Pit</span>
           <span className="sm:hidden">Manage Pit</span>
         </NavLink>
-        <div className={`translate-y-0.5 sm:translate-y-0.75`}>
+        <div className={`translate-y-0.75`}>
           <UserButton
             appearance={{ elements: { avatarBox: '[@media(min-height:700px)]:size-7! size-6!' } }}
           />

@@ -194,23 +194,23 @@ function LeaderboardContent({ progress, rankings }: { progress: number; rankings
     <>
       {showAccuracyModal && <AccuracyModal onClose={() => setShowAccuracyModal(false)} />}
 
-      <div className={'mb-6 hidden md:block'}>
-        <PageHeading title={'The Leaderboard'} />
-      </div>
+      <PageHeading title={'Leaderboard'} style={'mb-6 hidden md:block'} />
+
       <section className={'mt-3 flex w-full flex-col items-center gap-3 md:mt-2 md:gap-4'}>
-        <div className="relative w-[99%] sm:max-w-279">
-          <div className="h-7 w-full overflow-hidden rounded-full bg-primary/25 sm:h-8">
+        <div className="relative w-full sm:max-w-279">
+          <div className="h-7 w-full overflow-hidden rounded-md bg-primary/25 sm:h-8 sm:rounded-full">
             <div
               className={`h-full rounded-xs bg-linear-to-r transition-all duration-500 ${progress > 0.33 ? 'from-green-600/90 via-button/90 to-red-500/90' : 'from-red-500/90 to-button/90'}`}
               style={{ width: `${Math.round(progress * 100)}%` }}
             />
           </div>
           <p
-            className={`absolute font-gaegu text-lg font-black tracking-wider text-primary/90 drop-shadow-2xl sm:text-lg ${progress > 0.66 ? 'bottom-0 left-4 sm:right-4 sm:bottom-0.5' : 'right-3 bottom-0 sm:right-4 sm:bottom-0.5'}`}
+            className={`absolute font-calistoga text-base font-semibold tracking-wider text-primary/90 drop-shadow-2xl sm:text-lg ${progress > 0.66 ? 'bottom-0.5 left-2 sm:bottom-0.5 sm:left-4' : 'right-2 bottom-0.5 sm:right-4 sm:bottom-0.5'}`}
           >
             {Math.round(progress * 100)}% Complete
           </p>
         </div>
+
         <table className="w-full table-fixed border-collapse rounded-md bg-button text-text shadow-lg sm:max-w-280">
           <thead className={'text-left'}>
             <tr className={'border-b-2 border-red-800 md:border-b-3'}>

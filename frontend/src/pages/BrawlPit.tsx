@@ -37,7 +37,8 @@ function BookButton({
   let cardStyle: string, titleStyle: string, authorStyle: string
 
   if ((longTitle && longAuthor) || veryLongTitle) {
-    cardStyle = 'gap-1 px-4 [@media(min-height:600px)]:px-5 sm:gap-4 sm:px-7 sm:py-3'
+    cardStyle =
+      'gap-1 px-4 [@media(min-height:600px)]:px-6 [@media(min-height:700px)]:gap-2 sm:gap-4 sm:px-7 sm:py-3'
     titleStyle =
       'text-[1.4rem]/8 [@media(min-height:700px)]:text-[2rem]/10 [@media(min-height:700px)]:sm:text-[2.3rem]/13'
     authorStyle =
@@ -55,7 +56,7 @@ function BookButton({
     cardStyle =
       'gap-1 px-6 [@media(min-height:600px)]:gap-1.75 [@media(min-height:700px)]:gap-4 [@media(min-height:700px)]:sm:gap-6 [@media(min-height:700px)]:sm:py-4'
     titleStyle =
-      'text-[1.6rem]/8 [@media(min-height:600px)]:text-[1.9rem]/9 [@media(min-height:700px)]:text-[2.2rem]/11 [@media(min-height:700px)]:sm:text-[2.75rem]/16'
+      'text-[1.6rem]/8 [@media(min-height:600px)]:text-[1.9rem]/9 [@media(min-height:700px)]:text-[2.2rem]/12 [@media(min-height:700px)]:sm:text-[2.75rem]/16'
     authorStyle =
       'text-[1.2rem] [@media(min-height:600px)]:text-[1.35rem]/8 [@media(min-height:700px)]:text-[1.5rem] [@media(min-height:700px)]:sm:text-[1.875rem]'
   }
@@ -71,7 +72,7 @@ function BookButton({
       style={{
         boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.20)',
       }}
-      className={`flex w-[95%] flex-1 basis-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-b-8 py-2 font-calistoga shadow-xl transition-all duration-250 md:border-b-8 lg:h-80 lg:flex-none lg:rounded-xl xl:h-72 [@media(min-height:700px)]:w-11/12 [@media(min-height:700px)]:lg:w-116 [@media(min-height:700px)]:xl:w-134 ${hoverStyling} ${cardStyle} ${selectedStyling}`}
+      className={`flex w-[95%] flex-1 basis-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-b-8 py-2 font-calistoga shadow-xl transition-all duration-250 md:border-b-8 lg:h-80 lg:flex-none lg:rounded-xl xl:h-72 [@media(max-height:500px)]:gap-0 [@media(max-height:500px)]:py-1 [@media(min-height:700px)]:w-11/12 [@media(min-height:700px)]:lg:w-116 [@media(min-height:700px)]:xl:w-134 ${hoverStyling} ${cardStyle} ${selectedStyling}`}
       onClick={onClick}
     >
       <p
@@ -202,7 +203,7 @@ export default function BrawlPit() {
         match && (
           <>
             <h1
-              className={`z-100 mb-1 flex-none text-center font-calistoga text-[1.4rem] tracking-wide text-balance text-primary/95 drop-shadow-md [@media(min-height:600px)]:text-[2.5rem]/12 [@media(min-height:600px)]:font-extrabold [@media(min-height:600px)]:tracking-wide [@media(min-height:700px)]:mt-4 [@media(min-height:700px)]:mb-2 [@media(min-height:700px)]:text-5xl/14 [@media(min-height:700px)]:md:mt-12 [@media(min-height:700px)]:lg:mt-24 [@media(min-height:700px)]:lg:text-7xl`}
+              className={`z-100 flex-none text-center font-calistoga text-[1.4rem] tracking-wide text-balance text-primary/95 drop-shadow-md md:text-left [@media(max-height:500px)]:w-[94%] [@media(max-height:500px)]:text-2xl [@media(min-height:500px)]:mb-1 [@media(min-height:600px)]:text-[2.5rem]/12 [@media(min-height:600px)]:font-extrabold [@media(min-height:600px)]:tracking-wide [@media(min-height:600px)]:md:text-center [@media(min-height:700px)]:mt-4 [@media(min-height:700px)]:mb-2 [@media(min-height:700px)]:text-5xl/14 [@media(min-height:700px)]:md:mt-12 [@media(min-height:700px)]:lg:mt-24 [@media(min-height:700px)]:lg:text-7xl`}
             >
               Which means more to{' '}
               <span
@@ -227,7 +228,7 @@ export default function BrawlPit() {
               <hr className="my-0 h-px w-full text-button opacity-70" />
             </div>
             <div
-              className={`${transition ? 'translate-y-0 opacity-100' : 'pointer-events-none opacity-0 max-md:scale-96 sm:translate-y-3'} mt-2 mb-1 flex w-full grow flex-col items-center justify-center gap-3 transition-all duration-275 ease-in-out [@media(min-height:700px)]:mt-3 [@media(min-height:700px)]:mb-3 [@media(min-height:700px)]:gap-6 [@media(min-height:700px)]:lg:my-0 [@media(min-height:700px)]:lg:flex-row [@media(min-height:700px)]:lg:gap-12 [@media(min-height:700px)]:xl:gap-27`}
+              className={`${transition ? 'translate-y-0 opacity-100' : 'pointer-events-none opacity-0 max-md:scale-96 sm:translate-y-3'} my-1 flex w-full grow flex-col items-center justify-center gap-1 transition-all duration-275 ease-in-out md:mb-3 [@media(min-height:500px)]:mt-2 [@media(min-height:500px)]:gap-3 [@media(min-height:700px)]:mt-3 [@media(min-height:700px)]:mb-3 [@media(min-height:700px)]:gap-6 [@media(min-height:700px)]:md:mb-1 [@media(min-height:700px)]:lg:my-0 [@media(min-height:700px)]:lg:flex-row [@media(min-height:700px)]:lg:gap-12 [@media(min-height:700px)]:xl:gap-27`}
             >
               <BookButton
                 book={match.book_a}
