@@ -33,32 +33,36 @@ function BookButton({
 
   const italic = /\b(?:anonymous|various)\b/i.test(author)
 
-  let cardStyle: string, titleStyle: string, authorStyle: string
+  const regularCardStyle =
+    'gap-1 px-5 [@media(min-height:600px)]:gap-1.75  [@media(min-height:700px)]:px-8 [@media(min-height:700px)]:gap-4 [@media(min-height:700px)]:sm:gap-6 [@media(min-height:700px)]:sm:py-4'
+  const regularTitleStyle =
+    'text-[1.6rem]/8 [@media(min-height:600px)]:text-[1.85rem]/10 [@media(min-height:700px)]:text-[2.125rem]/11 [@media(min-height:700px)]:sm:text-[2.75rem]/15'
+  const regularAuthorStyle =
+    'text-[1.2rem]/6 [@media(min-height:600px)]:text-[1.35rem]/7 [@media(min-height:700px)]:text-[1.5rem] [@media(min-height:700px)]:sm:text-[1.875rem]'
 
-  if ((longTitle && longAuthor) || veryLongTitle) {
-    cardStyle =
-      'gap-1 px-4 [@media(min-height:600px)]:px-6 [@media(min-height:700px)]:gap-2 sm:gap-4 sm:px-7 sm:py-3'
-    titleStyle =
-      'text-[1.4rem]/8 [@media(min-height:700px)]:text-[2rem]/10 [@media(min-height:700px)]:sm:text-[2.3rem]/13'
-    authorStyle =
-      'text-[1.2rem] [@media(min-height:700px)]:text-[1.375rem]/7 [@media(min-height:700px)]:sm:text-[1.6rem]/10'
-  } else if (longTitle || longAuthor) {
-    cardStyle =
-      'gap-1 px-6 [@media(min-height:700px)]:gap-3 [@media(min-height:700px)]:sm:gap-4 [@media(min-height:700px)]:sm:px-8 sm:py-3'
-    titleStyle = longTitle
-      ? 'text-[1.4rem]/8 [@media(min-height:600px)]:text-[1.7rem]/8 [@media(min-height:700px)]:text-[2rem]/11 [@media(min-height:700px)]:sm:text-[2.265rem]/14'
-      : 'text-[1.6rem]/8 [@media(min-height:600px)]:text-[1.9rem] [@media(min-height:700px)]:text-[2.125rem]/11 [@media(min-height:700px)]:sm:text-[2.75rem]/14'
-    authorStyle = longAuthor
-      ? 'text-[1.2rem]/8 [@media(min-height:700px)]:text-[1.35rem]/8 [@media(min-height:700px)]:sm:text-[1.6rem]/10'
-      : 'text-[1.2rem]/8 [@media(min-height:600px)]:text-[1.35rem]/8 [@media(min-height:700px)]:text-[1.5rem] [@media(min-height:700px)]:sm:text-[1.8rem]'
-  } else {
-    cardStyle =
-      'gap-1 px-6 [@media(min-height:600px)]:gap-1.75 [@media(min-height:700px)]:gap-4 [@media(min-height:700px)]:sm:gap-6 [@media(min-height:700px)]:sm:py-4'
-    titleStyle =
-      'text-[1.6rem]/8 [@media(min-height:600px)]:text-[1.9rem]/9 [@media(min-height:700px)]:text-[2.2rem]/12 [@media(min-height:700px)]:sm:text-[2.75rem]/16'
-    authorStyle =
-      'text-[1.2rem] [@media(min-height:600px)]:text-[1.35rem]/8 [@media(min-height:700px)]:text-[1.5rem] [@media(min-height:700px)]:sm:text-[1.875rem]'
-  }
+  const tightCardStyle =
+    'gap-1 px-5 [@media(min-height:700px)]:gap-3 [@media(min-height:700px)]:sm:gap-4 [@media(min-height:700px)]:sm:px-8 sm:py-3'
+  const tightTitleStyle =
+    'text-[1.4rem]/7 [@media(min-height:600px)]:text-[1.65rem]/8 [@media(min-height:700px)]:text-[2rem]/10 [@media(min-height:700px)]:sm:text-[2.4rem]/13'
+  const tightAuthorStyle =
+    'text-[1.2rem]/6 [@media(min-height:600px)]:text-[1.3rem]/7 [@media(min-height:700px)]:text-[1.4rem]/8 [@media(min-height:700px)]:sm:text-[1.6rem]/10'
+
+  const tighterCardStyle =
+    'gap-1 px-2 [@media(min-height:500px)]:px-4 [@media(min-height:600px)]:px-6 [@media(min-height:700px)]:gap-2 sm:gap-4 sm:px-7 sm:py-3'
+  const tighterTitleStyle =
+    'text-[1.35rem]/7 [@media(min-height:600px)]:text-[1.55rem]/7 [@media(min-height:700px)]:text-[2rem]/10 [@media(min-height:700px)]:sm:text-[2.4rem]/13'
+
+  const cardStyle = veryLongTitle
+    ? tighterCardStyle
+    : longTitle || longAuthor
+      ? tightCardStyle
+      : regularCardStyle
+  const titleStyle = veryLongTitle
+    ? tighterTitleStyle
+    : longTitle
+      ? tightTitleStyle
+      : regularTitleStyle
+  const authorStyle = longAuthor || veryLongTitle ? tightAuthorStyle : regularAuthorStyle
 
   const selectedStyling = isSelected
     ? 'scale-85 -translate-y-2 border-primary/80 bg-background text-primary shadow-2xl'
@@ -122,7 +126,7 @@ export default function BrawlPit() {
       if (err instanceof ApiError && err.status === 400) {
         setEmptyPit(true)
       } else {
-        setError("You shouldn't be here! Try refreshing!")
+        setError("Wow, this shouldn't happen! Try refreshing!")
       }
     }
   }
@@ -186,7 +190,7 @@ export default function BrawlPit() {
         match && (
           <>
             <h1
-              className={`z-100 flex-none text-center font-calistoga text-[1.4rem] tracking-wide text-balance text-primary/95 drop-shadow-md md:text-left [@media(max-height:500px)]:w-[94%] [@media(max-height:500px)]:text-2xl/7 [@media(min-height:500px)]:mb-1 [@media(min-height:600px)]:text-[2.5rem]/12 [@media(min-height:600px)]:font-extrabold [@media(min-height:600px)]:tracking-wide [@media(min-height:600px)]:md:text-center [@media(min-height:700px)]:mt-4 [@media(min-height:700px)]:mb-2 [@media(min-height:700px)]:text-5xl/14 [@media(min-height:700px)]:md:mt-12 [@media(min-height:700px)]:lg:mt-24 [@media(min-height:700px)]:lg:text-7xl`}
+              className={`z-100 flex-none text-center font-calistoga text-[1.4rem] tracking-wide text-balance text-primary/95 drop-shadow-md md:text-left [@media(max-height:500px)]:w-[94%] [@media(max-height:500px)]:text-2xl/7 [@media(min-height:500px)]:mb-0.5 [@media(min-height:600px)]:text-[2.5rem]/12 [@media(min-height:600px)]:font-extrabold [@media(min-height:600px)]:tracking-wide [@media(min-height:600px)]:md:text-center [@media(min-height:700px)]:mt-4 [@media(min-height:700px)]:mb-2 [@media(min-height:700px)]:text-5xl/14 [@media(min-height:700px)]:md:mt-12 [@media(min-height:700px)]:lg:mt-24 [@media(min-height:700px)]:lg:text-7xl`}
             >
               Which means more to{' '}
               <span
@@ -211,7 +215,7 @@ export default function BrawlPit() {
               <hr className="my-0 h-px w-full text-button opacity-70" />
             </div>
             <div
-              className={`${transition ? 'translate-y-0 opacity-100' : 'pointer-events-none opacity-0 max-md:scale-96 sm:translate-y-3'} my-1 flex w-full grow flex-col items-center justify-center gap-1 transition-all duration-275 ease-in-out md:mb-3 [@media(min-height:500px)]:mt-2 [@media(min-height:500px)]:gap-3 [@media(min-height:700px)]:mt-3 [@media(min-height:700px)]:mb-3 [@media(min-height:700px)]:gap-6 [@media(min-height:700px)]:md:mb-1 [@media(min-height:700px)]:lg:my-0 [@media(min-height:700px)]:lg:flex-row [@media(min-height:700px)]:lg:gap-12 [@media(min-height:700px)]:xl:gap-27`}
+              className={`${transition ? 'translate-y-0 opacity-100' : 'pointer-events-none opacity-0 max-md:scale-96 sm:translate-y-3'} my-1 flex w-full grow flex-col items-center justify-center gap-1 transition-all duration-275 ease-in-out md:mb-3 [@media(min-height:500px)]:mt-1.5 [@media(min-height:500px)]:gap-3 [@media(min-height:700px)]:mt-3 [@media(min-height:700px)]:mb-3 [@media(min-height:700px)]:gap-6 [@media(min-height:700px)]:md:mb-1 [@media(min-height:700px)]:lg:my-0 [@media(min-height:700px)]:lg:flex-row [@media(min-height:700px)]:lg:gap-12 [@media(min-height:700px)]:xl:gap-27`}
             >
               <BookButton
                 book={match.book_a}
