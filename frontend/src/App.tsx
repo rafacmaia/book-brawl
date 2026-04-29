@@ -1,4 +1,4 @@
-import { RedirectToSignIn, Show, useAuth, useUser } from '@clerk/react'
+import { SignIn, useAuth, useUser } from '@clerk/react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { ApiError, apiFetch } from './api'
@@ -9,12 +9,13 @@ import TheStacks from './pages/TheStacks.tsx'
 import Footer from './components/Footer'
 import Placeholder from './components/Placeholder.tsx'
 
-export default function App() {
-  const { getToken } = useAuth()
+function ProtectedApp() {
+  const { isLoaded, isSignedIn } = useAuth()
   const { user } = useUser()
+  const { getToken } = useAuth()
 
   const [isUserSynced, setIsUserSynced] = useState(false)
-  const [syncError, setSyncError] = useState<boolean>(false)
+  const [syncError, setSyncError] = useState(false)
 
   useEffect(() => {
     if (!user) {
@@ -31,7 +32,6 @@ export default function App() {
 
   async function syncUser() {
     const token = await getToken()
-
     await apiFetch('/readers', token!, {
       method: 'POST',
       body: JSON.stringify({
@@ -53,42 +53,48 @@ export default function App() {
     setIsUserSynced(true)
   }
 
+  if (!isLoaded)
+    return (
+      <div className="flex min-h-dvh flex-col bg-linear-to-b from-sky-800 to-sky-950 bg-fixed">
+        <Placeholder message="Loading..." />
+      </div>
+    )
+  if (!isSignedIn) return <Navigate to="/sign-in" replace />
+
+  return (
+    <div className="flex min-h-dvh flex-col bg-linear-to-b from-sky-800 to-sky-950 bg-fixed font-zain">
+      <Header />
+      {isUserSynced ? (
+        <Routes>
+          <Route path={'/'} element={<Navigate to="/brawl" replace />} />
+          <Route path={'/brawl'} element={<BrawlPit />} />
+          <Route path={'/leaderboard'} element={<Leaderboard />} />
+          <Route path={'/stacks'} element={<TheStacks />} />
+        </Routes>
+      ) : syncError ? (
+        <Placeholder
+          message={'Something went really wrong. Please refresh or try logging in again.'}
+        />
+      ) : (
+        <Placeholder message={'Loading...'} />
+      )}
+      <Footer />
+    </div>
+  )
+}
+
+export default function App() {
   return (
     <Routes>
       <Route
-        path={'/*'}
+        path="/sign-in/*"
         element={
-          <>
-            <Show when={'signed-out'}>
-              <RedirectToSignIn />
-            </Show>
-            <Show when={'signed-in'}>
-              <div
-                className={
-                  'flex min-h-dvh flex-col bg-linear-to-b from-sky-800 to-sky-950 bg-fixed font-zain'
-                }
-              >
-                <Header />
-                {isUserSynced ? (
-                  <Routes>
-                    <Route path={'/'} element={<Navigate to="/brawl" replace />} />
-                    <Route path={'/brawl'} element={<BrawlPit />} />
-                    <Route path={'/leaderboard'} element={<Leaderboard />} />
-                    <Route path={'/stacks'} element={<TheStacks />} />
-                  </Routes>
-                ) : syncError ? (
-                  <Placeholder
-                    message={'Something went really wrong. Please refresh or try logging in again.'}
-                  />
-                ) : (
-                  <Placeholder message={'Loading...'} />
-                )}
-                <Footer />
-              </div>
-            </Show>
-          </>
+          <div className="flex min-h-dvh items-center justify-center bg-linear-to-b from-sky-800 to-sky-950 bg-fixed">
+            <SignIn routing="path" path="/sign-in" />
+          </div>
         }
       />
+      <Route path={'/*'} element={<ProtectedApp />} />
     </Routes>
   )
 }
