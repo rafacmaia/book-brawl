@@ -1,5 +1,5 @@
-import { SignIn, useAuth, useUser } from '@clerk/react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { SignIn, SignUp, useAuth, useUser } from '@clerk/react'
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { ApiError, apiFetch } from './api'
 import Header from './components/Header'
@@ -83,17 +83,21 @@ function ProtectedApp() {
   )
 }
 
+function AuthLayout() {
+  return (
+    <div className="flex min-h-dvh items-center justify-center bg-linear-to-b from-sky-800 to-sky-950 bg-fixed">
+      <Outlet />
+    </div>
+  )
+}
+
 export default function App() {
   return (
     <Routes>
-      <Route
-        path="/sign-in/*"
-        element={
-          <div className="flex min-h-dvh items-center justify-center bg-linear-to-b from-sky-800 to-sky-950 bg-fixed">
-            <SignIn routing="path" path="/sign-in" />
-          </div>
-        }
-      />
+      <Route element={<AuthLayout />}>
+        <Route path="/sign-in/*" element={<SignIn routing="path" path="/sign-in" />} />
+        <Route path="/sign-up/*" element={<SignUp routing="path" path="/sign-up" />} />
+      </Route>
       <Route path={'/*'} element={<ProtectedApp />} />
     </Routes>
   )

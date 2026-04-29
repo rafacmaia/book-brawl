@@ -16,6 +16,7 @@ createRoot(document.getElementById('root')!).render(
     <ClerkProvider
       publishableKey={publishableKey}
       signInUrl="/sign-in"
+      signUpUrl="/sign-up"
       appearance={{
         variables: {
           colorPrimary: '#0c4a6e',
@@ -30,9 +31,6 @@ createRoot(document.getElementById('root')!).render(
         elements: {
           card: {
             backgroundColor: '#f5c842',
-          },
-          footer: {
-            display: 'none',
           },
           socialButtonsBlockButton: {
             backgroundColor: '#ffffff',
