@@ -56,7 +56,9 @@ function ProtectedApp() {
   if (!isLoaded)
     return (
       <div className="flex min-h-dvh flex-col bg-linear-to-b from-sky-800 to-sky-950 bg-fixed">
+        <Header />
         <Placeholder message="Loading..." />
+        <Footer />
       </div>
     )
   if (!isSignedIn) return <Navigate to="/sign-in" replace />

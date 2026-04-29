@@ -51,3 +51,12 @@ body {
 #root {
     @apply min-h-dvh p-0 m-0;
 }
+
+.cl-socialButtonsBlockButton:hover {
+    background-color: #f5f5f5 !important;
+    border-color: #dadce0 !important;
+}
+
+.cl-footer > :last-child {
+    display: none !important;
+}
