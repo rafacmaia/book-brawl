@@ -1,7 +1,7 @@
 import csv
 import io
 from contextlib import asynccontextmanager
-from typing import Literal
+from typing import Any, Literal
 
 from fastapi import Depends, FastAPI, Form, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -56,6 +56,28 @@ def health() -> dict[str, str]:
 class MatchResult(BaseModel):
     winner_id: int
     loser_id: int
+
+
+@app.get("/brawl/session")
+def get_session(
+    reader_id: int = Depends(get_current_reader_id),
+) -> list[dict[str, Any]]:
+    """Return a user's full book collection for client-side matchmaking"""
+    books = books_repo.get_all_history(reader_id)
+
+    if len(books) < 2:
+        raise HTTPException(status_code=400, detail="Not enough books")
+
+    return [
+        {
+            "id": book.id,
+            "title": book.title,
+            "author": book.author,
+            "elo": book.elo,
+            "faced_opponents": book.faced_opponents,
+        }
+        for book in books
+    ]
 
 
 @app.get("/brawl")
