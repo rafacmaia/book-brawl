@@ -36,14 +36,14 @@ function BookButton({
   const italic = /\b(?:anonymous|various)\b/i.test(author)
 
   const regularCardStyle =
-    'gap-1 px-5 [@media(min-height:600px)]:gap-1.75  [@media(min-height:700px)]:px-8 [@media(min-height:700px)]:gap-4 [@media(min-height:700px)]:sm:gap-6 [@media(min-height:700px)]:sm:py-4'
+    'gap-1 px-5 [@media(min-height:600px)]:gap-1.75 [@media(min-height:700px)]:px-8 [@media(min-height:700px)]:gap-4 [@media(min-height:700px)]:sm:gap-6 [@media(min-height:700px)]:sm:py-4'
   const regularTitleStyle =
     'text-[1.6rem]/8 [@media(min-height:600px)]:text-[1.85rem]/10 [@media(min-height:700px)]:text-[2.125rem]/11 [@media(min-height:700px)]:sm:text-[2.75rem]/15'
   const regularAuthorStyle =
     'text-[1.2rem]/6 [@media(min-height:600px)]:text-[1.35rem]/7 [@media(min-height:700px)]:text-[1.5rem] [@media(min-height:700px)]:sm:text-[1.875rem]'
 
   const tightCardStyle =
-    'gap-1 px-5 [@media(min-height:700px)]:gap-3 [@media(min-height:700px)]:sm:gap-4 [@media(min-height:700px)]:sm:px-8 sm:py-3'
+    'gap-1 px-5 [@media(min-height:700px)]:gap-3 [@media(min-height:700px)]:sm:gap-4 [@media(min-height:700px)]:px-6 [@media(min-height:700px)]:sm:px-8 sm:py-3'
   const tightTitleStyle =
     'text-[1.4rem]/7 [@media(min-height:600px)]:text-[1.65rem]/8 [@media(min-height:700px)]:text-[2rem]/10 [@media(min-height:700px)]:sm:text-[2.4rem]/13'
   const tightAuthorStyle =

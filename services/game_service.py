@@ -76,7 +76,7 @@ def _opponent_weights(
     for b in books:
         if b.id != book_a.id:
             # Increase the multiplier to penalize rematches more
-            rematch_penalty = 1 + 3 * book_a.faced_opponents.get(b.id, 0)
+            rematch_penalty = 1 + 4 * book_a.faced_opponents.get(b.id, 0)
 
             # Decrease the divisor to prioritize similar score ranges
             elo_gap_penalty = 1 + abs(book_a.elo - b.elo) / 150

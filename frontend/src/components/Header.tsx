@@ -69,7 +69,9 @@ export default function Header() {
         </NavLink>
         <div className={`translate-y-0.75`}>
           <UserButton
-            appearance={{ elements: { avatarBox: '[@media(min-height:700px)]:size-7! size-6!' } }}
+            appearance={{
+              elements: { avatarBox: '[@media(min-height:700px)]:size-7.25! size-6!' },
+            }}
           />
         </div>
       </nav>
