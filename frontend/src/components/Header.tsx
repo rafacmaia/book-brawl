@@ -7,11 +7,11 @@ export default function Header() {
   function activeStyle({ isActive }: { isActive: boolean }): string {
     return isActive
       ? 'underline scale-108 [@media(min-height:700px)]:max-md:scale-110 [@media(min-height:500px)]:max-md:translate-y-1.5 decoration-wavy decoration-2 underline-offset-4 '
-      : 'opacity-90 active:opacity-100 active:scale-96 hover:md:opacity-100 hover:md:scale-104 hover:md:-translate-y-0.5'
+      : 'opacity-90 active:opacity-100 active:scale-95 hover:md:opacity-100 hover:md:scale-105 hover:md:-translate-y-0.5'
   }
 
   const iconStyle =
-    'max-md:mx-2 md:mr-2 inline md:size-5.5 size-6.75 -translate-y-0.5 transition-all duration-200'
+    'max-md:mx-2 md:mr-2 inline md:size-5.5 size-6.75 relative top-[-1.5px] transition-all duration-200'
 
   return (
     <header className={'flex w-full px-1 py-3 md:px-6 md:py-3 [@media(max-height:500px)]:pb-0'}>

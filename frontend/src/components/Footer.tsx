@@ -1,3 +1,5 @@
+import catIcon from '../assets/cat-icon-1.svg'
+
 export default function Footer() {
   return (
     <footer className="mt-auto flex w-screen flex-col items-center gap-2.75 px-4 pt-3 pb-2 text-center text-footer/75 [@media(max-height:500px)]:hidden [@media(min-height:700px)]:gap-3.75 [@media(min-height:700px)]:py-3 [@media(min-height:700px)]:sm:py-4">
@@ -12,7 +14,7 @@ export default function Footer() {
         >
           Zou Labs
           <img
-            src={'/cat-icon-1.svg'}
+            src={catIcon}
             alt={'cat icon'}
             className={
               'inline size-5 brightness-110 [@media(min-height:700px)]:size-5.5 [@media(min-height:700px)]:sm:size-6'

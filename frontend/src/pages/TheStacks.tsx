@@ -638,7 +638,7 @@ export default function TheStacks() {
       {error ? (
         <Placeholder message={error} />
       ) : loading ? (
-        <Placeholder message="Loading books..." />
+        <Placeholder message="Fetching the Stacks..." />
       ) : (
         <>
           {/* MANUAL INPUT */}

@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react'
 import { ApiError, apiFetch } from '../api'
 import Placeholder from '../components/Placeholder'
 import { EmptyStateMessage } from '../components/EmptyStateMessage.tsx'
+import { Swords } from 'lucide-react'
+import { BookIcon } from '@phosphor-icons/react'
 
 interface Book {
   id: number
@@ -50,7 +52,7 @@ function BookButton({
   const tighterCardStyle =
     'gap-1 px-2 [@media(min-height:500px)]:px-4 [@media(min-height:600px)]:px-6 [@media(min-height:700px)]:gap-2 sm:gap-4 sm:px-7 sm:py-3'
   const tighterTitleStyle =
-    'text-[1.35rem]/7 [@media(min-height:600px)]:text-[1.55rem]/7 [@media(min-height:700px)]:text-[2rem]/10 [@media(min-height:700px)]:sm:text-[2.4rem]/13'
+    'text-[1.35rem]/7 [@media(min-height:600px)]:text-[1.55rem]/7 [@media(min-height:700px)]:text-[2rem]/10 [@media(min-height:700px)]:sm:text-[2.4rem]/12'
 
   const cardStyle = veryLongTitle
     ? tighterCardStyle
@@ -181,7 +183,18 @@ export default function BrawlPit() {
   return (
     <main className="relative flex grow flex-col items-center px-4 text-primary/95">
       {loading ? (
-        <Placeholder message={'Loading...'} />
+        <div
+          className={
+            'flex w-full grow animate-pulse flex-col items-center justify-center gap-4 text-center font-zain text-[2.5rem]/12 font-extrabold tracking-wider text-balance text-primary/85 sm:text-5xl/20 md:mb-12 md:w-2xl'
+          }
+        >
+          <div className="mb-4 flex items-center justify-center gap-4 md:gap-6">
+            <BookIcon weight={'duotone'} className={'size-12 sm:size-16'} />
+            <Swords className={'size-14 sm:size-20'} />
+            <BookIcon weight={'duotone'} className={'size-12 -scale-x-100 sm:size-16'} />
+          </div>
+          <p>Summoning contenders...</p>
+        </div>
       ) : error ? (
         <Placeholder message={error} />
       ) : emptyPit ? (

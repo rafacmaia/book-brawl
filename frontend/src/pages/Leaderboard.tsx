@@ -35,12 +35,13 @@ const TIER_LABELS: Record<number, string> = {
 
 const PROGRESS_LABELS: [number, string][] = [
   [0.1, "Don't trust this yet..."],
-  [0.2, 'Early days...'],
-  [0.5, 'Cooking...'],
+  [0.2, 'Early days'],
+  [0.3, 'Warming up'],
+  [0.5, 'Cooking'],
   [0.7, 'Getting there!'],
   [0.8, 'Nearly there...'],
-  [0.9, 'Final calibration...'],
-  [0.99, 'Locking in...'],
+  [0.9, 'Final calibrations...'],
+  [0.97, 'Locking in...'],
   [Infinity, 'The brawl pit has spoken!'],
 ]
 
@@ -220,11 +221,22 @@ function LeaderboardContent({ progress, rankings }: { progress: number; rankings
           <div className="mx-auto h-7 w-[99%] overflow-hidden rounded-full bg-primary/25 md:h-8 md:w-full">
             <div
               className={`h-full rounded-xs bg-linear-to-r transition-all duration-500 ${progress > 0.33 ? 'from-green-600/90 via-button/90 to-red-500/90' : 'from-red-500/90 to-button/90'}`}
-              style={{ width: `${Math.round(progress * 100)}%` }}
+              style={{
+                width: `${Math.round(progress * 100)}%`,
+                maskImage:
+                  progress < 0.995
+                    ? 'linear-gradient(to right, black 80%, transparent 100%)'
+                    : undefined,
+                WebkitMaskImage:
+                  progress < 0.995
+                    ? 'linear-gradient(to right, black 80%, transparent 100%)'
+                    : undefined,
+              }}
             />
           </div>
           <p
-            className={`absolute font-gaegu text-[1.15rem] font-black tracking-wider text-primary/95 drop-shadow-2xl md:text-xl ${progress > 0.66 ? 'bottom-0 left-4 sm:bottom-0.5' : 'right-4 bottom-0 sm:bottom-0.5'}`}
+            className={`absolute font-gaegu text-[1.15rem] font-black tracking-wider text-primary/95 md:text-xl ${progress > 0.8 ? 'bottom-px left-4 sm:bottom-0.5' : 'right-4 bottom-px sm:bottom-0.5'}`}
+            style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5), 0 0px 6px rgba(0,0,0,0.3)' }}
           >
             {Math.round(progress * 100)}%{' '}
             {PROGRESS_LABELS.find(([threshold]) => progress < threshold)![1]}
@@ -360,7 +372,7 @@ export default function Leaderboard() {
             <BookIcon weight={'duotone'} className={'size-12 -scale-x-100 sm:size-16'} />
           </div>
           <p>
-            The books must{' '}
+            Books must{' '}
             <NavLink
               to={'/brawl'}
               className={`font-black text-primary/90 underline decoration-accent/80 decoration-4 underline-offset-4 transition-all duration-350 hover:text-5xl hover:text-primary hover:decoration-wavy hover:underline-offset-8 sm:hover:text-6xl`}
