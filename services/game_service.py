@@ -1,3 +1,4 @@
+import math
 import random
 
 from db.books_repo import get_all_history
@@ -5,11 +6,16 @@ from db.books_repo import update_elo as save_elo
 from db.comparisons_repo import insert as insert_comparison
 from models import Book
 from services.scoring_service import (
-    ABS_MIN_PERCENTAGE,
-    _absolute_score,
+    ABS_PERCENTAGE,
+    LOCAL_WINDOW,
+    absolute_score,
     calculate_elo,
     confidence_score,
 )
+
+# Calculate the Elo-score gap to prioritize in matchmaking,
+# informed by the LOCAL_WINDOW used in the measure of confidence
+ELO_GAP = 400 * math.log10(1 / (0.5 - LOCAL_WINDOW) - 1)
 
 
 class NotEnoughBooksError(Exception):
@@ -59,7 +65,7 @@ def _sampling_weight(book: Book, b_confidence: float, books: list[Book]) -> floa
     # Boost scales with library size and absolute_score: larger collections
     # require higher boosts to make a difference, and lower absolute_score
     # requires a higher boost to get early data in.
-    early_boost = (len(books) * ABS_MIN_PERCENTAGE) * (1 - _absolute_score(book, books))
+    early_boost = (len(books) * ABS_PERCENTAGE) * (1 - absolute_score(book, books))
     confidence_weight = 1 - b_confidence
 
     return max(0.1, confidence_weight, early_boost)
@@ -79,12 +85,12 @@ def _opponent_weights(
             rematch_penalty = 1 + 4 * book_a.faced_opponents.get(b.id, 0)
 
             # Decrease the divisor to prioritize similar score ranges
-            elo_gap_penalty = 1 + abs(book_a.elo - b.elo) / 150
+            elo_gap_penalty = 1 + abs(book_a.elo - b.elo) / ELO_GAP
 
             # Calculate the base weight based on confidence level
-            base_weight = max(0.1, 1 - con_scores[b.id])
+            base_weight = max(0.05, 1 - con_scores[b.id])
 
-            adjusted_weight = max(0.01, base_weight / rematch_penalty / elo_gap_penalty)
+            adjusted_weight = base_weight / rematch_penalty / elo_gap_penalty
 
             candidates.append((b, adjusted_weight))
 

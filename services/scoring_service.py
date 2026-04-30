@@ -7,9 +7,9 @@ LOC_SCORE_WEIGHT = 0.45
 DEN_SCORE_WEIGHT = 0.25  # density-based stability score
 
 ABS_MIN_OPPONENTS = 8
-ABS_MIN_PERCENTAGE = 0.10
-LOCAL_WINDOW = 0.10
-DENSITY_WINDOW = 24
+ABS_PERCENTAGE = 0.10
+LOCAL_WINDOW = 0.12
+DENSITY_WINDOW = 20
 
 K_TIERS = [(0.25, 40), (0.5, 32), (0.75, 24), (1.0, 16)]
 
@@ -46,7 +46,7 @@ def confidence_score(book: Book, books: list[Book]) -> float:
         return 1
 
     # Absolute score boosts the first batch of matches to speed overall placement.
-    abs_score_weighted = _absolute_score(book, books) * ABS_SCORE_WEIGHT
+    abs_score_weighted = absolute_score(book, books) * ABS_SCORE_WEIGHT
 
     # Local score boosts matches against books with similar Elo to refine placement.
     loc_score_weighted = _local_score(book, books) * LOC_SCORE_WEIGHT
@@ -58,16 +58,19 @@ def confidence_score(book: Book, books: list[Book]) -> float:
     return abs_score_weighted + loc_score_weighted + den_score_weighted
 
 
-def _absolute_score(book: Book, books: list[Book]) -> float:
+def absolute_score(book: Book, books: list[Book]) -> float:
     """Calculates a book's absolute score.
 
     Measures if a book has faced a minimum number of opponents, scaling with
     library size.
     """
+    if len(books) <= 1:
+        return 1
+
     absolute_cap = (
-        max(len(books) * ABS_MIN_PERCENTAGE, ABS_MIN_OPPONENTS)
-        if len(books) > ABS_MIN_OPPONENTS
-        else 1
+        max(len(books) * ABS_PERCENTAGE, ABS_MIN_OPPONENTS)
+        if len(books) > ABS_MIN_OPPONENTS / ABS_PERCENTAGE
+        else min(len(books) - 1, ABS_MIN_OPPONENTS)
     )
 
     return min(len(book.faced_opponents) / absolute_cap, 1)
@@ -114,36 +117,6 @@ def _stability_score(book: Book, books: list[Book]) -> float:
     return 1 - density
 
 
-def score_breakdown(book: Book, books: list[Book]) -> dict:
-    """Return a dictionary of detailed calculations pertaining to a given book.
-
-    Calculate absolute, local, and density scores and use those to derive, inline
-    for efficiency, confidence score, K value, and sampling weight.
-    """
-    abs_score = _absolute_score(book, books)
-    loc_score = _local_score(book, books)
-    sta_score = _stability_score(book, books)
-    con_score = (
-        abs_score * ABS_SCORE_WEIGHT
-        + loc_score * LOC_SCORE_WEIGHT
-        + sta_score * DEN_SCORE_WEIGHT
-    )
-
-    k_value = next(k for threshold, k in K_TIERS if con_score <= threshold)
-
-    early_boost = (len(books) * ABS_MIN_PERCENTAGE) * (1 - abs_score)
-    selection_weight = max(0.1, 1 - con_score, early_boost)
-
-    return {
-        "k": k_value,
-        "confidence": con_score,
-        "absolute": abs_score,
-        "local": loc_score,
-        "stability": sta_score,
-        "sampling_weight": selection_weight,
-    }
-
-
 # ====== ELO CALCULATION
 
 
@@ -157,9 +130,12 @@ def calculate_elo(winner: Book, loser: Book, books: list[Book]) -> tuple[int, in
     return new_winner_elo, new_loser_elo
 
 
-def _expected_score(elo_a: int, elo_b: int) -> float:
-    """Calculates the expected score of a book given the Elo of a potential opponent."""
-    return 1 / (1 + 10 ** ((elo_b - elo_a) / 400))
+def _expected_score(book_elo: int, opponent_elo: int) -> float:
+    """Calculates the probability that a book wins against a given opponent.
+
+    Returns a value between 0 (very unlikely to win) and 1 (very likely winner).
+    """
+    return 1 / (1 + 10 ** ((opponent_elo - book_elo) / 400))
 
 
 def _get_k(book: Book, books: list[Book]) -> int:

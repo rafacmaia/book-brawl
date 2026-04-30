@@ -1,13 +1,6 @@
 from rich import box
 from rich.console import Console
 from rich.table import Table
-
-from services.ranking_service import rank_books
-from services.scoring_service import (
-    calculate_progress,
-    confidence_score,
-    score_breakdown,
-)
 from ui import (
     ACCENT,
     ACCURACY_EXPLAINER,
@@ -19,11 +12,17 @@ from ui import (
     LINE_WIDTH,
     PRIMARY,
     PROMPT,
-    SECONDARY,
     rule,
     style,
 )
 from utils import header, library_summary, press_enter
+
+from services.ranking_service import rank_books
+from services.scoring_service import (
+    calculate_progress,
+    confidence_score,
+    score_breakdown,
+)
 
 
 def view_leaderboard(books, verbose=False):
