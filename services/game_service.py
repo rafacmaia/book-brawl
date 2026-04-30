@@ -84,7 +84,7 @@ def _opponent_weights(
             # Calculate the base weight based on confidence level
             base_weight = max(0.1, 1 - con_scores[b.id])
 
-            adjusted_weight = max(0.05, base_weight / rematch_penalty / elo_gap_penalty)
+            adjusted_weight = max(0.01, base_weight / rematch_penalty / elo_gap_penalty)
 
             candidates.append((b, adjusted_weight))
 

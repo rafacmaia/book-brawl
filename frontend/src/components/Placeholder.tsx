@@ -4,7 +4,7 @@ export default function Placeholder({ message }: { message: string }) {
   return (
     <div className={'flex w-full grow items-center justify-center'}>
       <p
-        className={`max-w-3xl animate-pulse text-center text-5xl/20 font-extrabold tracking-wide text-primary/85 ${loading ? 'font-gaegu' : 'font-zain'}`}
+        className={`max-w-3xl animate-pulse text-center text-4xl/18 font-extrabold tracking-wide text-balance text-primary/85 max-md:px-4 md:text-5xl/20 ${loading ? 'font-gaegu text-5xl/20' : 'font-zain text-4xl/19'}`}
       >
         {message}
       </p>

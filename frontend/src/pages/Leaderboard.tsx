@@ -40,8 +40,8 @@ const PROGRESS_LABELS: [number, string][] = [
   [0.5, 'Cooking'],
   [0.7, 'Getting there!'],
   [0.8, 'Nearly there...'],
-  [0.9, 'Final calibrations...'],
-  [0.97, 'Locking in...'],
+  [0.9, 'Final calibrations'],
+  [0.97, 'Locking in'],
   [Infinity, 'The brawl pit has spoken!'],
 ]
 
@@ -235,7 +235,7 @@ function LeaderboardContent({ progress, rankings }: { progress: number; rankings
             />
           </div>
           <p
-            className={`absolute font-gaegu text-[1.15rem] font-black tracking-wider text-primary/95 md:text-xl ${progress > 0.8 ? 'bottom-px left-4 sm:bottom-0.5' : 'right-4 bottom-px sm:bottom-0.5'}`}
+            className={`absolute right-4 bottom-px font-gaegu text-[1.15rem] font-black tracking-wider text-primary/95 sm:bottom-0.5 md:text-xl`}
             style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5), 0 0px 6px rgba(0,0,0,0.3)' }}
           >
             {Math.round(progress * 100)}%{' '}
