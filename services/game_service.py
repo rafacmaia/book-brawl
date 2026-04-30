@@ -76,14 +76,15 @@ def _opponent_weights(
     for b in books:
         if b.id != book_a.id:
             # Increase the multiplier to penalize rematches more
-            rematch_penalty = 1 + 2 * book_a.faced_opponents.get(b.id, 0)
+            rematch_penalty = 1 + 3 * book_a.faced_opponents.get(b.id, 0)
 
             # Decrease the divisor to prioritize similar score ranges
             elo_gap_penalty = 1 + abs(book_a.elo - b.elo) / 150
 
             # Calculate the base weight based on confidence level
-            w = max(0.1, 1 - con_scores[b.id])
-            adjusted_weight = max(0.1, w / rematch_penalty / elo_gap_penalty)
+            base_weight = max(0.1, 1 - con_scores[b.id])
+
+            adjusted_weight = max(0.05, base_weight / rematch_penalty / elo_gap_penalty)
 
             candidates.append((b, adjusted_weight))
 
