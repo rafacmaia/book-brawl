@@ -58,28 +58,6 @@ class MatchResult(BaseModel):
     loser_id: int
 
 
-@app.get("/brawl/session")
-def get_session(
-    reader_id: int = Depends(get_current_reader_id),
-) -> list[dict[str, Any]]:
-    """Return a user's full book collection for client-side matchmaking"""
-    books = books_repo.get_all_history(reader_id)
-
-    if len(books) < 2:
-        raise HTTPException(status_code=400, detail="Not enough books")
-
-    return [
-        {
-            "id": book.id,
-            "title": book.title,
-            "author": book.author,
-            "elo": book.elo,
-            "faced_opponents": book.faced_opponents,
-        }
-        for book in books
-    ]
-
-
 @app.get("/brawl")
 def get_match(
     reader_id: int = Depends(get_current_reader_id),
