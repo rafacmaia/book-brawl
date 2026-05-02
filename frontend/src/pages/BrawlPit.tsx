@@ -104,6 +104,7 @@ export default function BrawlPit() {
   const [nextMatch, setNextMatch] = useState<Match | null>(null)
   const [matchCount, setMatchCount] = useState<number>(1)
   const [selectedBook, setSelectedBook] = useState<number | null>(null)
+  const [matchTransition, setMatchTransition] = useState(false)
 
   const [emptyPit, setEmptyPit] = useState<boolean>(false)
 
@@ -118,7 +119,7 @@ export default function BrawlPit() {
 
       setMatch(firstMatch ?? null)
       setLoading(false)
-      requestAnimationFrame(() => setTransition(true))
+      requestAnimationFrame(() => setMatchTransition(true))
 
       const secondMatch = await fetchNextMatch(token!, firstMatch)
       setNextMatch(secondMatch ?? null)
@@ -162,25 +163,34 @@ export default function BrawlPit() {
 
     const newCurrentMatch = nextMatch
 
-    const isMobile = window.matchMedia('(max-width: 639px)').matches
+    const isCompactViewport =
+      window.matchMedia('(max-width: 639px)').matches ||
+      window.matchMedia('(max-height: 500px)').matches // catches mobile landscape mode
 
-    if (isMobile) {
+    // Handles book card transitions on mobile, where hover and active states act differently,
+    // so we have to be more explicit on giving user feedback on their selected book and to
+    // trigger transition between matches.
+    if (isCompactViewport) {
+      // Triggers and gives time for "selected book" effect
       setSelectedBook(winnerId)
       await new Promise((resolve) => setTimeout(resolve, 125))
-      setTransition(false)
+
+      // Triggers and gives time for match transition: fade out old match and fade in new match
+      setMatchTransition(false)
       await new Promise((resolve) => setTimeout(resolve, 275))
     }
 
     if (nextMatch) {
-      if (!isMobile) {
-        setTransition(false)
+      if (!isCompactViewport) {
+        // Desktop: triggers fade-in-and-out of book cards. Mobile transitions handled above.
+        setMatchTransition(false)
         await new Promise((resolve) => setTimeout(resolve, 300))
       }
       setMatchCount((prevCount) => prevCount + 1)
       setMatch(newCurrentMatch)
 
       await new Promise((resolve) => setTimeout(resolve, 50))
-      setTransition(true)
+      setMatchTransition(true)
       setSelectedBook(null)
 
       setNextMatch(null)
@@ -251,14 +261,14 @@ export default function BrawlPit() {
             >
               <hr className="my-0 h-px w-full text-button opacity-70" />
               <p
-                className={`${transition ? 'opacity-80' : 'opacity-0'} mx-4 font-gaegu text-lg font-bold tracking-widest transition-opacity duration-250 ease-in-out [@media(max-height:500px)]:mx-3 [@media(max-height:500px)]:text-base`}
+                className={`${matchTransition ? 'opacity-80' : 'opacity-0'} mx-4 font-gaegu text-lg font-bold tracking-widest transition-opacity duration-250 ease-in-out [@media(max-height:500px)]:mx-3 [@media(max-height:500px)]:text-base`}
               >
                 {matchCount}
               </p>
               <hr className="my-0 h-px w-full text-button opacity-70 [@media(max-height:500px)]:w-6" />
             </div>
             <div
-              className={`${transition ? 'translate-y-0 opacity-100' : 'pointer-events-none opacity-0 max-md:scale-96 sm:translate-y-3'} my-1 flex w-full grow flex-col items-center justify-center gap-1 transition-all duration-275 ease-in-out md:mb-3 [@media(min-height:500px)]:mt-1.5 [@media(min-height:500px)]:gap-3 [@media(min-height:700px)]:mt-3 [@media(min-height:700px)]:mb-3 [@media(min-height:700px)]:gap-6 [@media(min-height:700px)]:md:mb-1 [@media(min-height:700px)]:lg:my-0 [@media(min-height:700px)]:lg:flex-row [@media(min-height:700px)]:lg:gap-12 [@media(min-height:700px)]:xl:gap-27`}
+              className={`${matchTransition ? 'translate-y-0 opacity-100' : 'pointer-events-none opacity-0 max-md:scale-96 sm:translate-y-3'} my-1 flex w-full grow flex-col items-center justify-center gap-1 transition-all duration-275 ease-in-out md:mb-3 [@media(min-height:500px)]:mt-1.5 [@media(min-height:500px)]:gap-3 [@media(min-height:700px)]:mt-3 [@media(min-height:700px)]:mb-3 [@media(min-height:700px)]:gap-6 [@media(min-height:700px)]:md:mb-1 [@media(min-height:700px)]:lg:my-0 [@media(min-height:700px)]:lg:flex-row [@media(min-height:700px)]:lg:gap-12 [@media(min-height:700px)]:xl:gap-27`}
             >
               <BookButton
                 book={match.book_a}
@@ -279,7 +289,7 @@ export default function BrawlPit() {
               }
             >
               <p
-                className={`${transition ? 'opacity-75' : 'opacity-0'} mx-4 font-gaegu text-xl font-black tracking-widest transition-opacity duration-250 ease-in-out`}
+                className={`${matchTransition ? 'opacity-75' : 'opacity-0'} mx-4 font-gaegu text-xl font-black tracking-widest transition-opacity duration-250 ease-in-out`}
               >
                 {matchCount}
               </p>

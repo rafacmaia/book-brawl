@@ -5,6 +5,30 @@ All notable changes to Book Brawl will be documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Progress labels to the Leaderboard progress bar.
+
+### Changed
+
+- Clerk-related UI to match the rest of the app's design.
+- Matchmaking logic so that repeats are rarer and overall progress is faster (more
+  informative matches).
+- Brawl Pit logic so the same book rarely appears twice in a row.
+- Nav bar to be icon-based on mobile.
+- Improved empty state messaging throughout (added icons and appropriate links)
+- Tweaked book card formatting: better responsiveness across screen sizes and varying
+  title/author lengths.
+
+### Fixed
+
+- Bug where the leaderboard was locked until 100% progress was reached.
+- Bug where the brawl pit froze in an empty state if the user resolved matches before
+  subsequent matches were fetched.
+- Match transition effects now appear on mobile landscape mode as well.
+
 ## [1.1.0] - 2026-04-27
 
 ### Added
