@@ -2,24 +2,27 @@ import math
 
 from models import Book
 
-ABS_SCORE_WEIGHT = 0.30
-LOC_SCORE_WEIGHT = 0.45
-DEN_SCORE_WEIGHT = 0.25  # density-based stability score
+ABS_SCORE_WEIGHT = 0.30  # absolute score weight
+LOC_SCORE_WEIGHT = 0.45  # local score weight
+STA_SCORE_WEIGHT = 0.25  # density-based stability score weight
 
 ABS_MIN_OPPONENTS = 8
 ABS_PERCENTAGE = 0.10
+
 LOCAL_WINDOW = 0.12
+
 DENSITY_WINDOW = 20
+DENSITY_CAP = 10
 
 K_TIERS = [(0.25, 40), (0.5, 32), (0.75, 24), (1.0, 16)]
 
 
 # ====== CONFIDENCE SCORING
 
-if not math.isclose(ABS_SCORE_WEIGHT + LOC_SCORE_WEIGHT + DEN_SCORE_WEIGHT, 1):
+if not math.isclose(ABS_SCORE_WEIGHT + LOC_SCORE_WEIGHT + STA_SCORE_WEIGHT, 1):
     raise ValueError(
         "Score weights must sum to 1.0, got "
-        f"{ABS_SCORE_WEIGHT + LOC_SCORE_WEIGHT + DEN_SCORE_WEIGHT}"
+        f"{ABS_SCORE_WEIGHT + LOC_SCORE_WEIGHT + STA_SCORE_WEIGHT}"
     )
 
 
@@ -51,11 +54,11 @@ def confidence_score(book: Book, books: list[Book]) -> float:
     # Local score boosts matches against books with similar Elo to refine placement.
     loc_score_weighted = _local_score(book, books) * LOC_SCORE_WEIGHT
 
-    # Density score boosts books with few neighbors with similar Elo, meaning
+    # Stability score boosts books with few neighbors with similar Elo, meaning
     # more stability. High density indicates a high chance of ranks shifting.
-    den_score_weighted = _stability_score(book, books) * DEN_SCORE_WEIGHT
+    sta_score_weighted = _stability_score(book, books) * STA_SCORE_WEIGHT
 
-    return abs_score_weighted + loc_score_weighted + den_score_weighted
+    return abs_score_weighted + loc_score_weighted + sta_score_weighted
 
 
 def absolute_score(book: Book, books: list[Book]) -> float:
@@ -106,13 +109,9 @@ def _stability_score(book: Book, books: list[Book]) -> float:
         if opp.id != book.id and abs(book.elo - opp.elo) <= DENSITY_WINDOW
     )
 
-    upper_proximity = max(0, 1 - (Book.elo_max - book.elo) / DENSITY_WINDOW)
-    lower_proximity = max(0, 1 - (book.elo - Book.elo_min) / DENSITY_WINDOW)
-    edge_factor = 1 + max(upper_proximity, lower_proximity)
+    max_neighbors = min(len(books) - 1, DENSITY_CAP)
 
-    max_neighbors = min(10, len(books) - 1)
-
-    density = min((tight_neighbors * edge_factor) / max_neighbors, 1)
+    density = min(tight_neighbors / max_neighbors, 1)
 
     return 1 - density
 

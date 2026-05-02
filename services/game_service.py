@@ -34,6 +34,8 @@ def select_opponents(reader_id: int) -> tuple[Book, Book]:
     books = get_all_history(reader_id)
     if len(books) < 2:
         raise NotEnoughBooksError
+    if len(books) == 2:
+        return books[0], books[1]
 
     # Calculate confidence scores for all books
     confidence_scores = {b.id: confidence_score(b, books) for b in books}
@@ -56,8 +58,8 @@ def select_opponents(reader_id: int) -> tuple[Book, Book]:
 def _sampling_weight(book: Book, b_confidence: float, books: list[Book]) -> float:
     """Calculate selection weight based on confidence level and absolute_score.
 
-    Ensures a minimum weight of 0.1. Absolute_score is used to highly prioritize newer
-    book entries with very few matches.
+    Ensures a minimum weight of 0.05. Absolute_score is used to prioritize newer book
+    entries with few matches in.
     """
     if len(books) <= 1:
         return 1
@@ -65,10 +67,10 @@ def _sampling_weight(book: Book, b_confidence: float, books: list[Book]) -> floa
     # Boost scales with library size and absolute_score: larger collections
     # require higher boosts to make a difference, and lower absolute_score
     # requires a higher boost to get early data in.
-    early_boost = (len(books) * ABS_PERCENTAGE) * (1 - absolute_score(book, books))
+    early_boost = len(books) * ABS_PERCENTAGE * (1 - absolute_score(book, books))
     confidence_weight = 1 - b_confidence
 
-    return max(0.1, confidence_weight, early_boost)
+    return max(0.05, confidence_weight, early_boost)
 
 
 def _opponent_weights(
