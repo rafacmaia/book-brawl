@@ -114,11 +114,13 @@ export default function BrawlPit() {
   useEffect(() => {
     void (async () => {
       const token = await getToken()
-      const [firstMatch, secondMatch] = await Promise.all([fetchMatch(token!), fetchMatch(token!)])
+      const firstMatch = await fetchMatch(token!)
 
       setMatch(firstMatch ?? null)
       setLoading(false)
       requestAnimationFrame(() => setTransition(true))
+
+      const secondMatch = await fetchNextMatch(token!, firstMatch)
       setNextMatch(secondMatch ?? null)
     })()
   }, [])
@@ -136,8 +138,29 @@ export default function BrawlPit() {
     }
   }
 
+  async function fetchNextMatch(token: string, currentMatch: Match | null) {
+    let attempts = 0
+    while (attempts < 3) {
+      const candidate = await fetchMatch(token)
+
+      if (!candidate) return null
+      if (!currentMatch) return candidate
+
+      const repeatsBook =
+        candidate.book_a.id === currentMatch.book_a.id ||
+        candidate.book_a.id === currentMatch.book_b.id ||
+        candidate.book_b.id === currentMatch.book_a.id ||
+        candidate.book_b.id === currentMatch.book_b.id
+
+      attempts++
+      if (attempts === 3 || !repeatsBook) return candidate
+    }
+  }
+
   async function handleChoice(winnerId: number, loserId: number) {
     setError(null)
+
+    const newCurrentMatch = nextMatch
 
     const isMobile = window.matchMedia('(max-width: 639px)').matches
 
@@ -154,7 +177,7 @@ export default function BrawlPit() {
         await new Promise((resolve) => setTimeout(resolve, 300))
       }
       setMatchCount((prevCount) => prevCount + 1)
-      setMatch(nextMatch)
+      setMatch(newCurrentMatch)
 
       await new Promise((resolve) => setTimeout(resolve, 50))
       setTransition(true)
@@ -171,7 +194,7 @@ export default function BrawlPit() {
           method: 'POST',
           body: JSON.stringify({ winner_id: winnerId, loser_id: loserId }),
         }),
-        fetchMatch(token!),
+        fetchNextMatch(token!, newCurrentMatch),
       ])
 
       setNextMatch(next)
