@@ -1,7 +1,7 @@
 import { useAuth } from '@clerk/react'
 import { useEffect, useState } from 'react'
 import { ApiError, apiFetch } from '../api'
-import Placeholder from '../components/Placeholder'
+import PlaceholderMessaging from '../components/PlaceholderMessaging.tsx'
 import { EmptyStateMessage } from '../components/EmptyStateMessage.tsx'
 import { Swords } from 'lucide-react'
 import { BookIcon } from '@phosphor-icons/react'
@@ -17,107 +17,31 @@ interface Match {
   book_b: Book
 }
 
-function BookButton({
-  book,
-  onClick,
-  isSelected,
-  disabled,
-}: {
-  book: Book
-  onClick: () => void
-  isSelected: boolean
-  disabled: boolean
-}) {
-  const title = book.title.trim()
-  const author = book.author.trim()
-
-  const longTitle = title.length >= 37
-  const veryLongTitle = title.length >= 69
-  const longAuthor = author.length >= 30
-
-  const italic = /\b(?:anonymous|various)\b/i.test(author)
-
-  const regularCardStyle =
-    'gap-1 px-5 [@media(min-height:600px)]:gap-1.75 [@media(min-height:700px)]:px-8 [@media(min-height:700px)]:gap-4 [@media(min-height:700px)]:sm:gap-6 [@media(min-height:700px)]:sm:py-4'
-  const regularTitleStyle =
-    'text-[1.6rem]/8 [@media(min-height:600px)]:text-[1.85rem]/10 [@media(min-height:700px)]:text-[2.125rem]/11 [@media(min-height:700px)]:sm:text-[2.75rem]/15'
-  const regularAuthorStyle =
-    'text-[1.2rem]/6 [@media(min-height:600px)]:text-[1.35rem]/7 [@media(min-height:700px)]:text-[1.5rem] [@media(min-height:700px)]:sm:text-[1.875rem]'
-
-  const tightCardStyle =
-    'gap-1 px-5 [@media(min-height:700px)]:gap-3 [@media(min-height:700px)]:sm:gap-4 [@media(min-height:700px)]:px-6 [@media(min-height:700px)]:sm:px-8 sm:py-3'
-  const tightTitleStyle =
-    'text-[1.4rem]/7 [@media(min-height:600px)]:text-[1.65rem]/8 [@media(min-height:700px)]:text-[2rem]/10 [@media(min-height:700px)]:sm:text-[2.4rem]/13'
-  const tightAuthorStyle =
-    'text-[1.2rem]/6 [@media(min-height:600px)]:text-[1.3rem]/7 [@media(min-height:700px)]:text-[1.4rem]/8 [@media(min-height:700px)]:sm:text-[1.6rem]/10'
-
-  const tighterCardStyle =
-    'gap-1 px-2 [@media(min-height:500px)]:px-4 [@media(min-height:600px)]:px-6 [@media(min-height:700px)]:gap-2 sm:gap-4 sm:px-7 sm:py-3'
-  const tighterTitleStyle =
-    'text-[1.35rem]/7 [@media(min-height:600px)]:text-[1.55rem]/7 [@media(min-height:700px)]:text-[2rem]/10 [@media(min-height:700px)]:sm:text-[2.4rem]/12'
-
-  const cardStyle = veryLongTitle
-    ? tighterCardStyle
-    : longTitle || longAuthor
-      ? tightCardStyle
-      : regularCardStyle
-  const titleStyle = veryLongTitle
-    ? tighterTitleStyle
-    : longTitle
-      ? tightTitleStyle
-      : regularTitleStyle
-  const authorStyle = longAuthor || veryLongTitle ? tightAuthorStyle : regularAuthorStyle
-
-  const selectedStyling = isSelected
-    ? 'scale-85 -translate-y-2 border-primary/80 bg-background text-primary shadow-2xl'
-    : 'text-text border-accent/80 bg-linear-to-b from-[oklch(0.860_0.152_97.399)] to-[oklch(0.815_0.152_97.399)] shadow-lg'
-  const hoverStyling =
-    'md:hover:-translate-y-2 md:hover:scale-[1.02] md:hover:border-primary/80 md:hover:bg-linear-to-b md:hover:from-sky-800 md:hover:to-sky-900 md:hover:text-primary md:hover:shadow-2xl md:hover:brightness-105 max-md:active:scale-95 max-md:active:border-primary/80 max-md:active:bg-linear-to-b max-md:active:from-sky-800 max-md:active:to-sky-900 max-md:active:text-primary max-md:active:shadow-2xl'
-
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={`flex w-[95%] flex-1 basis-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-b-8 py-2 font-calistoga shadow-xl transition-all duration-250 md:border-b-8 lg:h-80 lg:flex-none lg:rounded-xl xl:h-72 [@media(max-height:500px)]:gap-0.5 [@media(max-height:500px)]:py-1 [@media(min-height:700px)]:w-11/12 [@media(min-height:700px)]:lg:w-116 [@media(min-height:700px)]:xl:w-134 ${hoverStyling} ${cardStyle} ${selectedStyling}`}
-      style={{
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.20)',
-      }}
-    >
-      <p
-        className={`line-clamp-3 w-full p-1 font-medium text-balance wrap-break-word lg:line-clamp-3 [@media(max-height:500px)]:text-[1.6rem]/8 [@media(min-height:600px)]:line-clamp-4 ${titleStyle}`}
-      >
-        {title}
-      </p>
-      <p
-        className={`line-clamp-2 w-full font-zain font-light text-pretty wrap-break-word opacity-85 [@media(max-height:500px)]:text-[1.2rem]/6 ${authorStyle}`}
-      >
-        by <span className={italic ? 'italic' : ''}>{author}</span>
-      </p>
-    </button>
-  )
-}
+// Wavy underline is used as a divider between prompt and book cards on desktop viewports.
+const wavyDividerStyle =
+  'underline decoration-accent/80 decoration-wavy decoration-5 lg:decoration-8 underline-offset-46 md:underline-offset-2 lg:underline-offset-42'
 
 export default function BrawlPit() {
   const { getToken } = useAuth()
 
-  const [match, setMatch] = useState<Match | null>(null)
+  // We prefetch the next match while the user is deciding on the current one,
+  // so swapping is instant.
+  const [currentMatch, setCurrentMatch] = useState<Match | null>(null)
   const [nextMatch, setNextMatch] = useState<Match | null>(null)
   const [matchCount, setMatchCount] = useState<number>(1)
   const [selectedBook, setSelectedBook] = useState<number | null>(null)
   const [matchTransition, setMatchTransition] = useState(false)
 
   const [emptyPit, setEmptyPit] = useState<boolean>(false)
-
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [transition, setTransition] = useState(false)
 
   useEffect(() => {
     void (async () => {
       const token = await getToken()
       const firstMatch = await fetchMatch(token!)
 
-      setMatch(firstMatch ?? null)
+      setCurrentMatch(firstMatch ?? null)
       setLoading(false)
       requestAnimationFrame(() => setMatchTransition(true))
 
@@ -139,10 +63,13 @@ export default function BrawlPit() {
     }
   }
 
+  // To avoid immediate book repeats, fetchNextMatch retries up to 3 times to fetch a match that
+  // does not reuse a book from the current match.
   async function fetchNextMatch(token: string, currentMatch: Match | null) {
-    let attempts = 0
-    while (attempts < 3) {
-      const candidate = await fetchMatch(token)
+    let candidate: Match | null = null
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+      candidate = await fetchMatch(token)
 
       if (!candidate) return null
       if (!currentMatch) return candidate
@@ -153,9 +80,11 @@ export default function BrawlPit() {
         candidate.book_b.id === currentMatch.book_a.id ||
         candidate.book_b.id === currentMatch.book_b.id
 
-      attempts++
-      if (attempts === 3 || !repeatsBook) return candidate
+      if (!repeatsBook) return candidate
     }
+
+    // After 3 attempts to avoid repeats, trust the matchmaker and return the last candidate.
+    return candidate
   }
 
   async function handleChoice(winnerId: number, loserId: number) {
@@ -187,7 +116,7 @@ export default function BrawlPit() {
         await new Promise((resolve) => setTimeout(resolve, 300))
       }
       setMatchCount((prevCount) => prevCount + 1)
-      setMatch(newCurrentMatch)
+      setCurrentMatch(newCurrentMatch)
 
       await new Promise((resolve) => setTimeout(resolve, 50))
       setMatchTransition(true)
@@ -213,9 +142,6 @@ export default function BrawlPit() {
     }
   }
 
-  const wavyUnderline =
-    'underline decoration-accent/80 decoration-wavy decoration-5 lg:decoration-8 underline-offset-46 md:underline-offset-2 lg:underline-offset-42'
-
   return (
     <main className="relative flex grow flex-col items-center px-4 text-primary/95">
       {loading ? (
@@ -232,11 +158,11 @@ export default function BrawlPit() {
           <p>Summoning contenders...</p>
         </div>
       ) : error ? (
-        <Placeholder message={error} />
+        <PlaceholderMessaging message={error} />
       ) : emptyPit ? (
         <EmptyStateMessage message={'No books to brawl!'} />
       ) : (
-        match && (
+        currentMatch && (
           <>
             <h1
               className={`z-100 flex-none text-center font-calistoga text-[1.4rem] tracking-wide text-balance text-primary/95 drop-shadow-md [@media(max-height:400px)]:mt-1 [@media(max-height:500px)]:w-[94%] [@media(max-height:500px)]:text-left [@media(max-height:500px)]:text-[1.6rem]/7 [@media(min-height:500px)]:mb-0.5 [@media(min-height:600px)]:text-[2.5rem]/12 [@media(min-height:600px)]:font-extrabold [@media(min-height:600px)]:tracking-wide [@media(min-height:700px)]:mt-4 [@media(min-height:700px)]:mb-2 [@media(min-height:700px)]:text-5xl/14 [@media(min-height:700px)]:md:mt-12 [@media(min-height:700px)]:lg:mt-24 [@media(min-height:700px)]:lg:text-7xl`}
@@ -249,11 +175,17 @@ export default function BrawlPit() {
               </span>
               ?
             </h1>
-            <h1
-              className={`absolute z-0 mt-24 hidden text-center font-calistoga text-5xl font-extrabold tracking-wide text-background/0 lg:text-7xl [@media(min-height:700px)]:lg:block ${wavyUnderline}`}
+            {/*
+              Wavy divider hack: using an invisible text whose only job is to anchor a wavy
+              underline used as a divider between the prompt and the book cards on desktop.
+              Cheaper and crisper than rendering an SVG.
+            */}
+            <div
+              aria-hidden="true"
+              className={`absolute z-0 mt-24 hidden text-center font-calistoga text-5xl font-extrabold tracking-wide text-background/0 lg:text-7xl [@media(min-height:700px)]:lg:block ${wavyDividerStyle}`}
             >
               ===============
-            </h1>
+            </div>
             <div
               className={
                 'flex w-[97%] items-center justify-center md:w-19/20 lg:hidden [@media(max-height:500px)]:opacity-90'
@@ -270,16 +202,16 @@ export default function BrawlPit() {
             <div
               className={`${matchTransition ? 'translate-y-0 opacity-100' : 'pointer-events-none opacity-0 max-md:scale-96 sm:translate-y-3'} my-1 flex w-full grow flex-col items-center justify-center gap-1 transition-all duration-275 ease-in-out md:mb-3 [@media(min-height:500px)]:mt-1.5 [@media(min-height:500px)]:gap-3 [@media(min-height:700px)]:mt-3 [@media(min-height:700px)]:mb-3 [@media(min-height:700px)]:gap-6 [@media(min-height:700px)]:md:mb-1 [@media(min-height:700px)]:lg:my-0 [@media(min-height:700px)]:lg:flex-row [@media(min-height:700px)]:lg:gap-12 [@media(min-height:700px)]:xl:gap-27`}
             >
-              <BookButton
-                book={match.book_a}
-                onClick={() => handleChoice(match.book_a.id, match.book_b.id)}
-                isSelected={selectedBook === match.book_a.id}
+              <BookCard
+                book={currentMatch.book_a}
+                onClick={() => handleChoice(currentMatch.book_a.id, currentMatch.book_b.id)}
+                isSelected={selectedBook === currentMatch.book_a.id}
                 disabled={!nextMatch}
               />
-              <BookButton
-                book={match.book_b}
-                onClick={() => handleChoice(match.book_b.id, match.book_a.id)}
-                isSelected={selectedBook === match.book_b.id}
+              <BookCard
+                book={currentMatch.book_b}
+                onClick={() => handleChoice(currentMatch.book_b.id, currentMatch.book_a.id)}
+                isSelected={selectedBook === currentMatch.book_b.id}
                 disabled={!nextMatch}
               />
             </div>
@@ -298,5 +230,94 @@ export default function BrawlPit() {
         )
       )}
     </main>
+  )
+}
+
+function BookCard({
+  book,
+  onClick,
+  isSelected,
+  disabled,
+}: {
+  book: Book
+  onClick: () => void
+  isSelected: boolean
+  disabled: boolean
+}) {
+  const title = book.title.trim()
+  const author = book.author.trim()
+
+  // Italicize anonymous and 'various' author fields
+  const italic = /\b(?:anonymous|various)\b/i.test(author)
+
+  // Identify long titles and authors for better formatting.
+  // Threshold values derived from trial and error, could be more precisely fine-tuned.
+  const longTitle = title.length >= 37
+  const veryLongTitle = title.length >= 69
+  const longAuthor = author.length >= 30
+
+  const regularCardStyle =
+    'gap-1 px-5 [@media(min-height:600px)]:gap-1.75 [@media(min-height:700px)]:px-8 [@media(min-height:700px)]:gap-4 [@media(min-height:700px)]:sm:gap-6 [@media(min-height:700px)]:sm:py-4'
+  const regularTitleStyle =
+    'text-[1.6rem]/8 [@media(min-height:600px)]:text-[1.85rem]/10 [@media(min-height:700px)]:text-[2.125rem]/11 [@media(min-height:700px)]:sm:text-[2.75rem]/15'
+  const regularAuthorStyle =
+    'text-[1.2rem]/6 [@media(min-height:600px)]:text-[1.35rem]/7 [@media(min-height:700px)]:text-[1.5rem] [@media(min-height:700px)]:sm:text-[1.875rem]'
+
+  const tightCardStyle =
+    'gap-1 px-5 [@media(min-height:700px)]:gap-3 [@media(min-height:700px)]:sm:gap-4 [@media(min-height:700px)]:px-6 [@media(min-height:700px)]:sm:px-8 sm:py-3'
+  const tightTitleStyle =
+    'text-[1.4rem]/7 [@media(min-height:600px)]:text-[1.65rem]/8 [@media(min-height:700px)]:text-[2rem]/10 [@media(min-height:700px)]:sm:text-[2.4rem]/13'
+  const tightAuthorStyle =
+    'text-[1.2rem]/6 [@media(min-height:600px)]:text-[1.3rem]/7 [@media(min-height:700px)]:text-[1.4rem]/8 [@media(min-height:700px)]:sm:text-[1.6rem]/10'
+
+  const tighterCardStyle =
+    'gap-1 px-2 [@media(min-height:500px)]:px-4 [@media(min-height:600px)]:px-6 [@media(min-height:700px)]:gap-2 sm:gap-4 sm:px-7 sm:py-3'
+  const tighterTitleStyle =
+    'text-[1.35rem]/7 [@media(min-height:600px)]:text-[1.55rem]/7 [@media(min-height:700px)]:text-[2rem]/10 [@media(min-height:700px)]:sm:text-[2.4rem]/12'
+
+  const cardStyle = veryLongTitle
+    ? tighterCardStyle
+    : longTitle || longAuthor
+      ? tightCardStyle
+      : regularCardStyle
+
+  const titleStyle = veryLongTitle
+    ? tighterTitleStyle
+    : longTitle
+      ? tightTitleStyle
+      : regularTitleStyle
+
+  const authorStyle = longAuthor || veryLongTitle ? tightAuthorStyle : regularAuthorStyle
+
+  // Selected styling is applied on mobile when user taps a book, to provide feedback on their
+  // selection while the next match is being prepared and transitioned in.
+  // On desktop, hover effects provide sufficient feedback, so we don't apply selected styling.
+  const selectedStyling = isSelected
+    ? 'scale-85 -translate-y-2 border-primary/80 bg-background text-primary shadow-2xl'
+    : 'text-text border-accent/80 bg-linear-to-b from-[oklch(0.860_0.152_97.399)] to-[oklch(0.815_0.152_97.399)] shadow-lg'
+
+  const hoverStyling =
+    'md:hover:-translate-y-2 md:hover:scale-[1.02] md:hover:border-primary/80 md:hover:bg-linear-to-b md:hover:from-sky-800 md:hover:to-sky-900 md:hover:text-primary md:hover:shadow-2xl md:hover:brightness-105 max-md:active:scale-95 max-md:active:border-primary/80 max-md:active:bg-linear-to-b max-md:active:from-sky-800 max-md:active:to-sky-900 max-md:active:text-primary max-md:active:shadow-2xl'
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`flex w-[95%] flex-1 basis-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-b-8 py-2 font-calistoga shadow-xl transition-all duration-250 md:border-b-8 lg:h-80 lg:flex-none lg:rounded-xl xl:h-72 [@media(max-height:500px)]:gap-0.5 [@media(max-height:500px)]:py-1 [@media(min-height:700px)]:w-11/12 [@media(min-height:700px)]:lg:w-116 [@media(min-height:700px)]:xl:w-134 ${hoverStyling} ${cardStyle} ${selectedStyling}`}
+      style={{
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.20)',
+      }}
+    >
+      <p
+        className={`line-clamp-3 w-full p-1 font-medium text-balance wrap-break-word lg:line-clamp-3 [@media(max-height:500px)]:text-[1.6rem]/8 [@media(min-height:600px)]:line-clamp-4 ${titleStyle}`}
+      >
+        {title}
+      </p>
+      <p
+        className={`line-clamp-2 w-full font-zain font-light text-pretty wrap-break-word opacity-85 [@media(max-height:500px)]:text-[1.2rem]/6 ${authorStyle}`}
+      >
+        by <span className={italic ? 'italic' : ''}>{author}</span>
+      </p>
+    </button>
   )
 }

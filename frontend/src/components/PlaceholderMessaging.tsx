@@ -1,4 +1,4 @@
-export default function Placeholder({ message }: { message: string }) {
+export default function PlaceholderMessaging({ message }: { message: string }) {
   const loading = /loading/i.test(message)
 
   return (

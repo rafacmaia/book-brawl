@@ -7,7 +7,7 @@ import BrawlPit from './pages/BrawlPit'
 import Leaderboard from './pages/Leaderboard'
 import TheStacks from './pages/TheStacks.tsx'
 import Footer from './components/Footer'
-import Placeholder from './components/Placeholder.tsx'
+import PlaceholderMessaging from './components/PlaceholderMessaging.tsx'
 
 function ProtectedApp() {
   const { isLoaded, isSignedIn } = useAuth()
@@ -57,7 +57,7 @@ function ProtectedApp() {
     return (
       <div className="flex min-h-dvh flex-col bg-linear-to-b from-sky-800 to-sky-950 bg-fixed">
         <Header />
-        <Placeholder message="Loading..." />
+        <PlaceholderMessaging message="Loading..." />
         <Footer />
       </div>
     )
@@ -74,11 +74,11 @@ function ProtectedApp() {
           <Route path={'/stacks'} element={<TheStacks />} />
         </Routes>
       ) : syncError ? (
-        <Placeholder
+        <PlaceholderMessaging
           message={'Something went really wrong. Please refresh or try logging in again.'}
         />
       ) : (
-        <Placeholder message={'Loading...'} />
+        <PlaceholderMessaging message={'Loading...'} />
       )}
       <Footer />
     </div>
