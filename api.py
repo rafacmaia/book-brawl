@@ -132,7 +132,7 @@ class BookData(BaseModel):
     rating: float | None = None
 
 
-@app.get("/books")
+@app.get("/stacks")
 def get_books(
     reader_id: int = Depends(get_current_reader_id),
 ) -> list[dict[str, int | str]]:
@@ -140,7 +140,7 @@ def get_books(
     return books_repo.get_all(reader_id)
 
 
-@app.post("/books", status_code=status.HTTP_201_CREATED)
+@app.post("/stacks", status_code=status.HTTP_201_CREATED)
 def add_book(
     book: BookData, reader_id: int = Depends(get_current_reader_id)
 ) -> dict[str, int | str]:
@@ -155,7 +155,7 @@ def add_book(
     return {"id": new_book.id, "title": new_book.title, "author": new_book.author}
 
 
-@app.post("/books/import", status_code=status.HTTP_201_CREATED)
+@app.post("/stacks/import", status_code=status.HTTP_201_CREATED)
 def import_books(
     file: UploadFile,
     source: Literal["custom", "goodreads"] = Form("custom"),
@@ -190,7 +190,7 @@ def import_books(
     }
 
 
-@app.patch("/books/{book_id}")
+@app.patch("/stacks/{book_id}")
 def update_book(
     book_id: int, book: BookData, reader_id: int = Depends(get_current_reader_id)
 ) -> dict[str, int | str]:
@@ -210,14 +210,14 @@ def update_book(
     return {"id": book_id, "title": book.title.strip(), "author": book.author.strip()}
 
 
-@app.delete("/books/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
+@app.delete("/stacks/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_book(book_id: int, reader_id: int = Depends(get_current_reader_id)) -> None:
     """Remove a book from the collection."""
     if not books_repo.delete(reader_id, book_id):
         raise HTTPException(status_code=404, detail="Book not found")
 
 
-@app.delete("/books", status_code=status.HTTP_204_NO_CONTENT)
+@app.delete("/stacks", status_code=status.HTTP_204_NO_CONTENT)
 def delete_all_books(reader_id: int = Depends(get_current_reader_id)) -> None:
     """Remove all books from the collection."""
     books_repo.delete_all(reader_id)

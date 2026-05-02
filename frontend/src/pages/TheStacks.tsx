@@ -79,7 +79,7 @@ function ImportModal({
       formData.append('file', file)
       formData.append('source', source)
 
-      const response = await fetch(`${API_BASE}/books/import`, {
+      const response = await fetch(`${API_BASE}/stacks/import`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -440,7 +440,7 @@ export default function TheStacks() {
     try {
       const token = await getToken()
 
-      const response = await apiFetch('/books', token!)
+      const response = await apiFetch('/stacks', token!)
 
       const data = await response.json()
       setBooks(data)
@@ -480,7 +480,7 @@ export default function TheStacks() {
     try {
       const token = await getToken()
 
-      const response = await apiFetch('/books', token!, {
+      const response = await apiFetch('/stacks', token!, {
         method: 'POST',
         body: JSON.stringify({
           title: title.trim(),
@@ -521,7 +521,7 @@ export default function TheStacks() {
     try {
       const token = await getToken()
 
-      await apiFetch(`/books/${book.id}`, token!, { method: 'DELETE' })
+      await apiFetch(`/stacks/${book.id}`, token!, { method: 'DELETE' })
 
       setBooks((prev) => prev.filter((b) => b.id !== book.id))
     } catch {
@@ -548,7 +548,7 @@ export default function TheStacks() {
     try {
       const token = await getToken()
 
-      await apiFetch(`/books/${bookToEdit.id}`, token!, {
+      await apiFetch(`/stacks/${bookToEdit.id}`, token!, {
         method: 'PATCH',
         body: JSON.stringify({ title, author }),
       })
@@ -574,7 +574,7 @@ export default function TheStacks() {
     try {
       const token = await getToken()
 
-      await apiFetch('/books', token!, { method: 'DELETE' })
+      await apiFetch('/stacks', token!, { method: 'DELETE' })
 
       setBooks([])
     } catch {
