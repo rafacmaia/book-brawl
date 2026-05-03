@@ -226,8 +226,7 @@ built with both a web app and a CLI in mind.
 | [`src/pages/BrawlPit.tsx`](frontend/src/pages/BrawlPit.tsx)       | Main game loop; head-to-head matches              |
 | [`src/pages/Leaderboard.tsx`](frontend/src/pages/Leaderboard.tsx) | Rankings and progress page                        |
 | [`src/pages/TheStacks.tsx`](frontend/src/pages/TheStacks.tsx)     | Collection management page: add/edit/delete books |
-| [`src/components/Header.tsx`](frontend/src/components/Header.tsx) | Shared header and nav                             |
-| [`src/components/Footer.tsx`](frontend/src/components/Footer.tsx) | Shared footer                                     |
+| [`src/components/layout/`](frontend/src/components/layout/)       | Site chrome (header, footer)                      
 | [`src/api.ts`](frontend/src/api.ts)                               | Authenticated API fetch helper                    |
 
 ### CLI _(legacy, in `cli/`)_

@@ -1,8 +1,8 @@
 import { useAuth } from '@clerk/react'
 import { useEffect, useState } from 'react'
 import { apiFetch } from '../api'
-import PlaceholderMessaging from '../components/PlaceholderMessaging.tsx'
-import PageHeading from '../components/PageHeading'
+import PlaceholderMessaging from '../components/feedback/PlaceholderMessaging'
+import PageHeading from '../components/ui/PageHeading'
 import { BadgeCheck, Squircle, Swords } from 'lucide-react'
 import { InformationCircleIcon as InfoCircleMini } from '@heroicons/react/16/solid'
 import { InformationCircleIcon as InfoCircle } from '@heroicons/react/20/solid'
@@ -14,7 +14,7 @@ import {
   TrophyIcon,
   XCircleIcon,
 } from '@phosphor-icons/react'
-import { EmptyStateMessage } from '../components/EmptyStateMessage.tsx'
+import { EmptyStateMessage } from '../components/feedback/EmptyStateMessage'
 import { NavLink } from 'react-router-dom'
 
 interface BookData {

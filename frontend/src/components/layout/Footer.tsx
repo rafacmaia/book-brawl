@@ -1,4 +1,4 @@
-import catIcon from '../assets/cat-icon-1.svg'
+import catIcon from '@/assets/cat-icon-1.svg'
 
 export default function Footer() {
   return (

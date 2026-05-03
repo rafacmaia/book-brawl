@@ -1,8 +1,8 @@
 import { useAuth } from '@clerk/react'
 import { useEffect, useState } from 'react'
 import { ApiError, apiFetch } from '../api'
-import PlaceholderMessaging from '../components/PlaceholderMessaging.tsx'
-import { EmptyStateMessage } from '../components/EmptyStateMessage.tsx'
+import PlaceholderMessaging from '../components/feedback/PlaceholderMessaging'
+import { EmptyStateMessage } from '../components/feedback/EmptyStateMessage'
 import { Swords } from 'lucide-react'
 import { BookIcon } from '@phosphor-icons/react'
 

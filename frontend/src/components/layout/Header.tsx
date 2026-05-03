@@ -1,7 +1,7 @@
 import { UserButton } from '@clerk/react'
 import { NavLink } from 'react-router-dom'
 import { BooksIcon, SwordIcon, TrophyIcon } from '@phosphor-icons/react'
-import WavyDivider from './WavyDivider.tsx'
+import WavyDivider from '../ui/WavyDivider'
 
 export default function Header() {
   function activeStyle({ isActive }: { isActive: boolean }): string {
@@ -28,7 +28,7 @@ export default function Header() {
               </span>
               <span className={`md:hidden`}>
                 <SwordIcon weight={isActive ? 'fill' : 'duotone'} className={iconStyle} />
-                {isActive && <WavyDivider amplitude={6} waveLength={21} stroke={6} />}
+                {isActive && <WavyDivider waveLength={21} stroke={6} />}
               </span>
             </>
           )}
@@ -45,7 +45,7 @@ export default function Header() {
               </span>
               <span className={`md:hidden`}>
                 <TrophyIcon weight={isActive ? 'fill' : 'duotone'} className={iconStyle} />
-                {isActive && <WavyDivider amplitude={6} waveLength={21} stroke={6} />}
+                {isActive && <WavyDivider waveLength={21} stroke={6} />}
               </span>
             </>
           )}
@@ -62,7 +62,7 @@ export default function Header() {
               </span>
               <span className={`md:hidden`}>
                 <BooksIcon weight={isActive ? 'fill' : 'duotone'} className={iconStyle} />
-                {isActive && <WavyDivider amplitude={6} waveLength={21} stroke={6} />}
+                {isActive && <WavyDivider waveLength={21} stroke={6} />}
               </span>
             </>
           )}

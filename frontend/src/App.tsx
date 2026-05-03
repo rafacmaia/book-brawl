@@ -2,12 +2,12 @@ import { SignIn, SignUp, useAuth, useUser } from '@clerk/react'
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { ApiError, apiFetch } from './api'
-import Header from './components/Header'
+import Header from './components/layout/Header'
 import BrawlPit from './pages/BrawlPit'
 import Leaderboard from './pages/Leaderboard'
-import TheStacks from './pages/TheStacks.tsx'
-import Footer from './components/Footer'
-import PlaceholderMessaging from './components/PlaceholderMessaging.tsx'
+import TheStacks from './pages/TheStacks'
+import Footer from './components/layout/Footer'
+import PlaceholderMessaging from './components/feedback/PlaceholderMessaging'
 
 function ProtectedApp() {
   const { isLoaded, isSignedIn } = useAuth()
