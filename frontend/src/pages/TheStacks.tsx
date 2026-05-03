@@ -1,17 +1,7 @@
 import { useAuth } from '@clerk/react'
-import {
-  type ChangeEvent,
-  type KeyboardEvent,
-  type SubmitEvent,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
-import { API_BASE, ApiError, apiFetch } from '../api.ts'
-import Placeholder from '../components/Placeholder'
 import PageHeading from '../components/PageHeading'
-import { Ban, Download } from 'lucide-react'
 import PlaceholderMessaging from '../components/feedback/PlaceholderMessaging.tsx'
+import { Download } from 'lucide-react'
 import { FireIcon as FireSolid } from '@heroicons/react/24/solid'
 import { FireIcon as FireOutline } from '@heroicons/react/24/outline'
 import {
@@ -19,9 +9,10 @@ import {
   CheckCircleIcon,
   PencilSimpleLineIcon,
   ProhibitInsetIcon,
-  SkipForwardCircleIcon,
-  XCircleIcon,
 } from '@phosphor-icons/react'
+import { DeleteModal, EditModal, ImportModal, ResetModal } from '../components/StacksModals.tsx'
+
+// ====== TYPES
 
 interface Book {
   id: number
@@ -29,384 +20,6 @@ interface Book {
   author: string
 }
 
-interface ImportResult {
-  imported: number
-  skipped: number
-  interrupted: boolean
-}
-
-// ====== MODAL SUBCOMPONENTS
-
-const modalHeadingStyle =
-  'mb-1 font-calistoga text-2xl [@media(min-height:700px)]:text-3xl font-bold tracking-wide'
-const modalButtonStyle =
-  'cursor-pointer rounded-t-lg rounded-b-3xl border-b-3 px-4 pb-1.25 pt-2.5 font-zain text-sm text-center [@media(min-height:700px)]:text-base font-extrabold tracking-wider text-primary drop-shadow-md transition-all md:text-lg md:pt-2.75 md:pb-1.5 hover:scale-104 active:scale-95'
-const textEmphasisStyle = 'font-bold underline underline-offset-2 decoration-red-600/60'
-
-function ImportModal({
-  onClose,
-  onImportSuccess,
-}: {
-  onClose: () => void
-  onImportSuccess: () => void
-}) {
-  const { getToken } = useAuth()
-
-  const [loadingGoodreads, setLoadingGoodreads] = useState(false)
-  const [loadingCustom, setLoadingCustom] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [result, setResult] = useState<ImportResult | null>(null)
-
-  const isImporting = loadingGoodreads || loadingCustom
-
-  async function handleFileUpload(
-    e: ChangeEvent<HTMLInputElement>,
-    source: 'custom' | 'goodreads'
-  ) {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    if (source === 'goodreads') {
-      setLoadingGoodreads(true)
-    } else {
-      setLoadingCustom(true)
-    }
-    setError(null)
-    setResult(null)
-
-    try {
-      const token = await getToken()
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('source', source)
-
-      const response = await fetch(`${API_BASE}/stacks/import`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      })
-
-      if (!response.ok) {
-        const err = await response.json()
-        setError(err.detail ?? 'Import failed')
-        return
-      }
-
-      const data = await response.json()
-      setResult(data)
-      onImportSuccess()
-    } catch (e: any) {
-      setError(e.message ?? 'Something went wrong. Please try again.')
-    } finally {
-      setLoadingCustom(false)
-      setLoadingGoodreads(false)
-    }
-  }
-
-  return (
-    <div
-      onClick={(e) => {
-        if (!isImporting && e.target === e.currentTarget) onClose()
-      }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-    >
-      <div className="relative flex w-[90%] flex-col gap-4 rounded-lg border border-y-8 border-background/90 bg-button/97 px-6 py-5 font-zain text-text shadow-2xl md:w-lg md:gap-4 md:rounded-md md:border-t-8 md:border-b-8 md:p-8">
-        <h2 className={`mb-2 ${modalHeadingStyle}`}>Import from a CSV</h2>
-        <button
-          onClick={onClose}
-          disabled={isImporting}
-          aria-label="Close edit modal"
-          className="absolute top-2 right-2 cursor-pointer text-red-800/80 transition-all hover:scale-112 active:scale-95 md:top-3 md:right-3"
-        >
-          <XCircleIcon weight={'duotone'} className="size-6.25 md:size-7" />
-        </button>
-        <div className="flex flex-col gap-3 rounded-lg bg-background/95 px-4 py-3 text-base tracking-wide text-primary/95 md:px-5 md:py-4 [@media(min-height:700px)]:text-lg">
-          <p className="border-b border-button/60 pb-2 font-bold">
-            You can import from a <span className={textEmphasisStyle}>custom CSV</span> or a{' '}
-            <span className={textEmphasisStyle}>Goodreads</span> export file.
-          </p>
-          <p>
-            If using a custom file, it must have <span className={textEmphasisStyle}>title</span>{' '}
-            and <span className={textEmphasisStyle}>author</span> columns.
-          </p>
-          <p>
-            A <span className={textEmphasisStyle}>rating</span> column (1–10, decimals welcome) is
-            encouraged, but optional.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4">
-          <div className="flex gap-4">
-            <label
-              className={`flex-1 border-red-600/80 bg-text/95 shadow-md hover:bg-text hover:opacity-100 ${modalButtonStyle} ${result ? 'opacity-85' : 'opacity-95'}`}
-            >
-              {loadingCustom ? 'Importing...' : 'CUSTOM'}
-              <input
-                type="file"
-                accept=".csv"
-                onChange={(e) => handleFileUpload(e, 'custom')}
-                disabled={isImporting}
-                className="sr-only"
-              />
-            </label>
-            <label
-              className={`flex-1 border-red-600/80 bg-text/95 shadow-md hover:bg-text hover:opacity-100 ${modalButtonStyle} ${result ? 'opacity-85' : 'opacity-95'}`}
-            >
-              {loadingGoodreads ? 'Importing...' : 'GOODREADS'}
-              <input
-                type="file"
-                accept=".csv"
-                onChange={(e) => handleFileUpload(e, 'goodreads')}
-                disabled={isImporting}
-                className="sr-only"
-              />
-            </label>
-          </div>
-          {error && <p className="mt-1 pl-1 text-lg font-bold text-red-700">{error}</p>}
-          {result && (
-            <div className="mt-1 flex flex-col gap-2 pl-2 text-lg font-extrabold tracking-wide md:text-xl">
-              {result.skipped > 0 && (
-                <p className="text-text">
-                  <SkipForwardCircleIcon
-                    weight={'fill'}
-                    aria-label="Edit this book"
-                    className="mr-1 inline size-5.25 -translate-y-0.5 opacity-90 md:size-5.75"
-                  />{' '}
-                  {result.skipped} {result.skipped === 1 ? 'book' : 'books'} skipped.
-                </p>
-              )}
-              {result.imported > 0 ? (
-                <p className="text-text">
-                  <CheckCircleIcon
-                    weight={'fill'}
-                    aria-label="Edit this book"
-                    className="mr-1 inline size-5.25 -translate-y-0.5 opacity-90 md:size-5.75"
-                  />{' '}
-                  Imported{' '}
-                  <span className="underline decoration-accent underline-offset-2">
-                    {result.imported}
-                  </span>{' '}
-                  {result.imported === 1 ? 'book' : 'books'}!
-                </p>
-              ) : (
-                <p className="text-red-700/95">
-                  <XCircleIcon
-                    weight={'fill'}
-                    aria-label="Edit this book"
-                    className="mr-1 inline size-5.25 -translate-y-0.5 opacity-90 md:size-5.75"
-                  />{' '}
-                  No books imported. Check file and try again.
-                </p>
-              )}
-              {result.interrupted && (
-                <p className="font-bold text-red-700/95">
-                  Book limit reached — not all books were imported.
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function DeleteModal({
-  book,
-  onConfirm,
-  onCancel,
-}: {
-  book: Book
-  onConfirm: () => void
-  onCancel: () => void
-}) {
-  return (
-    <div
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onCancel()
-      }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-    >
-      <div className="flex w-[90%] flex-col justify-center gap-4 rounded-lg border border-y-6 border-red-800/80 bg-button/97 px-8 py-6 font-zain text-text shadow-2xl md:w-lg md:border-y-8 md:py-8">
-        <h2 className={modalHeadingStyle}>Burn this book?</h2>
-        <p className="rounded-lg bg-background/90 px-4 py-3 text-left font-zain text-base text-primary/90 md:text-xl [@media(min-height:700px)]:text-lg">
-          <span className={`font-calistoga tracking-wider ${textEmphasisStyle}`}>{book.title}</span>
-          , by{' '}
-          <span className={`font-calistoga tracking-wider ${textEmphasisStyle}`}>
-            {book.author}
-          </span>
-          , will be permanently removed from the Book Pit.
-        </p>
-        <div className="flex w-full gap-4">
-          <button
-            onClick={onConfirm}
-            className={`flex-1 border-background bg-red-800/75 hover:bg-red-800 active:bg-red-800 ${modalButtonStyle}`}
-          >
-            <FireSolid className="inline size-5.25 -translate-y-0.5 sm:-translate-y-0.5" />
-          </button>
-          <button
-            onClick={onCancel}
-            className={`flex-1 border-red-800 bg-background/90 opacity-90 hover:bg-background active:bg-background ${modalButtonStyle}`}
-          >
-            KEEP
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function EditModal({
-  book,
-  onConfirm,
-  onCancel,
-  error,
-}: {
-  book: Book
-  onConfirm: (title: string, author: string) => void
-  onCancel: () => void
-  error: string | null
-}) {
-  const [title, setTitle] = useState(book.title)
-  const [author, setAuthor] = useState(book.author)
-
-  function handleKeyDown(e: KeyboardEvent) {
-    if (e.key === 'Enter') {
-      onConfirm(title, author)
-    } else if (e.key === 'Escape') {
-      onCancel()
-    }
-  }
-
-  const unchangedTitle = title === book.title
-  const unchangedAuthor = author === book.author
-
-  return (
-    <div
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onCancel()
-      }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-    >
-      <div className="items-left relative flex w-[90%] flex-col justify-center gap-6 rounded-lg border border-y-6 border-red-800/80 bg-button/97 px-8 py-6 font-zain text-text shadow-2xl md:w-lg md:border-y-8 md:py-8">
-        <h2 className={modalHeadingStyle}>Edit Book</h2>
-        <button
-          onClick={onCancel}
-          aria-label="Close edit modal"
-          className="absolute top-2 right-2 cursor-pointer text-red-800/80 transition-all hover:scale-112 active:scale-95 md:top-3 md:right-3"
-        >
-          <XCircleIcon weight={'duotone'} className="size-6.25 md:size-7" />
-        </button>
-        <div className="flex flex-col gap-3 font-zain text-base md:text-lg">
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className={`w-full rounded-md border-b-3 border-red-800/85 bg-blue-300/50 px-3 py-2 font-calistoga placeholder-text/50 shadow-lg sm:p-2 ${unchangedTitle ? 'text-text/70' : 'text-text'}`}
-          />
-          <input
-            type="text"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className={`w-full rounded-md border-b-3 border-red-800/85 bg-blue-300/50 px-3 py-2 font-calistoga shadow-lg sm:p-2 ${unchangedAuthor ? 'text-text/70' : 'text-text'}`}
-          />
-          <button
-            onClick={() => onConfirm(title, author)}
-            className={`w-full border-red-800/85 bg-background/90 hover:border-background/90 hover:bg-red-800 active:bg-red-800 ${modalButtonStyle}`}
-          >
-            SAVE
-          </button>
-          {error && (
-            <p
-              className={`w-full self-center rounded-md bg-red-800/85 px-4 py-3 text-left text-base font-extrabold text-primary opacity-95 md:rounded-lg md:px-4 md:pt-2.5 md:text-lg md:text-primary md:opacity-90 md:brightness-110`}
-            >
-              <Ban
-                strokeWidth={3}
-                className={'mr-2 inline size-4 -translate-y-px sm:-translate-y-0.5 md:size-4.25'}
-              />
-              {error}
-            </p>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function ResetModal({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
-  const [finalConfirmation, setFinalConfirmation] = useState(false)
-  const [resetTimer, setResetTimer] = useState(3)
-
-  useEffect(() => {
-    if (!finalConfirmation || resetTimer === 0) return
-
-    const interval = setInterval(() => {
-      setResetTimer((prev) => prev - 1)
-    }, 1000)
-
-    return () => clearInterval(interval)
-  }, [finalConfirmation, resetTimer])
-
-  return (
-    <div
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onCancel()
-      }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-    >
-      <div className="flex w-[90%] flex-col items-center justify-center gap-4 rounded-lg border border-y-6 border-red-800/80 bg-button/97 p-6 font-zain text-text shadow-2xl md:w-lg md:border-y-8 md:p-8">
-        <h2 className={`md:text-4xl ${modalHeadingStyle}`}>Burn it all?</h2>
-        <p className="rounded-lg bg-background/90 px-4 py-3 text-left font-zain text-lg tracking-wide text-primary">
-          This will{' '}
-          <span className={'font-extrabold underline decoration-primary/70 underline-offset-2'}>
-            permanently
-          </span>{' '}
-          delete all books and trigger a complete Pit reset.
-        </p>
-        <div className="flex w-full items-center justify-center gap-4">
-          <button
-            onClick={() => setFinalConfirmation(true)}
-            disabled={finalConfirmation}
-            aria-label="Delete all books and reset the pit"
-            className={`flex-2 border-background bg-red-800/75 ${modalButtonStyle} ${finalConfirmation ? 'cursor-not-allowed! hover:scale-100! active:scale-100!' : 'hover:bg-red-800 active:bg-red-800'}`}
-          >
-            RESET
-          </button>
-          <button
-            onClick={onCancel}
-            aria-label="Close reset modal and cancel reset"
-            className={`flex-3 border-red-800 bg-background hover:bg-background hover:opacity-100 active:bg-background active:opacity-90 ${modalButtonStyle} ${finalConfirmation ? 'opacity-85' : 'opacity-75'}`}
-          >
-            CANCEL
-          </button>
-        </div>
-        {finalConfirmation && (
-          <div className="flex w-full flex-col items-center justify-center gap-4">
-            <p className="rounded-lg bg-red-800/85 px-4 py-3 font-zain text-lg font-extrabold tracking-wide text-primary/92">
-              Last warning: this cannot be undone. All data will be lost. Do you wish to continue?
-            </p>
-            <button
-              onClick={onConfirm}
-              aria-label="Confirm reset"
-              disabled={resetTimer > 0}
-              className={`w-full border-background bg-red-800/85 pt-2.75! pb-1.75! hover:bg-red-800 active:bg-red-800 ${resetTimer === 0 ? 'hover:scale-104 active:scale-95' : 'cursor-not-allowed!'} ${modalButtonStyle}`}
-            >
-              {resetTimer > 0 ? (
-                `Wait... ${resetTimer}`
-              ) : (
-                <BombIcon
-                  weight={'fill'}
-                  className={`inline size-4.75 -translate-y-0.5 drop-shadow-2xl drop-shadow-zinc-950 sm:-translate-y-0.5`}
-                />
-              )}
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
 type AddState =
   | { type: 'idle' }
   | { type: 'loading' }
@@ -433,10 +46,12 @@ export default function TheStacks() {
 
   const titleRef = useRef<HTMLInputElement>(null)
 
+  // --- effects
   useEffect(() => {
     void fetchBooks()
   }, [])
 
+  // --- data fetching
   async function fetchBooks() {
     setLoading(true)
     setError(null)
@@ -455,6 +70,7 @@ export default function TheStacks() {
     }
   }
 
+  // --- handlers
   async function handleAdd(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
     const form = e.currentTarget
@@ -512,6 +128,7 @@ export default function TheStacks() {
     }
   }
 
+  // After CSV imports, clear any UI manual entry messaging and refresh the user's book list.
   function handleImportSuccess() {
     setManualAddState({ type: 'idle' })
 
@@ -542,6 +159,7 @@ export default function TheStacks() {
     title = title.trim()
     author = author.trim()
 
+    // Don't trigger edit if the title and author have not been changed.
     if (title === bookToEdit.title && author === bookToEdit.author) {
       setBookToEdit(null)
       return
@@ -592,6 +210,7 @@ export default function TheStacks() {
     }
   }
 
+  // --- styles
   const cellXPadding = 'first:pl-2.25 lg:px-2 lg:first:pl-4'
   const thStyle = `font-calistoga text-base tracking-wider pt-1.5 lg:pt-2 lg:pb-1.5 pb-1.25 font-extrabold md:text-lg lg:text-xl  ${cellXPadding}`
   const tdStyle = `py-1.25 lg:py-1.75 ${cellXPadding}`
@@ -692,17 +311,6 @@ export default function TheStacks() {
                 <span className="hidden md:inline">Add</span>
               </button>
             </form>
-            {addError && (
-              <p
-                className={`font-extrabold text-red-800 opacity-96 md:opacity-90 ${addMessageStyle}`}
-              >
-                <ProhibitInsetIcon
-                  weight={'duotone'}
-                  className={'mr-1.5 inline size-5 -translate-y-0.5 md:size-5.25'}
-                />
-                {addError}
-              </p>
-            )}
 
             <AddFeedback addState={manualAddState} />
           </section>
@@ -814,6 +422,8 @@ export default function TheStacks() {
                 </tbody>
               </table>
             )}
+
+            {/* Reset button */}
             {books.length > 0 && (
               <button
                 onClick={() => {
