@@ -11,6 +11,7 @@ import { API_BASE, ApiError, apiFetch } from '../api.ts'
 import Placeholder from '../components/Placeholder'
 import PageHeading from '../components/PageHeading'
 import { Ban, Download } from 'lucide-react'
+import PlaceholderMessaging from '../components/feedback/PlaceholderMessaging.tsx'
 import { FireIcon as FireSolid } from '@heroicons/react/24/solid'
 import { FireIcon as FireOutline } from '@heroicons/react/24/outline'
 import {
@@ -406,6 +407,11 @@ function ResetModal({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: 
     </div>
   )
 }
+type AddState =
+  | { type: 'idle' }
+  | { type: 'loading' }
+  | { type: 'error'; message: string }
+  | { type: 'success'; book: Book }
 
 // ====== MAIN PAGE
 
@@ -416,14 +422,12 @@ export default function TheStacks() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const [loadingAdd, setLoadingAdd] = useState<boolean>(false)
-  const [addError, setAddError] = useState<string | null>(null)
-  const [newBook, setNewBook] = useState<Book | null>(null)
-
-  const [editError, setEditError] = useState<string | null>(null)
+  const [manualAddState, setManualAddState] = useState<AddState>({ type: 'idle' })
 
   const [bookToBurn, setBookToBurn] = useState<Book | null>(null)
   const [bookToEdit, setBookToEdit] = useState<Book | null>(null)
+  const [editError, setEditError] = useState<string | null>(null)
+
   const [showImportModal, setShowImportModal] = useState<boolean>(false)
   const [showResetModal, setShowResetModal] = useState<boolean>(false)
 
@@ -461,21 +465,17 @@ export default function TheStacks() {
     const rating = formData.get('rating') as string | null
 
     if (!title.trim() || !author.trim()) {
-      setNewBook(null)
-      setAddError('Please enter both title and author.')
+      setManualAddState({ type: 'error', message: 'Please enter both title and author.' })
       return
     }
 
     const parsedRating = rating ? parseFloat(rating) : null
     if (parsedRating !== null && (isNaN(parsedRating) || parsedRating < 1 || parsedRating > 10)) {
-      setNewBook(null)
-      setAddError('Rating must be between 1 and 10')
+      setManualAddState({ type: 'error', message: 'Rating must be between 1 and 10.' })
       return
     }
 
-    setLoadingAdd(true)
-    setAddError(null)
-    setNewBook(null)
+    setManualAddState({ type: 'loading' })
 
     try {
       const token = await getToken()
@@ -492,31 +492,34 @@ export default function TheStacks() {
       const newBook = await response.json()
 
       setBooks((prev) => [newBook, ...prev])
-      setNewBook(newBook)
+      setManualAddState({ type: 'success', book: newBook })
+
       form.reset()
       titleRef.current?.focus()
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {
         form.reset()
-        setAddError(`${title}, by ${author}, is already in the pit!`)
+        setManualAddState({
+          type: 'error',
+          message: `${title}, by ${author}, is already in the pit!`,
+        })
       } else {
-        setAddError(`Something went wrong. Please try again.`)
+        setManualAddState({
+          type: 'error',
+          message: `Something went wrong. Please try again.`,
+        })
       }
-    } finally {
-      setLoadingAdd(false)
     }
   }
 
   function handleImportSuccess() {
-    setNewBook(null)
-    setAddError(null)
+    setManualAddState({ type: 'idle' })
 
     void fetchBooks()
   }
 
   async function handleBurn(book: Book) {
-    setNewBook(null)
-    setAddError(null)
+    setManualAddState({ type: 'idle' })
 
     try {
       const token = await getToken()
@@ -532,8 +535,7 @@ export default function TheStacks() {
   }
 
   async function handleEdit(title: string, author: string) {
-    setNewBook(null)
-    setAddError(null)
+    setManualAddState({ type: 'idle' })
 
     if (!bookToEdit) return
 
@@ -568,8 +570,7 @@ export default function TheStacks() {
   }
 
   async function handleReset() {
-    setNewBook(null)
-    setAddError(null)
+    setManualAddState({ type: 'idle' })
 
     try {
       const token = await getToken()
@@ -596,9 +597,6 @@ export default function TheStacks() {
   const tdStyle = `py-1.25 lg:py-1.75 ${cellXPadding}`
   const inputStyle =
     'rounded-md border-b-3 border-primary/85 bg-blue-200 py-2.5 px-3 sm:p-2 shadow-lg'
-  const addMessageStyle = `w-full md:self-end rounded-md md:rounded-lg bg-button px-4 pb-1.75 pt-2.25 text-lg md:w-fit md:px-6 md:text-xl md:brightness-110`
-
-  const addTriggered = newBook != null || addError != null || loadingAdd
 
   return (
     <main className="mx-auto flex h-full min-h-0 w-[97%] grow flex-col items-center gap-4 overflow-y-auto px-2 pb-2 text-primary/95 sm:max-w-6xl sm:gap-4 md:p-4">
@@ -636,14 +634,14 @@ export default function TheStacks() {
       )}
 
       {error ? (
-        <Placeholder message={error} />
+        <PlaceholderMessaging message={error} />
       ) : loading ? (
-        <Placeholder message="Fetching the Stacks..." />
+        <PlaceholderMessaging message="Fetching the Stacks..." />
       ) : (
         <>
           {/* MANUAL INPUT */}
           <section
-            className={`mt-0 flex w-full flex-col gap-4 [@media(min-height:700px)]:mt-1.5 [@media(min-height:700px)]:md:mt-2 ${addTriggered ? 'mb-0' : 'md:mb-15'}`}
+            className={`mt-0 flex w-full flex-col gap-4 [@media(min-height:700px)]:mt-1.5 [@media(min-height:700px)]:md:mt-2 ${manualAddState.type === 'idle' ? 'md:mb-15' : 'mb-0'}`}
           >
             <h2 className="pl-px font-calistoga text-[1.6rem] font-bold tracking-wide drop-shadow-md sm:mb-2 [@media(min-height:700px)]:text-3xl">
               New Reads
@@ -706,34 +704,7 @@ export default function TheStacks() {
               </p>
             )}
 
-            {newBook && (
-              <p className={`text-text ${addMessageStyle}`}>
-                <CheckCircleIcon
-                  weight={'duotone'}
-                  className={
-                    'mr-1.5 inline size-5 -translate-y-0.5 md:size-5.25 md:-translate-y-0.75'
-                  }
-                />
-                Added:{' '}
-                <span
-                  className={
-                    'font-bold decoration-accent/70 underline-offset-3 md:ml-1 md:underline'
-                  }
-                >
-                  {newBook.title}
-                </span>
-                , by{' '}
-                <span className={'font-bold decoration-accent/70 underline-offset-3 md:underline'}>
-                  {newBook.author}
-                </span>
-              </p>
-            )}
-
-            {loadingAdd && (
-              <p className={`font-bold text-text opacity-80 ${addMessageStyle}`}>
-                Updating the pit...
-              </p>
-            )}
+            <AddFeedback addState={manualAddState} />
           </section>
 
           <hr className="my-2 h-px w-full text-button opacity-65 md:my-0" />
@@ -864,4 +835,41 @@ export default function TheStacks() {
       )}
     </main>
   )
+}
+
+// ====== HELPERS
+
+// Displays add-feedback for the manual entry form: loading, error, or success.
+function AddFeedback({ addState }: { addState: AddState }) {
+  const addMessageStyle = `w-full md:self-end rounded-md md:rounded-lg bg-button px-4 pb-1.75 pt-2.25 text-lg md:w-fit md:px-6 md:text-xl md:brightness-110`
+  const iconStyle = 'mr-1.5 inline size-5 -translate-y-0.5 md:size-5.25 '
+
+  switch (addState.type) {
+    case 'idle':
+      return null
+
+    case 'loading':
+      return (
+        <p className={`font-bold text-text opacity-80 ${addMessageStyle}`}>Updating the pit...</p>
+      )
+
+    case 'error':
+      return (
+        <p className={`font-extrabold text-red-800 opacity-96 md:opacity-90 ${addMessageStyle}`}>
+          <ProhibitInsetIcon weight={'duotone'} className={iconStyle} />
+          {addState.message}
+        </p>
+      )
+
+    case 'success': {
+      const bookDataStyle = 'font-bold decoration-accent/70 underline-offset-3 md:underline'
+      return (
+        <p className={`text-text ${addMessageStyle}`}>
+          <CheckCircleIcon weight={'duotone'} className={`md:-translate-y-0.75 ${iconStyle}`} />
+          Added: <span className={`md:ml-1 ${bookDataStyle}`}>{addState.book.title}</span>, by{' '}
+          <span className={bookDataStyle}>{addState.book.author}</span>
+        </p>
+      )
+    }
+  }
 }
