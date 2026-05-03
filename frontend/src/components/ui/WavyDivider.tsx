@@ -1,4 +1,4 @@
-export default function WavyDivider({ waveLength = 21, height = 2, stroke = 5 }) {
+export default function WavyDivider({ waveLength = 21, height = 2, stroke = 5, className = '' }) {
   // Raw SVG string
   const waveSVG = `
     <svg width='100' height='20' xmlns='http://www.w3.org/2000/svg' aria-hidden="true">
@@ -16,7 +16,7 @@ export default function WavyDivider({ waveLength = 21, height = 2, stroke = 5 })
 
   return (
     <div
-      className="w-full bg-repeat-x"
+      className={`w-full bg-repeat-x ${className}`}
       style={{
         height: `${height * 0.25}rem`,
         backgroundImage: `url("data:image/svg+xml,${encodedSVG}")`,
