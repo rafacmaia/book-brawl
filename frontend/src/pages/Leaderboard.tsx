@@ -36,20 +36,24 @@ const TIER_LABELS: Record<number, string> = {
   5: 'Very High',
 }
 
-// Note the threshold values are upper bounds: matching label shown when progress is below them.
+// Progress bar labels. The first values represent the upper threshold of each label.
+// Keep labels under 30 char to avoid layout shifts.
 const PROGRESS_LABELS: [number, string][] = [
   [0.1, "Don't trust this yet..."],
-  [0.2, 'Early days'],
-  [0.3, 'Warming up'],
-  [0.5, 'Cooking'],
-  [0.75, 'Getting there!'],
-  [0.9, 'Final brawls underway!'],
-  [0.98, 'Locking in'],
+  [0.2, 'Early days, let them brawl'],
+  [0.3, 'Brawl pit getting hotter'],
+  [0.4, 'Heavy brawling underway'],
+  [0.5, 'Leave no book unbrawled!'],
+  [0.6, 'Cooking'],
+  [0.7, 'Books settling into place'],
+  [0.8, 'Final brawls underway!'],
+  [0.9, 'Locking in'],
+  [0.97, 'Nearly brawled out!'],
   [Infinity, 'The brawl pit has spoken!'],
 ]
 
-// The threshold above which the rankings are considered settled. Used to hide the percentage
-// display and visually complete the progress bar.
+// The threshold above which the rankings are considered settled. Used to trigger hiding the exact
+// percentage and display the progress bar as completed once a user reaches this point.
 const FINAL_THRESHOLD = PROGRESS_LABELS[PROGRESS_LABELS.length - 2][0]
 
 // ====== MAIN PAGE
@@ -182,7 +186,8 @@ function LeaderboardContent({ progress, rankings }: { progress: number; rankings
                 '0 1px 3px rgba(0,0,0,0.7), 0 0px 6px rgba(0,0,0,0.4), 0 0 8px rgba(0,0,0,0.4)',
             }}
           >
-            {showProgress && `${Math.round(progress * 100)}%`} {progressLabel}
+            {showProgress && `${Math.round(progress * 100)}% – `}
+            {progressLabel}
           </p>
         </div>
 
