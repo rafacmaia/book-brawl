@@ -1,3 +1,28 @@
+"""Match selection and resolution for the brawl pit.
+
+Selecting a match is a two-stage weighted random process:
+
+  Stage 1 - book_a:  Sample uniformly across the library, but weight toward books that
+                     need more data (low confidence). A book gets selected more often
+                     when its confidence is low OR when its absolute_score is low
+                     (meaning newly added, few matches in). The early_boost is what
+                     pulls fresh entries into rotation quickly.
+
+  Stage 2 - book_b:  Sample only among book_a's potential opponents, weighting toward
+                     (a) opponents we've matched against rarely, and (b) opponents
+                     within a meaningful Elo gap. This is where the matchmaking
+                     actually concentrates information: by picking opponents whose
+                     match outcome is more uncertain.
+
+The ELO_GAP constant defines what counts as a "meaningful" Elo distance, and is derived
+from LOCAL_WINDOW in scoring_service so that the matchmaking and confidence system
+share a definition of "similar Elo." Books outside this gap can still be selected, just
+less often (the penalty grows linearly).
+
+resolve_comparison handles the post-match update: persisting the new Elo
+scores and recording the matchup history.
+"""
+
 import math
 import random
 
@@ -12,8 +37,11 @@ from services.scoring_service import (
     confidence_score,
 )
 
-# Calculate the Elo-score gap to prioritize in matchmaking,
-# informed by the LOCAL_WINDOW used in the measure of confidence
+# ELO_GAP represents the difference in Elo scores at which expected_score crosses the
+# LOCAL_WINDOW used in confidence measure, i.e., the boundary between "similar enough to
+# matter and provide new data" and "wide enough to make the outcome too predictable."
+# Derived inversely from _expected_score so that matchmaking and confidence share a
+# a definition of "similar Elo."
 ELO_GAP = 400 * math.log10(1 / (0.5 - LOCAL_WINDOW) - 1)
 
 
@@ -26,7 +54,7 @@ class BookNotFoundError(Exception):
 
 
 def select_opponents(reader_id: int) -> tuple[Book, Book]:
-    """Select two books using weighted random selection.
+    """Select two books via two-stage weighted sampling: book_b depends on book_a.
 
     Favor low-confidence books (i.e., books with fewer unique matches played), books
     that have been matched against each other less often, and books with similar Elo
@@ -65,7 +93,7 @@ def _sampling_weight(book: Book, b_confidence: float, books: list[Book]) -> floa
     if len(books) <= 1:
         return 1
 
-    # Boost scales with library size and absolute_score: larger collections
+    # early_boost scales with library size and absolute_score: larger collections
     # require higher boosts to make a difference, and lower absolute_score
     # requires a higher boost to get early data in.
     early_boost = math.sqrt(len(books)) * (1 - absolute_score(book, books))

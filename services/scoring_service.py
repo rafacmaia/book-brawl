@@ -1,3 +1,34 @@
+"""Confidence scoring and Elo calculations.
+
+A book's confidence score reflects how trustworthy its current rank is. It feeds
+two parts of the system:
+
+  - K-factor selection in the Elo update (lower confidence -> larger K -> faster
+    movement until the rank settles).
+  - Overall progress display (the average across all books is shown to the user).
+
+The score is a weighted combination of three components, each capturing a
+different aspect of rank accuracy:
+
+  absolute_score (30%)  Has this book had enough matches at all? Scales gently
+                        with library size so larger libraries don't demand
+                        proportionally more matches per book.
+
+  local_score (45%)     Of the opponents that meaningfully threaten this book's rank
+                        (similar Elo), how many has it actually faced? This is a measure
+                        of coverage; books need to face their real competition, not just
+                        any opponents.
+
+  stability_score (25%) How densely packed is this book's neighborhood? A book in a
+                        tight cluster of similar-Elo books has a more fragile rank than
+                        one in a sparse region, regardless of match history.
+
+Local has the highest weight because facing relevant opponents is the strongest signal
+of meaningful placement. Stability has the lowest weight because it measures inherent
+ambiguity rather than something the user can resolve through more matches; it's a damper
+on overconfidence, not a primary driver.
+"""
+
 import math
 
 from models import Book
@@ -63,12 +94,16 @@ def confidence_score(book: Book, books: list[Book]) -> float:
 def absolute_score(book: Book, books: list[Book]) -> float:
     """Calculates a book's absolute score.
 
-    Measures if a book has faced a minimum number of opponents, scaling with
-    library size.
+    Measures whether a book has faced enough opponents to claim general placement.
+    The cap grows with library size but sublinearly, so larger libraries don't demand
+    an unrealistically large number of matches per book.
     """
     if len(books) <= 1:
         return 1
 
+    # Cap grows with sqrt(library_size) so a 100-book library asks for ~10 matches,
+    # a 500-book library asks for ~22 matches, with ABS_BASE acting as a floor for small
+    # libraries.
     target_opponents_cap = max(math.sqrt(len(books)), ABS_BASE)
     opponents_cap = min(target_opponents_cap, len(books) - 1)
 
@@ -79,6 +114,7 @@ def _local_score(book: Book, books: list[Book]) -> float:
     """Calculates a book's local score.
 
     Measures how many opponents a book has faced that are similar to the book's Elo.
+    Uses additive smoothing to avoid harsh penalties when few similar opponents exist.
     """
     relevant_opps = relevant_opps_faced = 0
 
@@ -91,6 +127,8 @@ def _local_score(book: Book, books: list[Book]) -> float:
             if opp.id in book.faced_opponents:
                 relevant_opps_faced += 1
 
+    # Use additive smoothing to avoid harsh penalties when relevant_opponents is small.
+    # With few threats, we trust the prior more; with many, the raw ratio dominates.
     smoothing = 9
 
     return (relevant_opps_faced + smoothing) / (relevant_opps + smoothing)
