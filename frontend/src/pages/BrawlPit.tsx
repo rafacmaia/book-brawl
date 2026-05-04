@@ -106,7 +106,7 @@ export default function BrawlPit() {
 
       // Triggers and gives time for match transition: fade out old match and fade in new match
       setMatchTransition(false)
-      await new Promise((resolve) => setTimeout(resolve, 275))
+      await new Promise((resolve) => setTimeout(resolve, 250))
     }
 
     if (nextMatch) {

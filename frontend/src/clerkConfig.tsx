@@ -1,7 +1,7 @@
 export const clerkLocalization = {
   signIn: {
     start: {
-      subtitle: 'Welcome back! Remind us who you are?',
+      subtitle: 'Welcome back! Wait, who are you again?',
       actionText: 'New here?',
     },
   },

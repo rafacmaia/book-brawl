@@ -42,12 +42,15 @@ const PROGRESS_LABELS: [number, string][] = [
   [0.2, 'Early days'],
   [0.3, 'Warming up'],
   [0.5, 'Cooking'],
-  [0.7, 'Getting there!'],
-  [0.8, 'Nearly there...'],
-  [0.9, 'Final calibrations'],
-  [0.97, 'Locking in'],
+  [0.75, 'Getting there!'],
+  [0.9, 'Final brawls underway!'],
+  [0.98, 'Locking in'],
   [Infinity, 'The brawl pit has spoken!'],
 ]
+
+// The threshold above which the rankings are considered settled. Used to hide the percentage
+// display and visually complete the progress bar.
+const FINAL_THRESHOLD = PROGRESS_LABELS[PROGRESS_LABELS.length - 2][0]
 
 // ====== MAIN PAGE
 
@@ -138,6 +141,9 @@ export default function Leaderboard() {
 function LeaderboardContent({ progress, rankings }: { progress: number; rankings: BookData[] }) {
   const [showAccuracyModal, setShowAccuracyModal] = useState<boolean>(false)
 
+  const showProgress = progress < FINAL_THRESHOLD
+  const progressLabel = PROGRESS_LABELS.find(([threshold]) => progress < threshold)![1]
+
   const thStyle = `px-2 pt-1.25 pb-1 first:pl-2 md:first:pl-5 text-base tracking-wider md:pb-1.25 md:pt-2 md:text-xl font-extrabold font-calistoga `
   const tdStyle = `md:py-2 py-1.25 first:pl-3 md:first:pl-6 last:max-md:pr-2.25 px-2`
 
@@ -153,24 +159,30 @@ function LeaderboardContent({ progress, rankings }: { progress: number; rankings
             <div
               className={`h-full rounded-xs bg-linear-to-r transition-all duration-500 ${progress > 0.33 ? 'from-green-600/90 via-button/90 to-red-500/90' : 'from-red-500/90 to-button/90'}`}
               style={{
-                width: `${Math.round(progress * 100)}%`,
+                width: `${showProgress ? Math.round(progress * 100) : 100}%`,
                 maskImage:
-                  progress < 0.995
+                  progress < 0.9
                     ? 'linear-gradient(to right, black 80%, transparent 100%)'
-                    : undefined,
+                    : showProgress
+                      ? 'linear-gradient(to right, black 90%, transparent 100%)'
+                      : undefined,
                 WebkitMaskImage:
-                  progress < 0.995
+                  progress < 0.9
                     ? 'linear-gradient(to right, black 80%, transparent 100%)'
-                    : undefined,
+                    : showProgress
+                      ? 'linear-gradient(to right, black 90%, transparent 100%)'
+                      : undefined,
               }}
             />
           </div>
           <p
             className={`absolute right-4 bottom-px font-gaegu text-[1.15rem] font-black tracking-wider text-primary/95 sm:bottom-0.5 md:text-xl`}
-            style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5), 0 0px 6px rgba(0,0,0,0.3)' }}
+            style={{
+              textShadow:
+                '0 1px 3px rgba(0,0,0,0.7), 0 0px 6px rgba(0,0,0,0.4), 0 0 8px rgba(0,0,0,0.4)',
+            }}
           >
-            {Math.round(progress * 100)}%{' '}
-            {PROGRESS_LABELS.find(([threshold]) => progress < threshold)![1]}
+            {showProgress && `${Math.round(progress * 100)}%`} {progressLabel}
           </p>
         </div>
 
