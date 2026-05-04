@@ -6,15 +6,14 @@ ABS_SCORE_WEIGHT = 0.30  # absolute score weight
 LOC_SCORE_WEIGHT = 0.45  # local score weight
 STA_SCORE_WEIGHT = 0.25  # density-based stability score weight
 
-ABS_MIN_OPPONENTS = 8
-ABS_PERCENTAGE = 0.10
+ABS_BASE = 5
 
 LOCAL_WINDOW = 0.12
 
-DENSITY_WINDOW = 20
+DENSITY_WINDOW = 16
 DENSITY_CAP = 10
 
-K_TIERS = [(0.25, 40), (0.5, 32), (0.75, 24), (1.0, 16)]
+K_TIERS = [(0.25, 40), (0.5, 32), (0.75, 24), (0.9, 16), (1.0, 8)]
 
 
 # ====== CONFIDENCE SCORING
@@ -70,13 +69,10 @@ def absolute_score(book: Book, books: list[Book]) -> float:
     if len(books) <= 1:
         return 1
 
-    absolute_cap = (
-        max(len(books) * ABS_PERCENTAGE, ABS_MIN_OPPONENTS)
-        if len(books) > ABS_MIN_OPPONENTS / ABS_PERCENTAGE
-        else min(len(books) - 1, ABS_MIN_OPPONENTS)
-    )
+    target_opponents_cap = max(math.sqrt(len(books)), ABS_BASE)
+    opponents_cap = min(target_opponents_cap, len(books) - 1)
 
-    return min(len(book.faced_opponents) / absolute_cap, 1)
+    return min(len(book.faced_opponents) / opponents_cap, 1)
 
 
 def _local_score(book: Book, books: list[Book]) -> float:
@@ -84,17 +80,20 @@ def _local_score(book: Book, books: list[Book]) -> float:
 
     Measures how many opponents a book has faced that are similar to the book's Elo.
     """
-    relevant_opponents = relevant_opp_faced = 0
+    relevant_opps = relevant_opps_faced = 0
+
     for opp in books:
         if (
             opp.id != book.id
             and abs(_expected_score(book.elo, opp.elo) - 0.5) <= LOCAL_WINDOW
         ):
-            relevant_opponents += 1
+            relevant_opps += 1
             if opp.id in book.faced_opponents:
-                relevant_opp_faced += 1
+                relevant_opps_faced += 1
 
-    return relevant_opp_faced / relevant_opponents if relevant_opponents else 1
+    smoothing = 9
+
+    return (relevant_opps_faced + smoothing) / (relevant_opps + smoothing)
 
 
 def _stability_score(book: Book, books: list[Book]) -> float:

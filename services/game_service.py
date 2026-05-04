@@ -6,7 +6,6 @@ from db.books_repo import update_elo as save_elo
 from db.comparisons_repo import insert as insert_comparison
 from models import Book
 from services.scoring_service import (
-    ABS_PERCENTAGE,
     LOCAL_WINDOW,
     absolute_score,
     calculate_elo,
@@ -21,7 +20,9 @@ ELO_GAP = 400 * math.log10(1 / (0.5 - LOCAL_WINDOW) - 1)
 class NotEnoughBooksError(Exception):
     """Raised when there are not enough books to select opponents."""
 
-    pass
+
+class BookNotFoundError(Exception):
+    """Raised when a book ID does not match any book in the reader's library."""
 
 
 def select_opponents(reader_id: int) -> tuple[Book, Book]:
@@ -67,10 +68,11 @@ def _sampling_weight(book: Book, b_confidence: float, books: list[Book]) -> floa
     # Boost scales with library size and absolute_score: larger collections
     # require higher boosts to make a difference, and lower absolute_score
     # requires a higher boost to get early data in.
-    early_boost = len(books) * ABS_PERCENTAGE * (1 - absolute_score(book, books))
+    early_boost = math.sqrt(len(books)) * (1 - absolute_score(book, books))
+
     confidence_weight = 1 - b_confidence
 
-    return max(0.05, confidence_weight, early_boost)
+    return max(0.03, confidence_weight, early_boost)
 
 
 def _opponent_weights(
@@ -90,7 +92,7 @@ def _opponent_weights(
             elo_gap_penalty = 1 + abs(book_a.elo - b.elo) / ELO_GAP
 
             # Calculate the base weight based on confidence level
-            base_weight = max(0.05, 1 - con_scores[b.id])
+            base_weight = max(0.03, 1 - con_scores[b.id])
 
             adjusted_weight = base_weight / rematch_penalty / elo_gap_penalty
 
@@ -112,8 +114,10 @@ def resolve_comparison(
     winner: Book | None = book_map.get(winner_id)
     loser: Book | None = book_map.get(loser_id)
 
-    if winner is None or loser is None:
-        raise ValueError
+    if winner is None:
+        raise BookNotFoundError(f"Winner book not found: id={winner_id}")
+    if loser is None:
+        raise BookNotFoundError(f"Loser book not found: id={loser_id}")
 
     new_winner_elo, new_loser_elo = calculate_elo(winner, loser, books)
     insert_comparison(reader_id, winner.id, loser.id)

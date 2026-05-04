@@ -13,6 +13,7 @@ from db import books_repo, comparisons_repo, readers_repo
 from db.connection import init_db
 from services import library_service
 from services.game_service import (
+    BookNotFoundError,
     NotEnoughBooksError,
     resolve_comparison,
     select_opponents,
@@ -89,7 +90,7 @@ def post_match(
     """Resolve a match between two books and update their records."""
     try:
         winner, loser = resolve_comparison(reader_id, result.winner_id, result.loser_id)
-    except ValueError:
+    except BookNotFoundError:
         raise HTTPException(status_code=404, detail="Books not found")
 
     return {
