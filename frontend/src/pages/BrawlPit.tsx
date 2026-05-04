@@ -165,7 +165,7 @@ export default function BrawlPit() {
         currentMatch && (
           <>
             <h1
-              className={`z-100 flex-none text-center font-calistoga text-[1.4rem] tracking-wide text-balance text-primary/95 drop-shadow-md [@media(max-height:400px)]:mt-1 [@media(max-height:500px)]:w-[94%] [@media(max-height:500px)]:text-left [@media(max-height:500px)]:text-[1.6rem]/7 [@media(min-height:500px)]:mb-0.5 [@media(min-height:600px)]:text-[2.5rem]/12 [@media(min-height:600px)]:font-extrabold [@media(min-height:600px)]:tracking-wide [@media(min-height:700px)]:mt-4 [@media(min-height:700px)]:mb-2 [@media(min-height:700px)]:text-5xl/14 [@media(min-height:700px)]:md:mt-12 [@media(min-height:700px)]:lg:mt-24 [@media(min-height:700px)]:lg:text-7xl`}
+              className={`z-100 mt-2.75 flex-none text-center font-calistoga text-[1.4rem] tracking-wide text-balance text-primary/95 drop-shadow-md [@media(max-height:500px)]:w-[94%] [@media(max-height:500px)]:text-left [@media(max-height:500px)]:text-[1.6rem]/7 [@media(min-height:500px)]:mt-1.25 [@media(min-height:500px)]:mb-0.5 [@media(min-height:600px)]:text-[2.5rem]/12 [@media(min-height:600px)]:font-extrabold [@media(min-height:600px)]:tracking-wide [@media(min-height:700px)]:mt-4 [@media(min-height:700px)]:mb-2 [@media(min-height:700px)]:text-5xl/14 [@media(min-height:700px)]:md:mt-12 [@media(min-height:700px)]:lg:mt-24 [@media(min-height:700px)]:lg:text-7xl`}
             >
               Which means more to{' '}
               <span
@@ -186,7 +186,7 @@ export default function BrawlPit() {
             >
               ===============
             </div>
-            <div
+            <div // Mobile match count and divider
               className={
                 'flex w-[97%] items-center justify-center md:w-19/20 lg:hidden [@media(max-height:500px)]:opacity-90'
               }
@@ -199,8 +199,8 @@ export default function BrawlPit() {
               </p>
               <hr className="my-0 h-px w-full text-button opacity-70 [@media(max-height:500px)]:w-6" />
             </div>
-            <div
-              className={`${matchTransition ? 'translate-y-0 opacity-100' : 'pointer-events-none opacity-0 max-md:scale-96 sm:translate-y-3'} my-1 flex w-full grow flex-col items-center justify-center gap-1 transition-all duration-275 ease-in-out md:mb-3 [@media(min-height:500px)]:mt-1.5 [@media(min-height:500px)]:gap-3 [@media(min-height:700px)]:mt-3 [@media(min-height:700px)]:mb-3 [@media(min-height:700px)]:gap-6 [@media(min-height:700px)]:md:mb-1 [@media(min-height:700px)]:lg:my-0 [@media(min-height:700px)]:lg:flex-row [@media(min-height:700px)]:lg:gap-12 [@media(min-height:700px)]:xl:gap-27`}
+            <div // Book cards container
+              className={`${matchTransition ? 'translate-y-0 opacity-100' : 'pointer-events-none opacity-0 max-md:scale-96 sm:translate-y-3'} my-1 flex w-full grow flex-col items-center justify-center gap-0.5 transition-all duration-275 ease-in-out md:mb-3 [@media(min-height:350px)]:gap-1.5 [@media(min-height:500px)]:mt-1.5 [@media(min-height:500px)]:gap-3 [@media(min-height:700px)]:mt-3 [@media(min-height:700px)]:mb-3 [@media(min-height:700px)]:gap-6 [@media(min-height:700px)]:md:mb-1 [@media(min-height:700px)]:lg:my-0 [@media(min-height:700px)]:lg:flex-row [@media(min-height:700px)]:lg:gap-12 [@media(min-height:700px)]:xl:gap-27`}
             >
               <BookCard
                 book={currentMatch.book_a}
@@ -215,7 +215,7 @@ export default function BrawlPit() {
                 disabled={!nextMatch}
               />
             </div>
-            <div
+            <div // Desktop match count
               className={
                 'absolute -bottom-2 left-1/2 hidden w-full -translate-x-1/2 items-center justify-center [@media(min-height:700px)]:lg:flex'
               }
@@ -247,7 +247,7 @@ function BookCard({
   const title = book.title.trim()
   const author = book.author.trim()
 
-  // Italicize anonymous and 'various' author fields
+  // Italicize 'anonymous' and 'various' author fields
   const italic = /\b(?:anonymous|various)\b/i.test(author)
 
   // Identify long titles and authors for better formatting.
@@ -259,21 +259,21 @@ function BookCard({
   const regularCardStyle =
     'gap-1 px-5 [@media(min-height:600px)]:gap-1.75 [@media(min-height:700px)]:px-8 [@media(min-height:700px)]:gap-4 [@media(min-height:700px)]:sm:gap-6 [@media(min-height:700px)]:sm:py-4'
   const regularTitleStyle =
-    'text-[1.6rem]/8 [@media(min-height:600px)]:text-[1.85rem]/10 [@media(min-height:700px)]:text-[2.125rem]/11 [@media(min-height:700px)]:sm:text-[2.75rem]/15'
+    '[@media(min-height:350px)]:text-[1.6rem]/8  [@media(min-height:600px)]:text-[1.85rem]/10 [@media(min-height:700px)]:text-[2.125rem]/11 [@media(min-height:700px)]:sm:text-[2.75rem]/15'
   const regularAuthorStyle =
-    'text-[1.2rem]/6 [@media(min-height:600px)]:text-[1.35rem]/7 [@media(min-height:700px)]:text-[1.5rem] [@media(min-height:700px)]:sm:text-[1.875rem]'
+    '[@media(min-height:350px)]:text-[1.2rem]/6 [@media(min-height:600px)]:text-[1.35rem]/7 [@media(min-height:700px)]:text-[1.5rem] [@media(min-height:700px)]:sm:text-[1.875rem]'
 
   const tightCardStyle =
     'gap-1 px-5 [@media(min-height:700px)]:gap-3 [@media(min-height:700px)]:sm:gap-4 [@media(min-height:700px)]:px-6 [@media(min-height:700px)]:sm:px-8 sm:py-3'
   const tightTitleStyle =
-    'text-[1.4rem]/7 [@media(min-height:600px)]:text-[1.65rem]/8 [@media(min-height:700px)]:text-[2rem]/10 [@media(min-height:700px)]:sm:text-[2.4rem]/13'
+    '[@media(min-height:350px)]:text-[1.6rem]/8  [@media(min-height:600px)]:text-[1.65rem]/8 [@media(min-height:700px)]:text-[2rem]/10 [@media(min-height:700px)]:sm:text-[2.4rem]/13'
   const tightAuthorStyle =
-    'text-[1.2rem]/6 [@media(min-height:600px)]:text-[1.3rem]/7 [@media(min-height:700px)]:text-[1.4rem]/8 [@media(min-height:700px)]:sm:text-[1.6rem]/10'
+    '[@media(min-height:350px)]:text-[1.2rem]/6 [@media(min-height:600px)]:text-[1.3rem]/7 [@media(min-height:700px)]:text-[1.4rem]/8 [@media(min-height:700px)]:sm:text-[1.6rem]/10'
 
   const tighterCardStyle =
     'gap-1 px-2 [@media(min-height:500px)]:px-4 [@media(min-height:600px)]:px-6 [@media(min-height:700px)]:gap-2 sm:gap-4 sm:px-7 sm:py-3'
   const tighterTitleStyle =
-    'text-[1.35rem]/7 [@media(min-height:600px)]:text-[1.55rem]/7 [@media(min-height:700px)]:text-[2rem]/10 [@media(min-height:700px)]:sm:text-[2.4rem]/12'
+    '[@media(min-height:350px)]:text-[1.5rem]/7  [@media(min-height:600px)]:text-[1.55rem]/7 [@media(min-height:700px)]:text-[2rem]/10 [@media(min-height:700px)]:sm:text-[2.4rem]/12'
 
   const cardStyle = veryLongTitle
     ? tighterCardStyle
@@ -309,12 +309,12 @@ function BookCard({
       }}
     >
       <p
-        className={`line-clamp-3 w-full p-1 font-medium text-balance wrap-break-word lg:line-clamp-3 [@media(max-height:500px)]:text-[1.6rem]/8 [@media(min-height:600px)]:line-clamp-4 ${titleStyle}`}
+        className={`line-clamp-3 w-full p-1 text-[1.3rem]/6 font-medium text-balance wrap-break-word lg:line-clamp-3 [@media(min-height:600px)]:line-clamp-4 ${titleStyle}`}
       >
         {title}
       </p>
       <p
-        className={`line-clamp-2 w-full font-zain font-light text-pretty wrap-break-word opacity-85 [@media(max-height:500px)]:text-[1.2rem]/6 ${authorStyle}`}
+        className={`line-clamp-2 w-full font-zain text-[1.05rem]/5 font-light text-pretty wrap-break-word opacity-85 ${authorStyle}`}
       >
         by <span className={italic ? 'italic' : ''}>{author}</span>
       </p>
