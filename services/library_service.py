@@ -1,18 +1,16 @@
 from dataclasses import dataclass
 from typing import Iterable
 
-from config import BOOK_LIMIT
+from config import (
+    BOOK_LIMIT,
+    E_MAX_DEFAULT,
+    E_MIN_DEFAULT,
+    ELO_DEFAULT,
+    RATING_FLOOR,
+    RATING_FLOOR_BUMP,
+)
 from db.books_repo import get_all, get_elo_range, insert, insert_many
 from models import Book, BookDraft
-from services.scoring_service import K_TIERS
-
-ELO_DEFAULT = 1040
-E_MIN_DEFAULT = 800
-E_MAX_DEFAULT = 1200
-
-
-RATING_FLOOR = 3
-RATING_FLOOR_BUMP = K_TIERS[0][1]  # One initial K-value above the floor
 
 
 @dataclass
@@ -29,6 +27,9 @@ class BookData:
     rating: float | None = None
 
 
+# ====== SINGLE BOOK INSERT
+
+
 def add_book(
     reader_id: int, title: str, author: str, rating: float | None = None
 ) -> Book:
@@ -39,6 +40,8 @@ def add_book(
     if not (title.strip() and author.strip()):
         raise ValueError("Title and author are required")
 
+    # Get current Elo range to scale new books appropriately, defaulting to the
+    # standard 800-1200 range if no books exist yet.
     elo_range = get_elo_range(reader_id) or {
         "elo_min": E_MIN_DEFAULT,
         "elo_max": E_MAX_DEFAULT,
@@ -50,6 +53,9 @@ def add_book(
     return Book(book_id, title, author, elo, rating)
 
 
+# ====== CSV IMPORT: BULK BOOK INSERT
+
+
 def import_books(
     reader_id: int, source: str, file_reader: Iterable[dict[str, str | None]]
 ) -> ImportResult:
@@ -57,9 +63,12 @@ def import_books(
 
     Validates each row, skipping duplicate and invalid entries.
     """
+    # Build set of existing books for fast duplicate detection
     books = get_all(reader_id)
     existing_books = {(b["title"].lower(), b["author"].lower()) for b in books}
 
+    # Get current Elo range to scale new books appropriately, defaulting to the
+    # standard 800-1200 range if no books exist yet.
     elo_range = get_elo_range(reader_id) or {
         "elo_min": E_MIN_DEFAULT,
         "elo_max": E_MAX_DEFAULT,
@@ -100,8 +109,9 @@ def _process_row(
     if not (title or author):
         return None  # Ignore empty rows
 
+    # Skip rows missing title or author and duplicates
     if not (title and author) or (title.lower(), author.lower()) in existing_books:
-        result.skipped += 1  # Skip rows missing title or author
+        result.skipped += 1
         return None
 
     try:
@@ -152,10 +162,15 @@ def _process_goodreads_row(
     return BookData(title, author, rating)
 
 
+# Dispatch table to identify the right function to process a row of a CSV file,
+# based on the source of the data: custom or Goodreads.
 ROW_PROCESSORS = {
     "custom": _process_row,
     "goodreads": _process_goodreads_row,
 }
+
+
+# ====== RATING TO ELO CONVERSION
 
 
 def _rating_to_elo(elo_range: dict[str, int], raw_rating: float | None) -> int:
@@ -166,15 +181,20 @@ def _rating_to_elo(elo_range: dict[str, int], raw_rating: float | None) -> int:
     elo_min = elo_range["elo_min"]
     elo_max = elo_range["elo_max"]
 
+    # If Elo scores have not strayed from the default window, map to it, otherwise,
+    # map to the current elo range.
     if elo_min >= E_MIN_DEFAULT and elo_max <= E_MAX_DEFAULT:
-        # Map rating to the starting 800-1200 Elo range
-        elo = E_MIN_DEFAULT + (raw_rating - 1) * ((E_MAX_DEFAULT - E_MIN_DEFAULT) / 9)
+        elo = (raw_rating - 1) * ((E_MAX_DEFAULT - E_MIN_DEFAULT) / 9) + E_MIN_DEFAULT
         return round(elo)
     else:
-        # Maps rating to Elo using a floor of 3 rather than 1, reflecting that
-        # real-world ratings rarely fall below 3/10. The floor bump ensures a book
-        # rated at the floor doesn't start at the literal Elo minimum — it begins one
-        # K-value above, within reach of the bottom but not pinned there.
-        rating = max(RATING_FLOOR, raw_rating)
-        elo = round(elo_min + (rating - 3) * ((elo_max - elo_min) / 7))
+        # Real-world ratings skew high — books rated 1-2 are rare, so in an ongoing
+        # library where the Elo range has shifted from the defaults, books near the
+        # current elo_min likely represent ratings around 3-5 instead of 1-3. So a new
+        # entry rated 6/10 should map to the lower-middle of the current range, not the
+        # 60th percentile. To do this, we use a RATING_FLOOR=3 (tunable) instead of 1.
+        rating = max(raw_rating, RATING_FLOOR)
+        elo = round((rating - RATING_FLOOR) * ((elo_max - elo_min) / 7) + elo_min)
+
+        # The floor bump (one K-value above elo_min) keeps a book from starting at the
+        # literal Elo minimum, still in reach of the bottom, but not pinned to it.
         return max(elo, elo_min + RATING_FLOOR_BUMP)

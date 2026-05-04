@@ -88,6 +88,10 @@ def _tiebreak(tied_group: list[Book], rank: int) -> list[tuple[int, Book]]:
 
 
 def _head_to_head_score(book: Book, tied_books: list[Book]) -> int:
+    """Return a book's number of head-to-head wins against other tied books.
+
+    Used in tiebreaking to break ties by head-to-head wins.
+    """
     tied_opponents = {b.id for b in tied_books if b.id != book.id}
     wins = sum(book.won_over.get(opp_id, 0) for opp_id in tied_opponents)
     return wins

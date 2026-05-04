@@ -2,6 +2,7 @@ from typing import Any
 
 from psycopg2.extras import RealDictCursor, execute_values
 
+from config import E_MAX_DEFAULT, E_MIN_DEFAULT
 from db.connection import get_connection
 from models import Book, BookDraft
 
@@ -24,8 +25,8 @@ def get_all(reader_id: int) -> list[dict[str, Any]]:
 
 def get_all_history(reader_id: int) -> list[Book]:
     """Load all books, set their opponent/wins history, and set global Elo min/max."""
-    Book.elo_min = 800
-    Book.elo_max = 1200
+    Book.elo_min = E_MIN_DEFAULT
+    Book.elo_max = E_MAX_DEFAULT
 
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:

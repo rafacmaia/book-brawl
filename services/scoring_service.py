@@ -31,29 +31,25 @@ on overconfidence, not a primary driver.
 
 import math
 
+from config import (
+    ABS_BASE,
+    ABS_SCORE_WEIGHT,
+    DENSITY_CAP,
+    DENSITY_WINDOW,
+    LOC_SCORE_WEIGHT,
+    LOCAL_WINDOW,
+    STA_SCORE_WEIGHT,
+)
 from models import Book
-
-ABS_SCORE_WEIGHT = 0.30  # absolute score weight
-LOC_SCORE_WEIGHT = 0.45  # local score weight
-STA_SCORE_WEIGHT = 0.25  # density-based stability score weight
-
-ABS_BASE = 5
-
-LOCAL_WINDOW = 0.12
-
-DENSITY_WINDOW = 16
-DENSITY_CAP = 10
-
-K_TIERS = [(0.25, 40), (0.5, 32), (0.75, 24), (0.9, 16), (1.0, 8)]
-
-
-# ====== CONFIDENCE SCORING
 
 if not math.isclose(ABS_SCORE_WEIGHT + LOC_SCORE_WEIGHT + STA_SCORE_WEIGHT, 1):
     raise ValueError(
         "Score weights must sum to 1.0, got "
         f"{ABS_SCORE_WEIGHT + LOC_SCORE_WEIGHT + STA_SCORE_WEIGHT}"
     )
+
+
+# ====== CONFIDENCE SCORING
 
 
 def calculate_progress(books: list[Book]) -> float:
@@ -121,7 +117,7 @@ def _local_score(book: Book, books: list[Book]) -> float:
     for opp in books:
         if (
             opp.id != book.id
-            and abs(_expected_score(book.elo, opp.elo) - 0.5) <= LOCAL_WINDOW
+            and abs(expected_score(book.elo, opp.elo) - 0.5) <= LOCAL_WINDOW
         ):
             relevant_opps += 1
             if opp.id in book.faced_opponents:
@@ -153,42 +149,12 @@ def _stability_score(book: Book, books: list[Book]) -> float:
     return 1 - density
 
 
-# ====== ELO CALCULATION
+# ====== ELO SCORING HELPERS
 
 
-def calculate_elo(winner: Book, loser: Book, books: list[Book]) -> tuple[int, int]:
-    """Calculates each book's new Elo scores after a match."""
-    expected_w = _expected_score(winner.elo, loser.elo)
-    expected_l = _expected_score(loser.elo, winner.elo)
-    new_winner_elo = round(winner.elo + _get_k(winner, books) * (1 - expected_w))
-    new_loser_elo = round(loser.elo + _get_k(loser, books) * (0 - expected_l))
-
-    return new_winner_elo, new_loser_elo
-
-
-def _expected_score(book_elo: int, opponent_elo: int) -> float:
+def expected_score(book_elo: int, opponent_elo: int) -> float:
     """Calculates the probability that a book wins against a given opponent.
 
     Returns a value between 0 (very unlikely to win) and 1 (very likely winner).
     """
     return 1 / (1 + 10 ** ((opponent_elo - book_elo) / 400))
-
-
-def _get_k(book: Book, books: list[Book]) -> int:
-    """Calculates and returns k value.
-
-    Calculation is based on the percentage of unique opponents, i.e., confidence level.
-    """
-    if len(books) <= 1:
-        return K_TIERS[0][1]
-
-    confidence = confidence_score(book, books)
-
-    k = next(k for threshold, k in K_TIERS if confidence <= threshold)
-
-    # If the book has an initial rating and is in the lowest confidence tier, give it a
-    # boost to the next tier as broad positioning is likely already established.
-    if (book.rating is not None) and (k == K_TIERS[0][1]):
-        return K_TIERS[1][1]
-
-    return k

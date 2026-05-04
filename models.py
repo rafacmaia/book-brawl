@@ -1,3 +1,6 @@
+from config import E_MAX_DEFAULT, E_MIN_DEFAULT
+
+
 class BookDraft:
     def __init__(
         self, title: str, author: str, elo: int, rating: float | None = None
@@ -9,8 +12,8 @@ class BookDraft:
 
 
 class Book:
-    elo_min = 800
-    elo_max = 1200
+    elo_min = E_MIN_DEFAULT
+    elo_max = E_MAX_DEFAULT
 
     def __init__(
         self,

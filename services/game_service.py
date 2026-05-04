@@ -26,22 +26,22 @@ scores and recording the matchup history.
 import math
 import random
 
+from config import K_TIERS, LOCAL_WINDOW
 from db.books_repo import get_all_history
 from db.books_repo import update_elo as save_elo
 from db.comparisons_repo import insert as insert_comparison
 from models import Book
 from services.scoring_service import (
-    LOCAL_WINDOW,
     absolute_score,
-    calculate_elo,
     confidence_score,
+    expected_score,
 )
 
-# ELO_GAP represents the difference in Elo scores at which expected_score crosses the
-# LOCAL_WINDOW used in confidence measure, i.e., the boundary between "similar enough to
-# matter and provide new data" and "wide enough to make the outcome too predictable."
+# ELO_GAP represents the exact difference in Elo scores captured by LOCAL_WINDOW,
+# used in confidence measure, i.e., the boundary between "close enough for this to be a
+# relevant pairing" and "wide enough to make the outcome too predictable to matter."
 # Derived inversely from _expected_score so that matchmaking and confidence share a
-# a definition of "similar Elo."
+# definition of "similar Elo."
 ELO_GAP = 400 * math.log10(1 / (0.5 - LOCAL_WINDOW) - 1)
 
 
@@ -51,6 +51,9 @@ class NotEnoughBooksError(Exception):
 
 class BookNotFoundError(Exception):
     """Raised when a book ID does not match any book in the reader's library."""
+
+
+# ====== MATCHMAKING
 
 
 def select_opponents(reader_id: int) -> tuple[Book, Book]:
@@ -129,6 +132,9 @@ def _opponent_weights(
     return candidates
 
 
+# ====== MATCH RESOLUTION
+
+
 def resolve_comparison(
     reader_id: int, winner_id: int, loser_id: int
 ) -> tuple[Book, Book]:
@@ -160,3 +166,33 @@ def resolve_comparison(
     save_elo(loser)
 
     return winner, loser
+
+
+def calculate_elo(winner: Book, loser: Book, books: list[Book]) -> tuple[int, int]:
+    """Calculates each book's new Elo scores after a match."""
+    expected_w = expected_score(winner.elo, loser.elo)
+    expected_l = expected_score(loser.elo, winner.elo)
+    new_winner_elo = round(winner.elo + _get_k(winner, books) * (1 - expected_w))
+    new_loser_elo = round(loser.elo + _get_k(loser, books) * (0 - expected_l))
+
+    return new_winner_elo, new_loser_elo
+
+
+def _get_k(book: Book, books: list[Book]) -> int:
+    """Calculates and returns k value.
+
+    Calculation is based on the percentage of unique opponents, i.e., confidence level.
+    """
+    if len(books) <= 1:
+        return K_TIERS[0][1]
+
+    confidence = confidence_score(book, books)
+
+    k = next(k for threshold, k in K_TIERS if confidence <= threshold)
+
+    # If the book has an initial rating and is in the lowest confidence tier, give it a
+    # boost to the next tier as broad positioning is likely already established.
+    if (book.rating is not None) and (k == K_TIERS[0][1]):
+        return K_TIERS[1][1]
+
+    return k
