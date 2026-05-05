@@ -15,7 +15,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 BOOK_LIMIT = 2000
 
-## ELO & RATING PARAMETERS
+## == ELO & RATING PARAMETERS
 
 ELO_DEFAULT = 1040  # Given to new entries with no initial rating to map from
 E_MIN_DEFAULT = 800
@@ -33,31 +33,31 @@ K_TIERS = [(0.25, 40), (0.5, 32), (0.75, 24), (0.9, 16), (1.0, 8)]
 # Real-world ratings skew high (1-2 ratings are rare), so a floor higher than 1 better
 #   reflects how raw ratings map to relative position in an ongoing library.
 # See _rating_to_elo in library_service for full mapping details.
-RATING_FLOOR = 3
+RATING_FLOOR = 10 / 3
 
 # Bump of one initial K-value to prevent a very low-rated new entry from being
 #   immediately pinned to the bottom before seeing any matches.
 RATING_FLOOR_BUMP = K_TIERS[0][1]
 
-## CONFIDENCE SCORING PARAMETERS
+## == CONFIDENCE SCORING PARAMETERS
 
 # Main components of confidence scoring:
 #   Absolute scoring  – measures if a book has seen a minimum number of matches.
 #   Local scoring     – measures how many of its relevant opponents a book has faced,
 #                       i.e., those where the expected_score is fairly uncertain,
 #                       defined by LOCAL_WINDOW.
-#   Stability scoring - measures how many immediate threats a book has, i.e., books with
-#                       an Elo score within a DENSITY_WINDOW that could flip rankings
-#                       within 1-2 matches.
+#   Stability scoring - measures how many immediate threats a book has, i.e., books
+#                       with an Elo score within a DENSITY_WINDOW that could flip
+#                       rankings within 1-2 matches.
 ABS_SCORE_WEIGHT = 0.30
-LOC_SCORE_WEIGHT = 0.45
-STA_SCORE_WEIGHT = 0.25
+LOC_SCORE_WEIGHT = 0.50
+STA_SCORE_WEIGHT = 0.20
 
 ABS_BASE = 5  # Floor of minimum opponents, used in absolute scoring
 
 LOCAL_WINDOW = 0.12  # Expected score window, used in local scoring
 
-DENSITY_WINDOW = 16  # Elo score window, used in stability scoring
+DENSITY_WINDOW = 12  # Elo score window, used in stability scoring
 DENSITY_CAP = 10  # Maximum number of neighbors to consider in stability scoring
 
 # Thresholds of individual book accuracy tiers. Used to interpret a book's confidence

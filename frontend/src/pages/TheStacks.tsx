@@ -299,7 +299,7 @@ export default function TheStacks() {
                 type="number"
                 min="1"
                 max="10"
-                step="0.1"
+                step="0.01"
                 placeholder="Rating"
                 name="rating"
                 className={`md:w-[11%] ${inputStyle}`}

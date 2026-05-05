@@ -261,14 +261,14 @@ function BookCard({
   const regularTitleStyle =
     '[@media(min-height:350px)]:text-[1.6rem]/8  [@media(min-height:600px)]:text-[1.85rem]/10 [@media(min-height:700px)]:text-[2.125rem]/11 [@media(min-height:700px)]:sm:text-[2.75rem]/15'
   const regularAuthorStyle =
-    '[@media(min-height:350px)]:text-[1.2rem]/6 [@media(min-height:600px)]:text-[1.35rem]/7 [@media(min-height:700px)]:text-[1.5rem] [@media(min-height:700px)]:sm:text-[1.875rem]'
+    '[@media(min-height:350px)]:text-[1.25rem]/6 [@media(min-height:600px)]:text-[1.35rem]/7 [@media(min-height:700px)]:text-[1.5rem] [@media(min-height:700px)]:sm:text-[1.875rem]'
 
   const tightCardStyle =
     'gap-1 px-5 [@media(min-height:700px)]:gap-3 [@media(min-height:700px)]:sm:gap-4 [@media(min-height:700px)]:px-6 [@media(min-height:700px)]:sm:px-8 sm:py-3'
   const tightTitleStyle =
     '[@media(min-height:350px)]:text-[1.6rem]/8  [@media(min-height:600px)]:text-[1.65rem]/8 [@media(min-height:700px)]:text-[2rem]/10 [@media(min-height:700px)]:sm:text-[2.4rem]/13'
   const tightAuthorStyle =
-    '[@media(min-height:350px)]:text-[1.2rem]/6 [@media(min-height:600px)]:text-[1.3rem]/7 [@media(min-height:700px)]:text-[1.4rem]/8 [@media(min-height:700px)]:sm:text-[1.6rem]/10'
+    '[@media(min-height:350px)]:text-[1.25rem]/6 [@media(min-height:600px)]:text-[1.3rem]/7 [@media(min-height:700px)]:text-[1.4rem]/8 [@media(min-height:700px)]:sm:text-[1.6rem]/10'
 
   const tighterCardStyle =
     'gap-1 px-2 [@media(min-height:500px)]:px-4 [@media(min-height:600px)]:px-6 [@media(min-height:700px)]:gap-2 sm:gap-4 sm:px-7 sm:py-3'
@@ -314,7 +314,7 @@ function BookCard({
         {title}
       </p>
       <p
-        className={`line-clamp-2 w-full font-zain text-[1.05rem]/5 font-light text-pretty wrap-break-word opacity-85 ${authorStyle}`}
+        className={`line-clamp-2 w-full font-zain text-[1.05rem]/5 font-light text-pretty wrap-break-word opacity-85 [@media(max-height:450px)]:font-medium ${authorStyle}`}
       >
         by <span className={italic ? 'italic' : ''}>{author}</span>
       </p>

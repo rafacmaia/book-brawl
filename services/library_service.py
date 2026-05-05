@@ -191,9 +191,12 @@ def _rating_to_elo(elo_range: dict[str, int], raw_rating: float | None) -> int:
         # library where the Elo range has shifted from the defaults, books near the
         # current elo_min likely represent ratings around 3-5 instead of 1-3. So a new
         # entry rated 6/10 should map to the lower-middle of the current range, not the
-        # 60th percentile. To do this, we use a RATING_FLOOR=3 (tunable) instead of 1.
+        # 60th percentile. To do this, we use a (tunable) RATING_FLOOR above 1.
         rating = max(raw_rating, RATING_FLOOR)
-        elo = round((rating - RATING_FLOOR) * ((elo_max - elo_min) / 7) + elo_min)
+        elo = round(
+            (rating - RATING_FLOOR) * ((elo_max - elo_min) / (10 - RATING_FLOOR))
+            + elo_min
+        )
 
         # The floor bump (one K-value above elo_min) keeps a book from starting at the
         # literal Elo minimum, still in reach of the bottom, but not pinned to it.
