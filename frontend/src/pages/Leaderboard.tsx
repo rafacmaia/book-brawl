@@ -186,7 +186,7 @@ function LeaderboardContent({ progress, rankings }: { progress: number; rankings
                 '0 1px 3px rgba(0,0,0,0.7), 0 0px 6px rgba(0,0,0,0.4), 0 0 8px rgba(0,0,0,0.4)',
             }}
           >
-            {showProgress && rankings.length >= 100 ? `${Math.round(progress * 1000) / 10}% – ` : `${Math.round(progress * 100)}% – `}
+            {showProgress && (rankings.length >= 100 ? `${Math.round(progress * 1000) / 10}% – ` : `${Math.round(progress * 100)}% – `)}
             {progressLabel}
           </p>
         </div>
