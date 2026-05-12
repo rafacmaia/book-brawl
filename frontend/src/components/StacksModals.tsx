@@ -1,6 +1,4 @@
-import { useAuth } from '@clerk/react'
-import { type ChangeEvent, type KeyboardEvent, useEffect, useState } from 'react'
-import { API_BASE } from '../api'
+import { type KeyboardEvent, useEffect, useState } from 'react'
 import { Ban } from 'lucide-react'
 import { FireIcon } from '@heroicons/react/24/solid'
 import {
@@ -9,27 +7,15 @@ import {
   SkipForwardCircleIcon,
   XCircleIcon,
 } from '@phosphor-icons/react'
-
-// ====== TYPES
-
-interface Book {
-  id: number
-  title: string
-  author: string
-}
-
-interface ImportResult {
-  imported: number
-  skipped: number
-  interrupted: boolean
-}
+import type { Book } from '../types'
+import { type ImportState, useImportBooks } from '../hooks/useImportBooks'
 
 // ====== CONSTANTS
 
 const modalHeadingStyle =
   'mb-1 font-calistoga text-2xl [@media(min-height:700px)]:text-3xl font-bold tracking-wide'
 const modalButtonStyle =
-  'cursor-pointer rounded-t-lg rounded-b-3xl border-b-3 px-4 pb-1.25 pt-2.5 font-zain text-sm text-center [@media(min-height:700px)]:text-base font-extrabold tracking-wider text-primary drop-shadow-md transition-all md:text-lg md:pt-2.75 md:pb-1.5 hover:scale-104 active:scale-95'
+  'cursor-pointer rounded-t-xl rounded-b-3xl border-b-3 px-4 pb-1.25 pt-2.5 font-zain text-sm text-center [@media(min-height:700px)]:text-base font-extrabold tracking-wider text-primary drop-shadow-md transition-all md:text-lg md:pt-2.75 md:pb-1.5 hover:scale-104 active:scale-95'
 const textEmphasisStyle = 'font-bold underline underline-offset-2 decoration-red-600/60'
 
 // ====== COMPONENTS
@@ -41,58 +27,9 @@ export function ImportModal({
   onClose: () => void
   onImportSuccess: () => void
 }) {
-  const { getToken } = useAuth()
+  const { state, importBooks } = useImportBooks()
 
-  const [loadingGoodreads, setLoadingGoodreads] = useState(false)
-  const [loadingCustom, setLoadingCustom] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [result, setResult] = useState<ImportResult | null>(null)
-
-  const isImporting = loadingGoodreads || loadingCustom
-
-  async function handleFileUpload(
-    e: ChangeEvent<HTMLInputElement>,
-    source: 'custom' | 'goodreads'
-  ) {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    if (source === 'goodreads') {
-      setLoadingGoodreads(true)
-    } else {
-      setLoadingCustom(true)
-    }
-    setError(null)
-    setResult(null)
-
-    try {
-      const token = await getToken()
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('source', source)
-
-      const response = await fetch(`${API_BASE}/stacks/import`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      })
-
-      if (!response.ok) {
-        const err = await response.json()
-        setError(err.detail ?? 'Import failed')
-        return
-      }
-
-      const data = await response.json()
-      setResult(data)
-      onImportSuccess()
-    } catch (e: any) {
-      setError(e.message ?? 'Something went wrong. Please try again.')
-    } finally {
-      setLoadingCustom(false)
-      setLoadingGoodreads(false)
-    }
-  }
+  const isImporting = state.type === 'loading'
 
   return (
     <div
@@ -106,7 +43,7 @@ export function ImportModal({
         <button
           onClick={onClose}
           disabled={isImporting}
-          aria-label="Close edit modal"
+          aria-label="Close import modal"
           className="absolute top-2 right-2 cursor-pointer text-red-800/80 transition-all hover:scale-112 active:scale-95 md:top-3 md:right-3"
         >
           <XCircleIcon weight={'duotone'} className="size-6.25 md:size-7" />
@@ -128,73 +65,41 @@ export function ImportModal({
         <div className="flex flex-col gap-4">
           <div className="flex gap-4">
             <label
-              className={`flex-1 border-red-600/80 bg-text/95 shadow-md hover:bg-text hover:opacity-100 ${modalButtonStyle} ${result ? 'opacity-85' : 'opacity-95'}`}
+              className={`flex-1 border-red-600/80 bg-text/95 shadow-md hover:bg-text hover:opacity-100 ${modalButtonStyle} ${state.type === 'success' ? 'opacity-85' : 'opacity-95'}`}
             >
-              {loadingCustom ? 'Importing...' : 'CUSTOM'}
+              {state.type === 'loading' && state.source === 'custom' ? 'Importing...' : 'CUSTOM'}
               <input
                 type="file"
                 accept=".csv"
-                onChange={(e) => handleFileUpload(e, 'custom')}
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) void importBooks(file, 'custom', onImportSuccess)
+                  e.target.value = ''
+                }}
                 disabled={isImporting}
                 className="sr-only"
               />
             </label>
             <label
-              className={`flex-1 border-red-600/80 bg-text/95 shadow-md hover:bg-text hover:opacity-100 ${modalButtonStyle} ${result ? 'opacity-85' : 'opacity-95'}`}
+              className={`flex-1 border-red-600/80 bg-text/95 shadow-md hover:bg-text hover:opacity-100 ${modalButtonStyle} ${state.type === 'success' ? 'opacity-85' : 'opacity-95'}`}
             >
-              {loadingGoodreads ? 'Importing...' : 'GOODREADS'}
+              {state.type === 'loading' && state.source === 'goodreads'
+                ? 'Importing...'
+                : 'GOODREADS'}
               <input
                 type="file"
                 accept=".csv"
-                onChange={(e) => handleFileUpload(e, 'goodreads')}
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) void importBooks(file, 'goodreads', onImportSuccess)
+                  e.target.value = ''
+                }}
                 disabled={isImporting}
                 className="sr-only"
               />
             </label>
           </div>
-          {error && <p className="mt-1 pl-1 text-lg font-bold text-red-700">{error}</p>}
-          {result && (
-            <div className="mt-1 flex flex-col gap-2 pl-2 text-lg font-extrabold tracking-wide md:text-xl">
-              {result.skipped > 0 && (
-                <p className="text-text">
-                  <SkipForwardCircleIcon
-                    weight={'fill'}
-                    aria-label="Edit this book"
-                    className="mr-1 inline size-5.25 -translate-y-0.5 opacity-90 md:size-5.75"
-                  />{' '}
-                  {result.skipped} {result.skipped === 1 ? 'book' : 'books'} skipped.
-                </p>
-              )}
-              {result.imported > 0 ? (
-                <p className="text-text">
-                  <CheckCircleIcon
-                    weight={'fill'}
-                    aria-label="Edit this book"
-                    className="mr-1 inline size-5.25 -translate-y-0.5 opacity-90 md:size-5.75"
-                  />{' '}
-                  Imported{' '}
-                  <span className="underline decoration-accent underline-offset-2">
-                    {result.imported}
-                  </span>{' '}
-                  {result.imported === 1 ? 'book' : 'books'}!
-                </p>
-              ) : (
-                <p className="text-red-700/95">
-                  <XCircleIcon
-                    weight={'fill'}
-                    aria-label="Edit this book"
-                    className="mr-1 inline size-5.25 -translate-y-0.5 opacity-90 md:size-5.75"
-                  />{' '}
-                  No books imported. Check file and try again.
-                </p>
-              )}
-              {result.interrupted && (
-                <p className="font-bold text-red-700/95">
-                  Book limit reached — not all books were imported.
-                </p>
-              )}
-            </div>
-          )}
+          <ImportFeedback state={state} />
         </div>
       </div>
     </div>
@@ -405,4 +310,50 @@ export function ResetModal({
       </div>
     </div>
   )
+}
+
+// ====== HELPERS
+
+function ImportFeedback({ state }: { state: ImportState }) {
+  const iconStyle = 'mr-1 inline size-5.25 -translate-y-0.5 opacity-90 md:size-5.75'
+
+  switch (state.type) {
+    case 'idle':
+    case 'loading':
+      return null
+    case 'error':
+      return <p className="mt-1 pl-1 text-lg font-bold text-red-700">{state.message}</p>
+    case 'success':
+      return (
+        <div className="mt-1 flex flex-col gap-2 pl-2 text-lg font-extrabold tracking-wide md:text-xl">
+          {state.result.skipped > 0 && ( // Check for and notify if there were any skipped rows
+            <p className="text-text">
+              <SkipForwardCircleIcon weight={'fill'} aria-hidden={'true'} className={iconStyle} />{' '}
+              {state.result.skipped} {state.result.skipped === 1 ? 'book' : 'books'} skipped.
+            </p>
+          )}
+          {state.result.imported > 0 ? ( // Notify how many books were imported (if any)
+            <p className="text-text">
+              <CheckCircleIcon weight={'fill'} aria-hidden={'true'} className={iconStyle} />{' '}
+              Imported{' '}
+              <span className="underline decoration-accent underline-offset-2">
+                {state.result.imported}
+              </span>{' '}
+              {state.result.imported === 1 ? 'book' : 'books'}!
+            </p>
+          ) : (
+            // Notify if no books were imported
+            <p className="text-red-700/95">
+              <XCircleIcon weight={'fill'} aria-hidden={'true'} className={iconStyle} /> No books
+              imported. Check file and try again.
+            </p>
+          )}
+          {state.result.interrupted && ( // Notify if import was incomplete.
+            <p className="font-bold text-red-700/95">
+              Book limit reached — not all books were imported.
+            </p>
+          )}
+        </div>
+      )
+  }
 }
