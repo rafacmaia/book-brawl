@@ -1,43 +1,24 @@
 import { useAuth } from '@clerk/react'
-import { type KeyboardEvent, type SubmitEvent, useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ApiError, apiFetch } from '../api'
 import PlaceholderMessaging from '../components/feedback/PlaceholderMessaging'
 import PageHeading from '../components/ui/PageHeading'
 import { Download } from 'lucide-react'
 import { FireIcon as FireSolid } from '@heroicons/react/24/solid'
 import { FireIcon as FireOutline } from '@heroicons/react/24/outline'
-import {
-  BombIcon,
-  CheckCircleIcon,
-  PencilSimpleLineIcon,
-  ProhibitInsetIcon,
-} from '@phosphor-icons/react'
+import { BombIcon, PencilSimpleLineIcon } from '@phosphor-icons/react'
 import { DeleteModal, EditModal, ImportModal, ResetModal } from '../components/StacksModals'
-
-// ====== TYPES
-
-interface Book {
-  id: number
-  title: string
-  author: string
-}
-
-type AddState =
-  | { type: 'idle' }
-  | { type: 'loading' }
-  | { type: 'error'; message: string }
-  | { type: 'success'; book: Book }
-
-// ====== MAIN PAGE
+import type { Book } from '../types'
+import { useAddBook } from '../hooks/useAddBook'
+import { ManualAddForm } from '../components/ManualAddForm'
 
 export default function TheStacks() {
   const { getToken } = useAuth()
+  const { state: addState, addBook, reset: resetAddState } = useAddBook()
 
   const [books, setBooks] = useState<Book[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
-  const [manualAddState, setManualAddState] = useState<AddState>({ type: 'idle' })
 
   const [bookToBurn, setBookToBurn] = useState<Book | null>(null)
   const [bookToEdit, setBookToEdit] = useState<Book | null>(null)
@@ -45,8 +26,6 @@ export default function TheStacks() {
 
   const [showImportModal, setShowImportModal] = useState<boolean>(false)
   const [showResetModal, setShowResetModal] = useState<boolean>(false)
-
-  const titleRef = useRef<HTMLInputElement>(null)
 
   // --- effects
   useEffect(() => {
@@ -72,73 +51,15 @@ export default function TheStacks() {
     }
   }
 
-  // --- handlers
-  async function handleAdd(e: SubmitEvent<HTMLFormElement>) {
-    e.preventDefault()
-    const form = e.currentTarget
-    const formData = new FormData(form)
-
-    const title = formData.get('title') as string
-    const author = formData.get('author') as string
-    const rating = formData.get('rating') as string | null
-
-    if (!title.trim() || !author.trim()) {
-      setManualAddState({ type: 'error', message: 'Please enter both title and author.' })
-      return
-    }
-
-    const parsedRating = rating ? parseFloat(rating) : null
-    if (parsedRating !== null && (isNaN(parsedRating) || parsedRating < 1 || parsedRating > 10)) {
-      setManualAddState({ type: 'error', message: 'Rating must be between 1 and 10.' })
-      return
-    }
-
-    setManualAddState({ type: 'loading' })
-
-    try {
-      const token = await getToken()
-
-      const response = await apiFetch('/stacks', token!, {
-        method: 'POST',
-        body: JSON.stringify({
-          title: title.trim(),
-          author: author.trim(),
-          rating: parsedRating,
-        }),
-      })
-
-      const newBook = await response.json()
-
-      setBooks((prev) => [newBook, ...prev])
-      setManualAddState({ type: 'success', book: newBook })
-
-      form.reset()
-      titleRef.current?.focus()
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 409) {
-        form.reset()
-        setManualAddState({
-          type: 'error',
-          message: `${title}, by ${author}, is already in the pit!`,
-        })
-      } else {
-        setManualAddState({
-          type: 'error',
-          message: `Something went wrong. Please try again.`,
-        })
-      }
-    }
-  }
-
   // After CSV imports, clear any UI manual entry messaging and refresh the user's book list.
   function handleImportSuccess() {
-    setManualAddState({ type: 'idle' })
+    resetAddState()
 
     void fetchBooks()
   }
 
   async function handleBurn(book: Book) {
-    setManualAddState({ type: 'idle' })
+    resetAddState()
 
     try {
       const token = await getToken()
@@ -154,8 +75,7 @@ export default function TheStacks() {
   }
 
   async function handleEdit(title: string, author: string) {
-    setManualAddState({ type: 'idle' })
-
+    resetAddState()
     if (!bookToEdit) return
 
     title = title.trim()
@@ -190,7 +110,7 @@ export default function TheStacks() {
   }
 
   async function handleReset() {
-    setManualAddState({ type: 'idle' })
+    resetAddState()
 
     try {
       const token = await getToken()
@@ -205,19 +125,10 @@ export default function TheStacks() {
     }
   }
 
-  function handleKeyDown(e: KeyboardEvent<HTMLFormElement>) {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      e.currentTarget.requestSubmit()
-    }
-  }
-
   // --- styles
   const cellXPadding = 'first:pl-2.25 lg:px-2 lg:first:pl-4'
   const thStyle = `font-calistoga text-base tracking-wider pt-1.5 lg:pt-2 lg:pb-1.5 pb-1.25 font-extrabold md:text-lg lg:text-xl  ${cellXPadding}`
   const tdStyle = `py-1.25 lg:py-1.75 ${cellXPadding}`
-  const inputStyle =
-    'rounded-md border-b-3 border-primary/85 bg-blue-200 py-2.5 px-3 sm:p-2 shadow-lg'
 
   return (
     <main className="mx-auto flex h-full min-h-0 w-[97%] grow flex-col items-center gap-4 overflow-y-auto px-2 pb-2 text-primary/95 sm:max-w-6xl sm:gap-4 md:p-4">
@@ -262,7 +173,7 @@ export default function TheStacks() {
         <>
           {/* MANUAL INPUT */}
           <section
-            className={`mt-0 flex w-full flex-col gap-4 [@media(min-height:700px)]:mt-1.5 [@media(min-height:700px)]:md:mt-2 ${manualAddState.type === 'idle' ? 'md:mb-15' : 'mb-0'}`}
+            className={`mt-0 flex w-full flex-col gap-4 [@media(min-height:700px)]:mt-1.5 [@media(min-height:700px)]:md:mt-2 ${addState.type === 'idle' ? 'md:mb-15' : 'mb-0'}`}
           >
             <h2 className="pl-px font-calistoga text-[1.6rem] font-bold tracking-wide drop-shadow-md sm:mb-2 [@media(min-height:700px)]:text-3xl">
               New Reads
@@ -274,47 +185,11 @@ export default function TheStacks() {
               welcome) is optional, but encouraged. It provides an initial placement for the Brawl
               Pit to put to the test.
             </p>
-            <form
-              className="flex w-full flex-col justify-between gap-3 font-calistoga text-base font-bold text-text sm:text-lg md:flex-row md:gap-0"
-              onKeyDown={handleKeyDown}
-              onSubmit={handleAdd}
-            >
-              <input
-                aria-label="Enter book title"
-                type="text"
-                placeholder="Title"
-                name="title"
-                ref={titleRef}
-                className={`md:w-[48%] ${inputStyle}`}
-              />
-              <input
-                aria-label="Enter book author"
-                type="text"
-                placeholder="Author"
-                name="author"
-                className={`md:w-[30%] ${inputStyle}`}
-              />
-              <input
-                aria-label="Enter optional rating (1-10, decimals welcome)"
-                type="number"
-                min="1"
-                max="10"
-                step="0.01"
-                placeholder="Rating"
-                name="rating"
-                className={`md:w-[11%] ${inputStyle}`}
-              />
-              <button
-                type="submit"
-                title={'Add new book'}
-                className="cursor-pointer rounded-md border-b-3 border-primary/75 bg-accent/80 pt-2.25 pb-1.5 text-center font-zain text-lg font-extrabold text-primary/90 shadow-md transition-all hover:scale-102 hover:bg-accent/85 active:scale-97 active:bg-accent/70 md:w-[8%] md:bg-accent/75 md:pt-1.75 md:pb-0.75 md:text-xl"
-              >
-                <span className="inline md:hidden">Add Book</span>
-                <span className="hidden md:inline">Add</span>
-              </button>
-            </form>
-
-            <AddFeedback addState={manualAddState} />
+            <ManualAddForm
+              addState={addState}
+              addBook={addBook}
+              onSuccess={(newBook) => setBooks((prev) => [newBook, ...prev])}
+            />
           </section>
 
           <hr className="my-2 h-px w-full text-button opacity-65 md:my-0" />
@@ -447,41 +322,4 @@ export default function TheStacks() {
       )}
     </main>
   )
-}
-
-// ====== HELPERS
-
-// Displays add-feedback for the manual entry form: loading, error, or success.
-function AddFeedback({ addState }: { addState: AddState }) {
-  const addMessageStyle = `w-full md:self-end rounded-md md:rounded-lg bg-button px-4 pb-1.75 pt-2.25 text-lg md:w-fit md:px-6 md:text-xl md:brightness-110`
-  const iconStyle = 'mr-1.5 inline size-5 -translate-y-0.5 md:size-5.25 '
-
-  switch (addState.type) {
-    case 'idle':
-      return null
-
-    case 'loading':
-      return (
-        <p className={`font-bold text-text opacity-80 ${addMessageStyle}`}>Updating the pit...</p>
-      )
-
-    case 'error':
-      return (
-        <p className={`font-extrabold text-red-800 opacity-96 md:opacity-90 ${addMessageStyle}`}>
-          <ProhibitInsetIcon weight={'duotone'} className={iconStyle} />
-          {addState.message}
-        </p>
-      )
-
-    case 'success': {
-      const bookDataStyle = 'font-bold decoration-accent/70 underline-offset-3 md:underline'
-      return (
-        <p className={`text-text ${addMessageStyle}`}>
-          <CheckCircleIcon weight={'duotone'} className={`md:-translate-y-0.75 ${iconStyle}`} />
-          Added: <span className={`md:ml-1 ${bookDataStyle}`}>{addState.book.title}</span>, by{' '}
-          <span className={bookDataStyle}>{addState.book.author}</span>
-        </p>
-      )
-    }
-  }
 }
