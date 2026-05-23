@@ -1,14 +1,10 @@
 import { type KeyboardEvent, useEffect, useState } from 'react'
 import { Ban } from 'lucide-react'
 import { FireIcon } from '@heroicons/react/24/solid'
-import {
-  BombIcon,
-  CheckCircleIcon,
-  SkipForwardCircleIcon,
-  XCircleIcon,
-} from '@phosphor-icons/react'
+import { BombIcon, XCircleIcon } from '@phosphor-icons/react'
 import type { Book } from '../types'
-import { type ImportState, useImportBooks } from '../hooks/useImportBooks'
+import { useImportBooks } from '../hooks/useImportBooks'
+import { ImportFeedback } from './feedback/ImportFeedback'
 
 // ====== CONSTANTS
 
@@ -310,50 +306,4 @@ export function ResetModal({
       </div>
     </div>
   )
-}
-
-// ====== HELPERS
-
-function ImportFeedback({ state }: { state: ImportState }) {
-  const iconStyle = 'mr-1 inline size-5.25 -translate-y-0.5 opacity-90 md:size-5.75'
-
-  switch (state.type) {
-    case 'idle':
-    case 'loading':
-      return null
-    case 'error':
-      return <p className="mt-1 pl-1 text-lg font-bold text-red-700">{state.message}</p>
-    case 'success':
-      return (
-        <div className="mt-1 flex flex-col gap-2 pl-2 text-lg font-extrabold tracking-wide md:text-xl">
-          {state.result.skipped > 0 && ( // Check for and notify if there were any skipped rows
-            <p className="text-text">
-              <SkipForwardCircleIcon weight={'fill'} aria-hidden={'true'} className={iconStyle} />{' '}
-              {state.result.skipped} {state.result.skipped === 1 ? 'book' : 'books'} skipped.
-            </p>
-          )}
-          {state.result.imported > 0 ? ( // Notify how many books were imported (if any)
-            <p className="text-text">
-              <CheckCircleIcon weight={'fill'} aria-hidden={'true'} className={iconStyle} />{' '}
-              Imported{' '}
-              <span className="underline decoration-accent underline-offset-2">
-                {state.result.imported}
-              </span>{' '}
-              {state.result.imported === 1 ? 'book' : 'books'}!
-            </p>
-          ) : (
-            // Notify if no books were imported
-            <p className="text-red-700/95">
-              <XCircleIcon weight={'fill'} aria-hidden={'true'} className={iconStyle} /> No books
-              imported. Check file and try again.
-            </p>
-          )}
-          {state.result.interrupted && ( // Notify if import was incomplete.
-            <p className="font-bold text-red-700/95">
-              Book limit reached — not all books were imported.
-            </p>
-          )}
-        </div>
-      )
-  }
 }

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum, auto
 from typing import Iterable
 
 from config import (
@@ -13,11 +14,28 @@ from db.books_repo import get_all, get_elo_range, insert, insert_many
 from models import Book, BookDraft
 
 
+class RowStatus(Enum):
+    IGNORE = auto()
+    INVALID = auto()
+    DUPLICATE = auto()
+    VALID = auto()
+
+
 @dataclass
 class ImportResult:
-    new_books: list[BookDraft]
-    skipped: int
-    interrupted: bool
+    imported: int = 0
+    invalid: int = 0
+    duplicates: int = 0
+    interrupted: bool = False
+
+    def record(self, status: RowStatus) -> None:
+        if status is RowStatus.INVALID:
+            self.invalid += 1
+        elif status is RowStatus.DUPLICATE:
+            self.duplicates += 1
+        elif status is RowStatus.VALID:
+            self.imported += 1
+        # Silently skip IGNORE rows
 
 
 @dataclass
@@ -74,24 +92,25 @@ def import_books(
         "elo_max": E_MAX_DEFAULT,
     }
 
-    result = ImportResult(new_books=[], skipped=0, interrupted=False)
-
     row_processor = ROW_PROCESSORS[source]
+    result = ImportResult()  # Set up the result object
+    new_books = []
 
     for row in file_reader:
         if len(existing_books) >= BOOK_LIMIT:
             result.interrupted = True
             return result
 
-        book_data = row_processor(row, existing_books, result)
+        status, book_data = row_processor(row, existing_books)
+        result.record(status)
 
         if book_data is not None:
             elo = _rating_to_elo(elo_range, book_data.rating)
             book = BookDraft(book_data.title, book_data.author, elo, book_data.rating)
-            result.new_books.append(book)
+            new_books.append(book)
             existing_books.add((book_data.title.lower(), book_data.author.lower()))
 
-    insert_many(reader_id, result.new_books)
+    insert_many(reader_id, new_books)
 
     return result
 
@@ -99,21 +118,13 @@ def import_books(
 def _process_row(
     row: dict[str, str | None],
     existing_books: set[tuple[str, str]],
-    result: ImportResult,
-) -> BookData | None:
-    """Validate and process a single CSV row, updating the import result in place."""
-    title = (row.get("title") or "").strip()
-    author = (row.get("author") or "").strip()
+) -> tuple[RowStatus, BookData | None]:
+    """Validate and process a single CSV row."""
+    status, title, author = _parse_title_author(row, existing_books)
+    if status is not RowStatus.VALID:
+        return status, None
+
     raw_rating = (row.get("rating") or "").strip()
-
-    if not (title or author):
-        return None  # Ignore empty rows
-
-    # Skip rows missing title or author and duplicates
-    if not (title and author) or (title.lower(), author.lower()) in existing_books:
-        result.skipped += 1
-        return None
-
     try:
         rating = float(raw_rating)
         if not (1 <= rating <= 10):
@@ -121,18 +132,16 @@ def _process_row(
     except ValueError:
         rating = None
 
-    return BookData(title, author, rating)
+    return status, BookData(title, author, rating)
 
 
 def _process_goodreads_row(
     row: dict[str, str | None],
     existing_books: set[tuple[str, str]],
-    result: ImportResult,
-) -> BookData | None:
-    """Validate and process a single CSV row from a Goodreads export file.
-
-    Updates the import result in place.
-    """
+) -> tuple[RowStatus, BookData | None]:
+    """Validate and process a single CSV row from a Goodreads export file."""
+    # Read the "exclusive shelf" column, which indicates whether the book is on the
+    # "read" shelf or another shelf.
     shelf = (row.get("exclusive shelf") or "").lower().strip()
 
     try:
@@ -142,24 +151,17 @@ def _process_goodreads_row(
 
     # Check if the book is on the "read" shelf or has a valid rating, otherwise skip
     if shelf != "read" and not (1 <= raw_rating <= 5):
-        result.skipped += 1
-        return None
+        return RowStatus.IGNORE, None
 
-    title = (row.get("title") or "").strip()
-    author = (row.get("author") or "").strip()
-
-    if not (title or author):
-        return None  # Ignore empty rows
-
-    # Skip duplicates and rows missing title or author
-    if not (title and author) or (title.lower(), author.lower()) in existing_books:
-        result.skipped += 1
-        return None
+    # Extract and validate title and author
+    status, title, author = _parse_title_author(row, existing_books)
+    if status is not RowStatus.VALID:
+        return status, None
 
     # Convert Goodreads rating to a 10-point scale if present
     rating = None if raw_rating == 0 else raw_rating * 2
 
-    return BookData(title, author, rating)
+    return status, BookData(title, author, rating)
 
 
 # Dispatch table to identify the right function to process a row of a CSV file,
@@ -168,6 +170,28 @@ ROW_PROCESSORS = {
     "custom": _process_row,
     "goodreads": _process_goodreads_row,
 }
+
+
+def _parse_title_author(
+    row: dict[str, str | None], existing_books: set[tuple[str, str]]
+) -> tuple[RowStatus, str, str]:
+    """Extract and validate title and author.
+
+    Check for empty rows, missing title or author, and duplicates.
+    """
+    title = (row.get("title") or "").strip()
+    author = (row.get("author") or "").strip()
+
+    if not (title or author):  # Check for empty rows
+        return RowStatus.IGNORE, title, author
+
+    if not (title and author):  # Check for rows missing title or author
+        return RowStatus.INVALID, title, author
+
+    if (title.lower(), author.lower()) in existing_books:  # Check for duplicates
+        return RowStatus.DUPLICATE, title, author
+
+    return RowStatus.VALID, title, author
 
 
 # ====== RATING TO ELO CONVERSION

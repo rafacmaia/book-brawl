@@ -4,7 +4,8 @@ import { API_BASE } from '../api'
 
 export interface ImportResult {
   imported: number
-  skipped: number
+  invalid: number
+  duplicates: number
   interrupted: boolean
 }
 
@@ -38,13 +39,14 @@ export function useImportBooks() {
 
       if (!response.ok) {
         const err = await response.json().catch(() => ({}))
-        setState({ type: 'error', message: err.detail ?? 'Import failed' })
+        console.error('Import failed:', err)
+        setState({ type: 'error', message: 'Import failed' })
         return
       }
 
       const result = await response.json()
       setState({ type: 'success', result })
-      onSuccess?.()
+      if (result.imported > 0) onSuccess?.()
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Something went wrong. Please try again.'
       setState({ type: 'error', message })

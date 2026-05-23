@@ -185,8 +185,9 @@ def import_books(
         raise HTTPException(status_code=400, detail=str(e))
 
     return {
-        "imported": len(result.new_books),
-        "skipped": result.skipped,
+        "imported": result.imported,
+        "invalid": result.invalid,
+        "duplicates": result.duplicates,
         "interrupted": result.interrupted,
     }
 
