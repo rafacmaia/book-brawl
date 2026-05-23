@@ -3,12 +3,12 @@ import type { AddState } from '../../hooks/useAddBook'
 
 const styles = {
   default: {
-    p: `w-full md:self-end rounded-md md:rounded-lg bg-button px-4 pb-1.75 pt-2.25 text-lg md:w-fit md:px-6 md:text-xl md:brightness-110`,
+    p: `w-full md:self-end rounded-md md:rounded-lg bg-button px-4 pb-1.75 pt-2.25 text-lg md:w-fit md:text-xl md:brightness-110`,
     icon: 'mr-1.5 inline size-5 -translate-y-0.5 md:size-5.25',
   },
   compact: {
-    p: `w-full md:self-end rounded-md md:rounded-lg bg-button px-4 pb-1.75 pt-2.25 text-base md:w-fit md:px-6 md:text-xl md:brightness-110`,
-    icon: 'mr-1.5 inline size-4.75 -translate-y-0.5 md:size-5',
+    p: `w-full font-bold rounded-md md:rounded-lg bg-button px-2.5 pb-1.75 pt-2.25 text-base md:text-lg md:px-3.5 md:pb-2.75 md:pt-3.25`,
+    icon: 'mr-1.5 inline size-4.75 -translate-y-0.5 opacity-90 md:size-5 md:-translate-y-0.75',
   },
 }
 
@@ -20,7 +20,7 @@ export default function ManualAddFeedback({
   addState: AddState
   variant?: 'default' | 'compact'
 }) {
-  const messageStyle = styles[variant].p
+  const pStyle = styles[variant].p
   const iconStyle = styles[variant].icon
 
   switch (addState.type) {
@@ -28,23 +28,22 @@ export default function ManualAddFeedback({
       return null
 
     case 'loading':
-      return <p className={`font-bold text-text opacity-80 ${messageStyle}`}>Updating the pit...</p>
+      return <p className={`font-bold text-text opacity-80 ${pStyle}`}>Updating the pit...</p>
 
     case 'error':
       return (
-        <p className={`font-extrabold text-red-800 opacity-96 md:opacity-90 ${messageStyle}`}>
+        <p className={`font-extrabold text-red-800 opacity-96 md:opacity-90 ${pStyle}`}>
           <ProhibitInsetIcon weight={'duotone'} className={iconStyle} />
           {addState.message}
         </p>
       )
 
     case 'success': {
-      const bookDataStyle = 'font-bold decoration-accent/70 underline-offset-3 md:underline'
       return (
-        <p className={`text-text ${messageStyle}`}>
+        <p className={`text-text ${pStyle}`}>
           <CheckCircleIcon weight={'duotone'} className={`md:-translate-y-0.75 ${iconStyle}`} />
-          Added: <span className={`md:ml-1 ${bookDataStyle}`}>{addState.book.title}</span>, by{' '}
-          <span className={bookDataStyle}>{addState.book.author}</span>
+          Added: <span className={`font-calistoga md:ml-1`}>{addState.book.title}</span>, by{' '}
+          <span className={`font-calistoga`}>{addState.book.author}</span>
         </p>
       )
     }
