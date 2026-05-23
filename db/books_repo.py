@@ -7,6 +7,16 @@ from db.connection import get_connection
 from models import Book, BookDraft
 
 
+def count(reader_id: int) -> int:
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT COUNT(*) FROM book WHERE reader_id = %s",
+                (reader_id,),
+            )
+            return cur.fetchone()[0]
+
+
 def get_all(reader_id: int) -> list[dict[str, Any]]:
     """Return a reader's collection of books, sorted alphabetically by title."""
     with get_connection() as conn:

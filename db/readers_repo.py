@@ -13,15 +13,16 @@ def get_by_clerk_id(clerk_id: str) -> dict | None:
             return dict(row) if row else None
 
 
-def insert(clerk_id: str, email: str, username: str) -> int:
-    """Insert a new user record. Returns the new user's ID."""
+def upsert(clerk_id: str, email: str, username: str) -> int:
+    """Insert or update a user record. Returns the user's ID."""
     with get_connection() as conn:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             cur.execute(
                 """
-                    INSERT INTO reader (clerk_id, email, username) 
-                    VALUES (%s, %s, %s) 
-                    RETURNING id
+                INSERT INTO reader (clerk_id, email, username)
+                VALUES (%s, %s, %s)
+                ON CONFLICT (clerk_id) DO UPDATE SET email = EXCLUDED.email, username = EXCLUDED.username
+                RETURNING id
                 """,
                 (clerk_id, email, username),
             )

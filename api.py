@@ -233,19 +233,14 @@ class UserSync(BaseModel):
     username: str
 
 
-@app.post("/readers")
-def sync_user(
+@app.post("/readers/me")
+def bootstrap_session(
     data: UserSync, clerk_id: str = Depends(get_current_user)
-) -> dict[str, int | str | bool]:
-    """Create a new user record on the first login or return an existing one."""
-    user = readers_repo.get_by_clerk_id(clerk_id)
+) -> dict[str, int]:
+    """Sync the user with our DB and return their book count.
 
-    if not user:
-        try:
-            user_id = readers_repo.insert(clerk_id, data.email, data.username)
-        except pg_errors.UniqueViolation:
-            raise HTTPException(status_code=409, detail="User already exists")
+    Creates the user if they don't exist, or updates their email/username if they do.
+    """
+    user_id = readers_repo.upsert(clerk_id, data.email, data.username)
 
-        return {"id": user_id, "clerk_id": clerk_id, "created": True}
-
-    return {"id": user["id"], "clerk_id": clerk_id, "created": False}
+    return {"book_count": books_repo.count(user_id)}
