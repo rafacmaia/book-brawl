@@ -38,12 +38,13 @@
 }
 
 html {
+    background-color: var(--color-sky-800); /* fallback for the gutter */
     scrollbar-color: rgba(255, 255, 255, 0.2) transparent; /* thumb track */
     scrollbar-gutter: stable;
     scrollbar-width: thin; /* Firefox */
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    @apply h-full p-0 m-0;
+    @apply p-0 m-0 bg-linear-to-b from-sky-800 to-sky-950 bg-fixed;
 }
 
 ::-webkit-scrollbar {
@@ -68,6 +69,8 @@ body {
 }
 
 #root {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     @apply min-h-dvh p-0 m-0;
 }
 

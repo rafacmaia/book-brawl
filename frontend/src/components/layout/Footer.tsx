@@ -2,7 +2,7 @@ import catIcon from '@/assets/cat-icon-1.svg'
 
 export default function Footer() {
   return (
-    <footer className="mt-auto flex w-screen flex-col items-center gap-2.75 px-4 pt-3 pb-2 text-center text-footer/75 [@media(max-height:500px)]:hidden [@media(min-height:700px)]:gap-3.75 [@media(min-height:700px)]:py-3 [@media(min-height:700px)]:sm:py-4">
+    <footer className="mt-auto flex w-full flex-col items-center gap-2.75 px-4 pt-3 pb-2 text-center text-footer/75 [@media(max-height:500px)]:hidden [@media(min-height:700px)]:gap-3.75 [@media(min-height:700px)]:py-3 [@media(min-height:700px)]:sm:py-4">
       <div className="h-px w-[97%] bg-footer opacity-50 sm:w-2/5" />
       <small className="block font-gaegu text-xs [@media(min-height:700px)]:text-sm [@media(min-height:700px)]:sm:text-base">
         © 2026{' '}

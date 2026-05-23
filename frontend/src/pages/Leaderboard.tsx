@@ -112,7 +112,7 @@ export default function Leaderboard() {
       ) : progress < 0.002 ? ( // Leaderboard is blocked until some matches are played.
         <div
           className={
-            'flex w-full grow flex-col items-center justify-center gap-4 text-center font-zain text-4xl/12 font-extrabold tracking-wider text-balance text-primary/85 sm:text-5xl/20 md:mb-12 md:w-2xl'
+            'flex w-full grow flex-col items-center justify-center gap-4 px-2 text-center font-zain text-[2.6rem]/15 font-extrabold tracking-wider text-balance text-primary/85 sm:text-5xl/20 md:mb-12 md:w-2xl'
           }
         >
           <div className="mb-4 flex items-center justify-center gap-4 md:gap-6">
