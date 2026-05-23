@@ -28,7 +28,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_book_unique_title_author
 
 CREATE TABLE IF NOT EXISTS comparison (
     id         SERIAL       PRIMARY KEY,
-    reader_id  INTEGER      NOT NULL REFERENCES reader(id),
+    reader_id  INTEGER      NOT NULL REFERENCES reader(id) ON DELETE CASCADE,
     winner_id  INTEGER      NOT NULL REFERENCES book(id) ON DELETE CASCADE,
     loser_id   INTEGER      NOT NULL REFERENCES book(id) ON DELETE CASCADE,
     timestamp  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
