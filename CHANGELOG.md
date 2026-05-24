@@ -5,27 +5,35 @@ All notable changes to Book Brawl will be documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.2.0] - 2026-05-23
 
 ### Added
 
+- Onboarding flow for new users, offering three paths: Goodreads CSV import,
+  manual entry, or custom CSV.
+- Guided instructions for finding your Goodreads export file.
+- More granular feedback after importing from a CSV file.
 - Progress labels to the Leaderboard progress bar.
 
 ### Changed
 
 - Matchmaking logic: rarer repeats and faster progress (more informative matches).
-- Refined progress calculation so it better reflects ranking stability.
+- Refine the progress calculation so it better reflects ranking stability.
 - Brawl Pit logic so the same book rarely comes up twice in a row.
-- Hid percentage display once rankings are essentially settled (97%+).
+- Hide the percentage display once rankings are essentially settled (97%+).
 - Clerk-related UI to match the rest of the app's design.
 - Nav bar to be icon-based on mobile.
-- Improved empty state messaging throughout (added icons and appropriate links)
-- Tweaked book card formatting: better responsiveness across screen sizes and varying
+- Improve empty state messaging throughout (added icons and appropriate links).
+- Tweak book card formatting: better responsiveness across screen sizes and varying
   title/author lengths.
 
 ### Fixed
 
+- Race condition in user sync that could fire 409s on concurrent first-login requests (
+  now uses an idempotent upsert).
 - Bug where the leaderboard was locked until 100% progress was reached.
+- White sliver on the right edge of the viewport caused by gradient and scrollbar-gutter
+  interaction.
 - Bug where the brawl pit froze in an empty state if the user resolved a match before
   the next match was fetched.
 - Nav bar layout doesn't shift anymore when the Clerk avatar loads or when a new page is
