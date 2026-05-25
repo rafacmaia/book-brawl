@@ -189,7 +189,7 @@ function LeaderboardContent({ progress, rankings }: { progress: number; rankings
             }}
           >
             {showProgress &&
-              (rankings.length >= 100
+              (rankings.length >= 100 // For 100+ books, show one decimal place; otherwise round to whole percent
                 ? `${Math.round(progress * 1000) / 10}% – `
                 : `${Math.round(progress * 100)}% – `)}
             {progressLabel}

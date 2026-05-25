@@ -36,6 +36,9 @@ function ProtectedApp() {
       return
     }
 
+    // Skip if we've already synced for this user
+    if (syncState.type === 'synced') return
+
     void (async () => {
       try {
         const result = await syncUser()

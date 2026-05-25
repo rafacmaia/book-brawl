@@ -38,7 +38,7 @@
 }
 
 html {
-    background-color: var(--color-sky-800); /* fallback for the gutter */
+    background-color: var(--color-sky-900); /* fallback for the gutter */
     scrollbar-color: rgba(255, 255, 255, 0.2) transparent; /* thumb track */
     scrollbar-gutter: stable;
     scrollbar-width: thin; /* Firefox */
