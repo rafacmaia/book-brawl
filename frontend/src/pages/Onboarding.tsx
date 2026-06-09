@@ -8,10 +8,10 @@ import { NavLink } from 'react-router-dom'
 
 // ====== STYLE CONSTANTS
 
-const sectionStyle =
-  'flex w-full flex-col items-center justify-center py-2 px-2 border-2 rounded-lg md:w-lg md:p-3 md:pt-3.25'
+const width = 'w-full sm:w-[34rem]'
+const sectionStyle = `flex flex-col items-center justify-center py-2 px-2 border-2 rounded-lg sm:p-3 sm:pt-3.25 ${width}`
 const toggleOptionStyle = 'flex w-full items-center gap-2 cursor-pointer'
-const toggleHeadingStyle = 'text-lg md:text-2xl font-extrabold tracking-wide'
+const toggleHeadingStyle = 'text-lg sm:text-2xl font-extrabold tracking-wide'
 const textEmphasisStyle = 'font-extrabold underline decoration-accent/70 underline-offset-1'
 
 // ====== COMPONENTS
@@ -22,16 +22,17 @@ export default function Onboarding() {
   const [hasAddedBooks, setHasAddedBooks] = useState(false)
 
   return (
-    <main className="flex grow flex-col items-center justify-center gap-4 px-4 py-4 text-primary/95 sm:px-8 md:gap-6">
+    <main className="flex grow flex-col items-center justify-center gap-4 px-4 py-4 text-primary/95 sm:gap-6 sm:px-8">
       {/* HEADING */}
-      <div className="flex w-full flex-col gap-2 p-1 text-2xl font-bold tracking-wide md:w-lg md:gap-4 md:text-3xl">
+      <div
+        className={`flex flex-col gap-2 p-1 text-2xl font-bold tracking-wide sm:gap-4 sm:text-3xl ${width}`}
+      >
         <BooksIcon
           weight="light"
-          className="inline size-14 -translate-x-2.25 text-primary/90 md:size-18"
+          className="inline size-14 -translate-x-2.25 text-primary/90 sm:size-18"
         />
         <h1 className={`md:leading-normal`}>
-          To find the one book to rule them all, we must <span className={'md:hidden'}>first</span>{' '}
-          add some contenders.
+          To find the one book to rule them all, we must first add some contenders.
         </h1>
       </div>
 
@@ -89,19 +90,19 @@ export default function Onboarding() {
       {/* CONTINUE */}
       <NavLink
         to={'/brawl'}
-        className={`flex w-full cursor-pointer items-center justify-end gap-1 p-1 text-lg font-bold tracking-wide md:w-lg md:text-xl ${hasAddedBooks && 'animate-pulse'}`}
+        className={`flex cursor-pointer items-center justify-end gap-1 p-1 text-lg font-bold tracking-wide sm:text-xl ${width} ${hasAddedBooks && 'animate-pulse'}`}
       >
         {hasAddedBooks ? (
           <>
             <p>Ready to Brawl?</p>
-            <SwordIcon weight="duotone" className="inline size-5 -translate-y-px md:size-5.5" />
+            <SwordIcon weight="duotone" className="inline size-5 -translate-y-px sm:size-5.5" />
           </>
         ) : (
           <>
             <p>Skip for now</p>
             <CaretRightIcon
               weight="duotone"
-              className="inline size-5 -translate-y-px md:size-5.5"
+              className="inline size-5 -translate-y-px sm:size-5.5"
             />
           </>
         )}
@@ -113,45 +114,53 @@ export default function Onboarding() {
 // --- SECTIONS
 
 const collapsibleDivStyle =
-  'mt-1.25 flex w-full flex-col items-start justify-center border-t border-primary/25 p-1 pt-3 tracking-wide leading-normal text-primary text-base text-pretty md:mt-2 md:text-xl md:pt-4'
+  'mt-1.25 flex w-full flex-col items-start justify-center border-t border-primary/30 p-1 pt-3 tracking-wide leading-normal text-primary text-base text-pretty sm:mt-2 sm:text-xl sm:pt-4'
 
 function GoodreadsImport({ onSuccess }: { onSuccess?: () => void }) {
   const { state, importBooks } = useImportBooks()
 
   const [openSection, setOpenSection] = useState<'instructions' | 'quirks' | null>(null)
 
-  const sectionToggleStyle = 'flex w-full cursor-pointer text-left items-center gap-1.5 md:gap-2'
-  const toggleHeadingStyle = 'font-bold md:font-extrabold'
+  const sectionToggleStyle = 'flex w-full cursor-pointer text-left items-center gap-1.5 sm:gap-2'
+  const h3Style = 'font-bold sm:font-extrabold underline decoration-accent/50 underline-offset-2'
 
   return (
     <div className={collapsibleDivStyle}>
-      <p>Add your Goodreads export file below to auto import all your books!</p>
-      <div className="my-2 flex w-full flex-col gap-1 md:mt-4 md:mb-3 md:gap-2">
+      <p>Upload your Goodreads export file below to auto import all your books!</p>
+      <div className="my-2 flex w-full flex-col gap-1 border-b border-primary/30 pb-2 sm:mt-4 sm:mb-4 sm:gap-2">
         <button
           className={sectionToggleStyle}
           onClick={() => setOpenSection(openSection === 'instructions' ? null : 'instructions')}
           aria-expanded={openSection === 'instructions'}
         >
           <ToggleIcon variant="small" isOpen={openSection === 'instructions'} />
-          <h3 className={toggleHeadingStyle}>How do I get my export file?</h3>
+          <h3 className={h3Style}>How to get your export file</h3>
         </button>
         <Collapsible isOpen={openSection === 'instructions'}>
           <div
             className={
-              'mb-2 ml-1.75 flex flex-col gap-2 border-l border-primary/30 pl-3.5 md:mb-3 md:ml-2 md:pl-4 md:text-lg'
+              'mb-2 ml-1.75 flex flex-col gap-2 border-l border-primary/30 pl-3.5 sm:mb-3 sm:ml-2 sm:pl-5 sm:text-lg'
             }
           >
-            <p>
-              On desktop (not the app), log in to Goodreads and go to{' '}
-              <span className={textEmphasisStyle}>My Books</span>, then in the left-side menu,
-              select <span className={textEmphasisStyle}>Import and export</span>.
-            </p>
-            <p>
-              Under Export, click <span className={textEmphasisStyle}>Export Library</span>. Wait
-              for Goodreads to generate your file, then click the download link (likely named "
-              <span className={textEmphasisStyle}>Your export from...</span>").
-            </p>
-            <p>Then throw it in here and we'll do the rest.</p>
+            <ol className="flex list-decimal flex-col gap-2 pl-4.5 marker:font-extrabold sm:pl-5">
+              <li>
+                On desktop (not the app), log in to Goodreads and go to{' '}
+                <span className={textEmphasisStyle}>My Books</span>.
+              </li>
+              <li>
+                Select <span className={textEmphasisStyle}>Import and export</span> in the left-side
+                menu.
+              </li>
+              <li>
+                Under Export, click <span className={textEmphasisStyle}>Export Library</span> and
+                wait for it to generate your file.
+              </li>
+              <li>
+                Once ready, click the download link (likely named "
+                <span className={textEmphasisStyle}>Your export from...</span>").
+              </li>
+              <li>Throw the file in here and we'll do the rest!</li>
+            </ol>
           </div>
         </Collapsible>
         <button
@@ -160,23 +169,22 @@ function GoodreadsImport({ onSuccess }: { onSuccess?: () => void }) {
           aria-expanded={openSection === 'quirks'}
         >
           <ToggleIcon variant="small" isOpen={openSection === 'quirks'} />
-          <h3 className={toggleHeadingStyle}>Goodreads data quirks</h3>
+          <h3 className={h3Style}>Goodreads quirks</h3>
         </button>
         <Collapsible isOpen={openSection === 'quirks'}>
           <div
             className={
-              'ml-1.75 flex flex-col gap-2 border-l border-primary/30 pl-3.5 md:mb-1 md:ml-2 md:pl-4 md:text-lg'
+              'ml-1.75 flex flex-col gap-2 border-l border-primary/30 pl-3.5 sm:mb-1 sm:ml-2 sm:pl-4 sm:text-lg'
             }
           >
             <p>
-              Goodreads often groups subtitles and series information in a book's title, which can
-              make some titles awkwardly long, or, if you already added some books, make duplicates
-              harder to catch.
+              Goodreads often groups titles, subtitles, and series information together, which makes
+              some titles awkwardly long, and duplicates harder to catch.
             </p>
             <p>
-              You can manually delete sneaky duplicates, fix a book's title and author, or add any
+              You'll be able to delete sneaky duplicates, fix a book's title and author, or add any
               missing reads, in{' '}
-              <span className={textEmphasisStyle}>
+              <span className={`font-extrabold`}>
                 The{' '}
                 <span className={'whitespace-nowrap'}>
                   Stacks
@@ -185,7 +193,7 @@ function GoodreadsImport({ onSuccess }: { onSuccess?: () => void }) {
                   </span>
                 </span>
               </span>{' '}
-              anytime.
+              page anytime.
             </p>
           </div>
         </Collapsible>
@@ -206,9 +214,9 @@ function ManualEntry({ onSuccess }: { onSuccess?: () => void }) {
   const { state: addState, addBook } = useAddBook()
 
   return (
-    <div className={`gap-2 md:gap-3 ${collapsibleDivStyle}`}>
+    <div className={`gap-2 sm:gap-3 ${collapsibleDivStyle}`}>
       <p>Add as many worthy contenders as you'd like by providing the info below for each.</p>
-      <p className={'mb-1 md:mb-1.5'}>
+      <p className={'mb-1 border-b border-primary/30 pb-3 sm:pb-4'}>
         <span className={textEmphasisStyle}>Rating</span> (1-10, decimals welcome) is optional, but
         encouraged. It provides an initial placement for the{' '}
         <span className={`font-extrabold`}>
@@ -236,7 +244,7 @@ function CustomCSV({ onSuccess }: { onSuccess?: () => void }) {
   const { state, importBooks } = useImportBooks()
 
   return (
-    <div className={`gap-2 md:gap-3 ${collapsibleDivStyle}`}>
+    <div className={`gap-2 sm:gap-3 ${collapsibleDivStyle}`}>
       <p>
         If you track your books in a spreadsheet — Excel, Google Sheets, Notion, anywhere with
         columns and rows — you can export or download it as a CSV file and throw it in here.
@@ -245,7 +253,7 @@ function CustomCSV({ onSuccess }: { onSuccess?: () => void }) {
         Your file must have <span className={textEmphasisStyle}>title</span> and{' '}
         <span className={textEmphasisStyle}>author</span> columns.
       </p>
-      <p className={'mb-1'}>
+      <p className={'mb-1 border-b border-primary/30 pb-3 sm:pb-4'}>
         A <span className={textEmphasisStyle}>rating</span> column (1-10, decimals welcome) is
         optional, but encouraged. It provides an initial placement for the{' '}
         <span className={textEmphasisStyle}>
@@ -270,7 +278,7 @@ function CustomCSV({ onSuccess }: { onSuccess?: () => void }) {
 // --- PRIMITIVES
 
 const chooseFileButtonStyle =
-  'cursor-pointer w-1/2 md:w-2/5 rounded-lg border-b-3 px-6 pb-1.25 pt-2.25 font-zain text-sm text-center [@media(min-height:700px)]:text-base font-extrabold tracking-wide text-text drop-shadow-md transition-all [@media(min-height:700px)]:md:text-lg md:pt-2.75 md:pb-1.5 hover:scale-104 active:scale-95'
+  'cursor-pointer w-1/2 sm:w-2/5 rounded-lg border-b-3 px-6 pb-1.25 pt-2.25 font-zain text-sm text-center [@media(min-height:700px)]:text-base font-extrabold tracking-wide text-text drop-shadow-md transition-all [@media(min-height:700px)]:sm:text-lg sm:pt-2.75 sm:pb-1.5 hover:scale-104 active:scale-95'
 
 function Collapsible({ isOpen, children }: { isOpen: boolean; children: ReactNode }) {
   return (
@@ -319,7 +327,7 @@ function ImportOutcome({ state }: { state: ImportState }) {
   if (state.type !== 'success' && state.type !== 'error') return null
 
   return (
-    <div className={'flex w-full flex-col gap-2 md:mt-2 md:gap-3'}>
+    <div className={'flex w-full flex-col gap-2 sm:mt-2 sm:gap-3'}>
       <ImportFeedback state={state} variant="compact" />
       {state.type === 'success' && state.result.imported > 0 && <StacksMessage />}
     </div>
@@ -330,7 +338,7 @@ function StacksMessage() {
   return (
     <div
       className={
-        'flex w-full flex-col gap-1 rounded-lg bg-button px-3 py-2 text-base font-semibold text-pretty text-text md:px-4 md:py-3 md:text-lg'
+        'flex w-full flex-col gap-1 rounded-lg bg-button px-3 py-2 text-base font-semibold text-pretty text-text sm:px-4 sm:py-3 sm:text-lg'
       }
     >
       <p>
@@ -358,7 +366,7 @@ function ToggleIcon({
   isOpen?: boolean
   variant?: 'default' | 'small'
 }) {
-  const size = variant === 'small' ? 'size-3.5 md:size-4.25' : 'size-4.5 md:size-5'
+  const size = variant === 'small' ? 'size-3.5 sm:size-4.25' : 'size-4.5 sm:size-5'
 
   return (
     <CaretCircleRightIcon

@@ -303,7 +303,7 @@ function BookCard({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`flex w-[95%] flex-1 basis-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-b-8 py-2 font-calistoga shadow-xl transition-all duration-250 md:border-b-8 lg:h-80 lg:flex-none lg:rounded-xl xl:h-72 [@media(max-height:500px)]:gap-0.5 [@media(max-height:500px)]:py-1 [@media(min-height:700px)]:w-11/12 [@media(min-height:700px)]:lg:w-116 [@media(min-height:700px)]:xl:w-134 ${hoverStyling} ${cardStyle} ${selectedStyling}`}
+      className={`flex w-[95%] flex-1 basis-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-b-8 py-2 font-calistoga shadow-xl transition-all duration-300 md:border-b-8 lg:h-80 lg:flex-none lg:rounded-xl xl:h-72 [@media(max-height:500px)]:gap-0.5 [@media(max-height:500px)]:py-1 [@media(min-height:700px)]:w-11/12 [@media(min-height:700px)]:lg:w-116 [@media(min-height:700px)]:xl:w-134 ${hoverStyling} ${cardStyle} ${selectedStyling}`}
       style={{
         boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.20)',
       }}
