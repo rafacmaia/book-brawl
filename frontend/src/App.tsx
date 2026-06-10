@@ -101,6 +101,9 @@ function AppRouter({ state }: { state: SyncState }) {
             <Route path={'/leaderboard'} element={<Leaderboard />} />
             <Route path={'/stacks'} element={<TheStacks />} />
           </Route>
+          {/* Catch-all for unmatched routes (redirect to `/brawl`).
+              TODO: Replace with a dedicated 404 page. */}
+          <Route path="*" element={<Navigate to="/brawl" replace />} />
         </Routes>
       )
   }
