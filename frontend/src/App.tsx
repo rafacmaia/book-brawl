@@ -1,6 +1,6 @@
 import { SignIn, SignUp, useAuth, useUser } from '@clerk/react'
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { type ReactNode, useEffect, useEffectEvent, useState } from 'react'
 import { apiFetch } from './api'
 import BrawlPit from './pages/BrawlPit'
 import Leaderboard from './pages/Leaderboard'
@@ -30,28 +30,9 @@ function ProtectedApp() {
 
   const [syncState, setSyncState] = useState<SyncState>({ type: 'pending' })
 
-  useEffect(() => {
-    if (!user) {
-      setSyncState({ type: 'pending' })
-      return
-    }
+  const userId = user?.id
 
-    // Skip if we've already synced for this user
-    if (syncState.type === 'synced') return
-
-    void (async () => {
-      try {
-        const result = await syncUser()
-        const hasBooks = result.book_count > 0
-        setSyncState({ type: 'synced', hasBooks })
-      } catch (err) {
-        console.error('Failed to sync user:', err)
-        setSyncState({ type: 'error' })
-      }
-    })()
-  }, [user])
-
-  async function syncUser(): Promise<{ book_count: number }> {
+  const syncUser = useEffectEvent(async () => {
     const token = await getToken()
 
     const response = await apiFetch('/readers/me', token!, {
@@ -66,8 +47,22 @@ function ProtectedApp() {
       }),
     })
 
-    return await response.json()
-  }
+    return (await response.json()) as { book_count: number }
+  })
+
+  useEffect(() => {
+    if (!userId) return
+
+    void (async () => {
+      try {
+        const result = await syncUser()
+        setSyncState({ type: 'synced', hasBooks: result.book_count > 0 })
+      } catch (err) {
+        console.error('Failed to sync user:', err)
+        setSyncState({ type: 'error' })
+      }
+    })()
+  }, [userId])
 
   if (!isLoaded) return <AppLayout />
 
@@ -119,7 +114,7 @@ function AuthLayout() {
   )
 }
 
-function AppLayout({ children }: { children?: React.ReactNode }) {
+function AppLayout({ children }: { children?: ReactNode }) {
   return <div className="flex min-h-dvh flex-col font-zain">{children ?? <Outlet />}</div>
 }
 

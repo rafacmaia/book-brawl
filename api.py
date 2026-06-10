@@ -1,7 +1,7 @@
 import csv
 import io
 from contextlib import asynccontextmanager
-from typing import Any, Literal
+from typing import Literal
 
 from fastapi import Depends, FastAPI, Form, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware

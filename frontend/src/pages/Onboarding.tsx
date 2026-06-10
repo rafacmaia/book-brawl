@@ -90,7 +90,7 @@ export default function Onboarding() {
       {/* CONTINUE */}
       <NavLink
         to={'/brawl'}
-        className={`flex cursor-pointer items-center justify-end gap-1 p-1 text-lg font-bold tracking-wide sm:text-xl ${width} ${hasAddedBooks && 'animate-pulse'}`}
+        className={`flex cursor-pointer items-center justify-end gap-1 p-1 text-lg font-bold tracking-wide sm:text-xl ${width} ${hasAddedBooks ? 'animate-pulse' : ''}`}
       >
         {hasAddedBooks ? (
           <>
