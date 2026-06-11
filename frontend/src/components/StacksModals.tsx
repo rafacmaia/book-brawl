@@ -233,7 +233,7 @@ export function ResetModal({
   onConfirm: () => void
   onCancel: () => void
 }) {
-  // Resetting is a two-step process requiring a final confirmation and the reset button is
+  // Resetting is a two-step process requiring a final confirmation, and the reset button is
   // disabled for a few seconds using an interval timer to prevent accidental clicks.
   const [finalConfirmation, setFinalConfirmation] = useState(false)
   const [resetTimer, setResetTimer] = useState(3)

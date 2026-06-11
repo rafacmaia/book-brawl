@@ -40,7 +40,7 @@ export function ImportFeedback({
         </p>
       )
 
-    case 'success':
+    case 'success': {
       const { imported, invalid, duplicates, interrupted } = state.result
 
       let skippedMessage = ''
@@ -90,5 +90,6 @@ export function ImportFeedback({
           )}
         </div>
       )
+    }
   }
 }

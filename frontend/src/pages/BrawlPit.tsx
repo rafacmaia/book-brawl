@@ -1,5 +1,5 @@
 import { useAuth } from '@clerk/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useEffectEvent, useState } from 'react'
 import { ApiError, apiFetch } from '../api'
 import PlaceholderMessaging from '../components/feedback/PlaceholderMessaging'
 import { EmptyStateMessage } from '../components/feedback/EmptyStateMessage'
@@ -36,20 +36,6 @@ export default function BrawlPit() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    void (async () => {
-      const token = await getToken()
-      const firstMatch = await fetchMatch(token!)
-
-      setCurrentMatch(firstMatch ?? null)
-      setLoading(false)
-      requestAnimationFrame(() => setMatchTransition(true))
-
-      const secondMatch = await fetchNextMatch(token!, firstMatch)
-      setNextMatch(secondMatch ?? null)
-    })()
-  }, [])
-
   async function fetchMatch(token: string) {
     try {
       const response = await apiFetch('/brawl', token!)
@@ -64,7 +50,7 @@ export default function BrawlPit() {
   }
 
   // To avoid immediate book repeats, fetchNextMatch retries up to 3 times to fetch a match that
-  // does not reuse a book from the current match.
+  // does not repeat a book from the previous match.
   async function fetchNextMatch(token: string, currentMatch: Match | null) {
     let candidate: Match | null = null
 
@@ -86,6 +72,22 @@ export default function BrawlPit() {
     // After 3 attempts to avoid repeats, trust the matchmaker and return the last candidate.
     return candidate
   }
+
+  const loadInitialMatches = useEffectEvent(async () => {
+    const token = await getToken()
+    const firstMatch = await fetchMatch(token!)
+
+    setCurrentMatch(firstMatch ?? null)
+    setLoading(false)
+    requestAnimationFrame(() => setMatchTransition(true))
+
+    const secondMatch = await fetchNextMatch(token!, firstMatch)
+    setNextMatch(secondMatch ?? null)
+  })
+
+  useEffect(() => {
+    void loadInitialMatches()
+  }, [])
 
   async function handleChoice(winnerId: number, loserId: number) {
     setError(null)
@@ -128,7 +130,7 @@ export default function BrawlPit() {
     try {
       const token = await getToken()
 
-      const [_, next] = await Promise.all([
+      const [, next] = await Promise.all([
         apiFetch('/brawl/resolve', token!, {
           method: 'POST',
           body: JSON.stringify({ winner_id: winnerId, loser_id: loserId }),
@@ -137,7 +139,7 @@ export default function BrawlPit() {
       ])
 
       setNextMatch(next)
-    } catch (error) {
+    } catch {
       setError('Something went wrong. Please try again.')
     }
   }

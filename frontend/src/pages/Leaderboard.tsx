@@ -1,5 +1,5 @@
 import { useAuth } from '@clerk/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useEffectEvent, useState } from 'react'
 import { apiFetch } from '../api'
 import PlaceholderMessaging from '../components/feedback/PlaceholderMessaging'
 import PageHeading from '../components/ui/PageHeading'
@@ -68,11 +68,7 @@ export default function Leaderboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    void fetchLeaderboard()
-  }, [])
-
-  async function fetchLeaderboard() {
+  const fetchLeaderboard = useEffectEvent(async () => {
     setLoading(true)
     setError(null)
 
@@ -99,7 +95,11 @@ export default function Leaderboard() {
     } finally {
       setLoading(false)
     }
-  }
+  })
+
+  useEffect(() => {
+    void fetchLeaderboard()
+  }, [])
 
   return (
     <main className="mx-auto flex h-full min-h-0 w-[97%] grow flex-col items-center gap-4 overflow-y-auto p-2 text-primary/95 md:gap-8 md:p-4">
@@ -140,7 +140,7 @@ export default function Leaderboard() {
 
 // ====== SUBCOMPONENTS
 
-// Renders the actual leaderboard once data is loaded. Split out from Leaderboard so the main
+// Renders the actual leaderboard once data is loaded. Split out from the Leaderboard so the main
 // component can focus on routing between loading/error/empty/content states.
 function LeaderboardContent({ progress, rankings }: { progress: number; rankings: BookData[] }) {
   const [showAccuracyModal, setShowAccuracyModal] = useState<boolean>(false)

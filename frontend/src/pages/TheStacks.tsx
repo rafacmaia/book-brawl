@@ -1,5 +1,5 @@
 import { useAuth } from '@clerk/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useEffectEvent, useState } from 'react'
 import { ApiError, apiFetch } from '../api'
 import PlaceholderMessaging from '../components/feedback/PlaceholderMessaging'
 import PageHeading from '../components/ui/PageHeading'
@@ -27,11 +27,6 @@ export default function TheStacks() {
   const [showImportModal, setShowImportModal] = useState<boolean>(false)
   const [showResetModal, setShowResetModal] = useState<boolean>(false)
 
-  // --- effects
-  useEffect(() => {
-    void fetchBooks()
-  }, [])
-
   // --- data fetching
   async function fetchBooks() {
     setLoading(true)
@@ -51,6 +46,13 @@ export default function TheStacks() {
     }
   }
 
+  // --- effects
+  const loadBooks = useEffectEvent(() => fetchBooks())
+
+  useEffect(() => {
+    void loadBooks()
+  }, [])
+
   // After CSV imports, clear any UI manual entry messaging and refresh the user's book list.
   function handleImportSuccess() {
     resetAddState()
@@ -58,6 +60,7 @@ export default function TheStacks() {
     void fetchBooks()
   }
 
+  // --- handlers
   async function handleBurn(book: Book) {
     resetAddState()
 
