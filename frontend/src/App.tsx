@@ -1,7 +1,6 @@
-import { SignIn, SignUp, useAuth, useUser } from '@clerk/react'
+import { SignIn, SignUp, useAuth } from '@clerk/react'
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
-import { type ReactNode, useEffect, useEffectEvent, useState } from 'react'
-import { apiFetch } from './api'
+import { type ReactNode } from 'react'
 import BrawlPit from './pages/BrawlPit'
 import Leaderboard from './pages/Leaderboard'
 import TheStacks from './pages/TheStacks'
@@ -9,8 +8,7 @@ import PlaceholderMessaging from './components/feedback/PlaceholderMessaging'
 import Onboarding from './pages/Onboarding'
 import Footer from './components/layout/Footer'
 import Header from './components/layout/Header'
-
-type SyncState = { type: 'pending' } | { type: 'synced'; hasBooks: boolean } | { type: 'error' }
+import { type SyncState, useUserSync } from './hooks/useUserSync'
 
 export default function App() {
   return (
@@ -25,47 +23,10 @@ export default function App() {
 }
 
 function ProtectedApp() {
-  const { isLoaded, isSignedIn, getToken } = useAuth()
-  const { user } = useUser()
-
-  const [syncState, setSyncState] = useState<SyncState>({ type: 'pending' })
-
-  const userId = user?.id
-
-  const syncUser = useEffectEvent(async () => {
-    const token = await getToken()
-
-    const response = await apiFetch('/readers/me', token!, {
-      method: 'POST',
-      body: JSON.stringify({
-        email: user!.primaryEmailAddress!.emailAddress,
-        username:
-          user!.username ??
-          user!.firstName ??
-          user!.primaryEmailAddress?.emailAddress?.split('@')[0] ??
-          user!.id,
-      }),
-    })
-
-    return (await response.json()) as { book_count: number }
-  })
-
-  useEffect(() => {
-    if (!userId) return
-
-    void (async () => {
-      try {
-        const result = await syncUser()
-        setSyncState({ type: 'synced', hasBooks: result.book_count > 0 })
-      } catch (err) {
-        console.error('Failed to sync user:', err)
-        setSyncState({ type: 'error' })
-      }
-    })()
-  }, [userId])
+  const { isLoaded, isSignedIn } = useAuth()
+  const syncState = useUserSync()
 
   if (!isLoaded) return <AppLayout />
-
   if (!isSignedIn) return <Navigate to="/sign-in" replace />
 
   return <AppRouter state={syncState} />
