@@ -116,7 +116,14 @@ def import_books(
 
     if new_books:
         with get_connection(transactional=True) as conn:
-            insert_many(reader_id, new_books, conn=conn)
+            inserted_books = insert_many(reader_id, new_books, conn=conn)
+
+            # Check if any books were rejected due to uniqueness constraint, meaning
+            # any duplicates that weren't captured before the insert.
+            db_conflicts = len(new_books) - len(inserted_books)
+
+            result.imported -= db_conflicts
+            result.duplicates += db_conflicts
 
     return result
 

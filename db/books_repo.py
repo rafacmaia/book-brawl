@@ -84,24 +84,34 @@ def insert(reader_id: int, book: BookDraft) -> int:
             return cur.fetchone()["id"]
 
 
-def insert_many(reader_id: int, books: list[BookDraft], *, conn=None) -> None:
-    """Insert multiple books."""
+def insert_many(reader_id: int, books: list[BookDraft], *, conn=None) -> list[int]:
+    """Insert multiple books, skipping rows that collide with the unique constraint.
+
+    Returns the IDs of books actually inserted (collisions excluded).
+    """
     if not books:
-        return
+        return []
 
     def _execute(connection):
         with connection.cursor() as cur:
-            execute_values(
+            result = execute_values(
                 cur,
-                "INSERT INTO book (reader_id, title, author, rating, elo) VALUES %s",
+                """
+                INSERT INTO book (reader_id, title, author, rating, elo) 
+                VALUES %s
+                ON CONFLICT (reader_id, LOWER(title), LOWER(author)) DO NOTHING
+                RETURNING id
+                """,
                 [(reader_id, b.title, b.author, b.rating, b.elo) for b in books],
+                fetch=True,
             )
+            return [row[0] for row in result]
 
     if conn:
-        _execute(conn)
+        return _execute(conn)
     else:
         with get_connection() as c:
-            _execute(c)
+            return _execute(c)
 
 
 def update(reader_id: int, book_id: int, title: str, author: str) -> bool:
