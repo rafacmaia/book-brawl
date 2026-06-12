@@ -21,6 +21,9 @@ interface Match {
 const wavyDividerStyle =
   'underline decoration-accent/80 decoration-wavy decoration-5 lg:decoration-8 underline-offset-46 md:underline-offset-2 lg:underline-offset-42'
 
+// Delay function to help coordinate match transitions.
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
 export default function BrawlPit() {
   const { getToken } = useAuth()
 
@@ -36,30 +39,46 @@ export default function BrawlPit() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  async function fetchMatch(token: string) {
-    try {
-      const response = await apiFetch('/brawl', token!)
-      return await response.json()
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 400) {
-        setEmptyPit(true)
-      } else {
-        setError("Wow, this shouldn't happen! Try refreshing!")
-      }
+  // Coordinates triggering match transitions on mobile and desktop.
+  async function playMatchTransition(winnerId: number) {
+    const isCompactViewport =
+      window.matchMedia('(max-width: 639px)').matches ||
+      window.matchMedia('(max-height: 500px)').matches // catches mobile landscape mode
+
+    // Handles book card transitions on mobile, where hover and active states act differently,
+    // so we have to be more explicit on giving user feedback on their selected book and to
+    // trigger transition between matches.
+    if (isCompactViewport) {
+      setSelectedBook(winnerId) // triggers "selected book" effect
+      await delay(125)
+      setMatchTransition(false) // triggers match transition: fade out/in
+      await delay(250)
+    } else {
+      // Desktop: triggers fade-in-and-out of book cards.
+      setMatchTransition(false)
+      await delay(300)
     }
   }
 
-  // To avoid immediate book repeats, fetchNextMatch retries up to 3 times to fetch a match that
-  // does not repeat a book from the previous match.
+  // Completes a match transition.
+  async function finishTransition() {
+    await delay(50)
+    setMatchTransition(true)
+    setSelectedBook(null)
+  }
+
+  async function fetchMatch(token: string): Promise<Match> {
+    const response = await apiFetch('/brawl', token)
+    return await response.json()
+  }
+
+  // To avoid immediate book repeats, fetchNextMatch retries up to 3 times to fetch a match
+  // that does not repeat a book from the previous match.
   async function fetchNextMatch(token: string, currentMatch: Match | null) {
-    let candidate: Match | null = null
+    let candidate = await fetchMatch(token)
+    if (!currentMatch) return candidate
 
-    for (let attempt = 0; attempt < 3; attempt++) {
-      candidate = await fetchMatch(token)
-
-      if (!candidate) return null
-      if (!currentMatch) return candidate
-
+    for (let attempt = 0; attempt < 2; attempt++) {
       const repeatsBook =
         candidate.book_a.id === currentMatch.book_a.id ||
         candidate.book_a.id === currentMatch.book_b.id ||
@@ -67,22 +86,55 @@ export default function BrawlPit() {
         candidate.book_b.id === currentMatch.book_b.id
 
       if (!repeatsBook) return candidate
+
+      candidate = await fetchMatch(token)
     }
 
     // After 3 attempts to avoid repeats, trust the matchmaker and return the last candidate.
     return candidate
   }
 
+  // Resolves a completed match
+  async function resolveMatch(token: string, winnerId: number, loserId: number): Promise<void> {
+    try {
+      await apiFetch('/brawl/resolve', token!, {
+        method: 'POST',
+        body: JSON.stringify({ winner_id: winnerId, loser_id: loserId }),
+      })
+    } catch (err) {
+      console.error('Failed to resolve match:', err)
+    }
+  }
+
+  // Loads the first two matches to start the game, checking if there are enough books to play.
   const loadInitialMatches = useEffectEvent(async () => {
-    const token = await getToken()
-    const firstMatch = await fetchMatch(token!)
+    let token: string | null = null
+    let firstMatch: Match | null = null
 
-    setCurrentMatch(firstMatch ?? null)
-    setLoading(false)
-    requestAnimationFrame(() => setMatchTransition(true))
+    try {
+      token = await getToken()
+      firstMatch = await fetchMatch(token!)
+      setCurrentMatch(firstMatch)
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 400) {
+        setEmptyPit(true)
+      } else {
+        console.error('Failed to load initial match: ', err)
+        setError("Wow, this shouldn't happen! Try refreshing!")
+      }
+    } finally {
+      setLoading(false)
+    }
 
-    const secondMatch = await fetchNextMatch(token!, firstMatch)
-    setNextMatch(secondMatch ?? null)
+    if (!firstMatch) return
+    requestAnimationFrame(() => setMatchTransition(true)) // loads the first match
+
+    try {
+      setNextMatch(await fetchNextMatch(token!, firstMatch))
+    } catch (err) {
+      // Logs to console but does not stop the game since user already has an ongoing match.
+      console.error('Failed to fetch second match: ', err)
+    }
   })
 
   useEffect(() => {
@@ -92,55 +144,48 @@ export default function BrawlPit() {
   async function handleChoice(winnerId: number, loserId: number) {
     setError(null)
 
-    const newCurrentMatch = nextMatch
+    let token: string | null = null
+    let newCurrentMatch: Match | null = null
 
-    const isCompactViewport =
-      window.matchMedia('(max-width: 639px)').matches ||
-      window.matchMedia('(max-height: 500px)').matches // catches mobile landscape mode
-
-    // Handles book card transitions on mobile, where hover and active states act differently,
-    // so we have to be more explicit on giving user feedback on their selected book and to
-    // trigger transition between matches.
-    if (isCompactViewport) {
-      // Triggers and gives time for "selected book" effect
-      setSelectedBook(winnerId)
-      await new Promise((resolve) => setTimeout(resolve, 125))
-
-      // Triggers and gives time for match transition: fade out old match and fade in new match
-      setMatchTransition(false)
-      await new Promise((resolve) => setTimeout(resolve, 250))
-    }
-
+    // Load prefetched match if available, otherwise fetch a new one.
     if (nextMatch) {
-      if (!isCompactViewport) {
-        // Desktop: triggers fade-in-and-out of book cards. Mobile transitions handled above.
-        setMatchTransition(false)
-        await new Promise((resolve) => setTimeout(resolve, 300))
+      newCurrentMatch = nextMatch
+    } else {
+      try {
+        token = await getToken()
+        newCurrentMatch = await fetchNextMatch(token!, currentMatch)
+      } catch (err) {
+        console.error('Failed to fetch match:', err)
+
+        if (token) void resolveMatch(token, winnerId, loserId) // silently resolve previous match
+
+        setError('Something went wrong. Please refresh the page and try again.')
+        return
       }
-      setMatchCount((prevCount) => prevCount + 1)
-      setCurrentMatch(newCurrentMatch)
-
-      await new Promise((resolve) => setTimeout(resolve, 50))
-      setMatchTransition(true)
-      setSelectedBook(null)
-
-      setNextMatch(null)
     }
 
+    await playMatchTransition(winnerId)
+    setMatchCount((prevCount) => prevCount + 1)
+    setCurrentMatch(newCurrentMatch)
+    setNextMatch(null)
+    await finishTransition()
+
+    // While the user is already seeing the next match, resolve the completed match and prefetch
+    // the next one.
     try {
-      const token = await getToken()
+      if (!token) token = await getToken()
 
-      const [, next] = await Promise.all([
-        apiFetch('/brawl/resolve', token!, {
-          method: 'POST',
-          body: JSON.stringify({ winner_id: winnerId, loser_id: loserId }),
-        }),
-        fetchNextMatch(token!, newCurrentMatch),
-      ])
+      void resolveMatch(token!, winnerId, loserId) // resolve previous match
 
-      setNextMatch(next)
-    } catch {
-      setError('Something went wrong. Please try again.')
+      try {
+        setNextMatch(await fetchNextMatch(token!, newCurrentMatch))
+      } catch (err) {
+        console.error('Failed to prefetch match:', err)
+        setNextMatch(null)
+      }
+    } catch (err) {
+      console.error('handleChoice failed: ', err)
+      setError('Something went wrong. Please refresh the page and try again.')
     }
   }
 
