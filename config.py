@@ -7,8 +7,14 @@ load_dotenv()
 # ====== ENVIRONMENT
 
 CLERK_JWKS_URL = os.getenv("CLERK_JWKS_URL")
+CLERK_ISSUER_URL = os.getenv("CLERK_ISSUER_URL")
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+
+ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # Vite's dev server
+    "https://bookbrawl.app",  # Production domain
+]
 
 # ====== APP CONFIG
 

@@ -9,6 +9,7 @@ from psycopg2 import errors as pg_errors
 from pydantic import BaseModel
 
 from auth import get_current_reader_id, get_current_user
+from config import ALLOWED_ORIGINS
 from db import books_repo, comparisons_repo, readers_repo
 from db.connection import init_db
 from services import library_service
@@ -36,10 +37,7 @@ app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",  # Vite's dev server
-        "https://bookbrawl.app",  # Production domain
-    ],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
