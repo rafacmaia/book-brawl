@@ -6,7 +6,6 @@ load_dotenv()
 
 # ====== ENVIRONMENT
 
-CLERK_SECRET_KEY = os.getenv("CLERK_SECRET_KEY")
 CLERK_JWKS_URL = os.getenv("CLERK_JWKS_URL")
 
 DATABASE_URL = os.getenv("DATABASE_URL")
