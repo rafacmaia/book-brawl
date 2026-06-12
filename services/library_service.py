@@ -99,7 +99,7 @@ def import_books(
     for row in file_reader:
         if len(existing_books) >= BOOK_LIMIT:
             result.interrupted = True
-            return result
+            break
 
         status, book_data = row_processor(row, existing_books)
         result.record(status)
