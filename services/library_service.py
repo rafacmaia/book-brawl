@@ -55,7 +55,10 @@ def add_book(
     if rating is not None and not (1 <= rating <= 10):
         raise ValueError("Rating must be between 1 and 10")
 
-    if not (title.strip() and author.strip()):
+    title = title.strip()
+    author = author.strip()
+
+    if not (title and author):
         raise ValueError("Title and author are required")
 
     # Get current Elo range to scale new books appropriately, defaulting to the

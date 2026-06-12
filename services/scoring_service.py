@@ -14,12 +14,12 @@ different aspect of rank accuracy:
                         with library size so larger libraries don't demand
                         proportionally more matches per book.
 
-  local_score (45%)     Of the opponents that meaningfully threaten this book's rank
+  local_score (50%)     Of the opponents that meaningfully threaten this book's rank
                         (similar Elo), how many has it actually faced? This is a measure
                         of coverage; books need to face their real competition, not just
                         any opponents.
 
-  stability_score (25%) How densely packed is this book's neighborhood? A book in a
+  stability_score (20%) How densely packed is this book's neighborhood? A book in a
                         tight cluster of similar-Elo books has a more fragile rank than
                         one in a sparse region, regardless of match history.
 
