@@ -8,7 +8,7 @@
 CREATE TABLE IF NOT EXISTS reader (
     id          SERIAL  PRIMARY KEY,
     username    TEXT    NOT NULL,
-    email       TEXT    NOT NULL UNIQUE,
+    email       TEXT    NOT NULL,
     clerk_id    TEXT    NOT NULL UNIQUE
 );
 
