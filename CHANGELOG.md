@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bug where visiting an unknown or outdated URL showed a blank page; now redirects
   to the Brawl Pit.
+- Bug where CSV book imports were all dropped if the Book limit is reached mid-import.
+  Books are now added up until the limit is reached.
 
 ## [1.2.0] - 2026-05-23
 
