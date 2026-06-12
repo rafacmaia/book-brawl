@@ -14,6 +14,7 @@ from db.connection import init_db
 from services import library_service
 from services.game_service import (
     BookNotFoundError,
+    InvalidMatchError,
     NotEnoughBooksError,
     resolve_comparison,
     select_opponents,
@@ -92,6 +93,8 @@ def post_match(
         winner, loser = resolve_comparison(reader_id, result.winner_id, result.loser_id)
     except BookNotFoundError:
         raise HTTPException(status_code=404, detail="Books not found")
+    except InvalidMatchError:
+        raise HTTPException(status_code=400, detail="Invalid match")
 
     return {
         "winner": {"id": winner.id, "elo": winner.elo},

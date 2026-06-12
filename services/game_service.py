@@ -53,6 +53,10 @@ class BookNotFoundError(Exception):
     """Raised when a book ID does not match any book in the reader's library."""
 
 
+class InvalidMatchError(Exception):
+    """Raised when a match winner is the same as a loser, meaning a book faced itself."""
+
+
 # ====== MATCHMAKING
 
 
@@ -152,6 +156,8 @@ def resolve_comparison(
         raise BookNotFoundError(f"Winner book not found: id={winner_id}")
     if loser is None:
         raise BookNotFoundError(f"Loser book not found: id={loser_id}")
+    if winner == loser:
+        raise InvalidMatchError("Books cannot face themselves")
 
     new_winner_elo, new_loser_elo = calculate_elo(winner, loser, books)
     insert_comparison(reader_id, winner.id, loser.id)

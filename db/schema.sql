@@ -1,5 +1,5 @@
 -- Book Brawl Database Schema
--- Last updated: 2026-04-14
+-- Last updated: 2026-06-11
 --
 -- To recreate the database from scratch, run this via psql:
 --   psql $DATABASE_URL < db/schema.sql
@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS comparison (
     winner_id  INTEGER      NOT NULL REFERENCES book(id) ON DELETE CASCADE,
     loser_id   INTEGER      NOT NULL REFERENCES book(id) ON DELETE CASCADE,
     timestamp  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+    CONSTRAINT comparison_no_self_match CHECK (winner_id <> loser_id)
 );
 
 
