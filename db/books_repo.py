@@ -55,10 +55,6 @@ def get_all_history(reader_id: int) -> list[Book]:
             elo=row["elo"],
             book_id=row["id"],
         )
-        if book.elo < Book.elo_min:
-            Book.elo_min = book.elo
-        if book.elo > Book.elo_max:
-            Book.elo_max = book.elo
         books.append(book)
 
     book_map = {b.id: b for b in books}

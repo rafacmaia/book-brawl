@@ -1,6 +1,3 @@
-from config import E_MAX_DEFAULT, E_MIN_DEFAULT
-
-
 class BookDraft:
     def __init__(
         self, title: str, author: str, elo: int, rating: float | None = None
@@ -12,9 +9,6 @@ class BookDraft:
 
 
 class Book:
-    elo_min = E_MIN_DEFAULT
-    elo_max = E_MAX_DEFAULT
-
     def __init__(
         self,
         book_id: int,
@@ -32,13 +26,8 @@ class Book:
         self.won_over = {}  # {opp_id: times_won_over} - used for tiebreaking
 
     def update_elo(self, new_elo: int) -> None:
-        """Update the Elo score for this book and update the global min/max."""
+        """Update the Elo score for this book"""
         self.elo = new_elo
-
-        if self.elo < Book.elo_min:
-            Book.elo_min = self.elo
-        if self.elo > Book.elo_max:
-            Book.elo_max = self.elo
 
     def record_opponent(self, opponent_id: int) -> None:
         self.faced_opponents[opponent_id] = self.faced_opponents.get(opponent_id, 0) + 1
