@@ -9,7 +9,7 @@ Selecting a match is a two-stage weighted random process:
                      pulls fresh entries into rotation quickly.
 
   Stage 2 - book_b:  Sample only among book_a's potential opponents, weighting toward
-                     (a) opponents we've matched against rarely, and (b) opponents
+                     (a) opponents we've rarely matched against, and (b) opponents
                      within a meaningful Elo gap. This is where the matchmaking
                      actually concentrates information: by picking opponents whose
                      match outcome is more uncertain.
@@ -19,7 +19,7 @@ from LOCAL_WINDOW in scoring_service so that the matchmaking and confidence syst
 share a definition of "similar Elo." Books outside this gap can still be selected, just
 less often (the penalty grows linearly).
 
-resolve_comparison handles the post-match update: persisting the new Elo
+resolve_comparison() handles the post-match update: persisting the new Elo
 scores and recording the matchup history.
 """
 
@@ -30,6 +30,7 @@ from config import K_TIERS, LOCAL_WINDOW
 from db.books_repo import get_all_history
 from db.books_repo import update_elo as save_elo
 from db.comparisons_repo import insert as insert_comparison
+from db.connection import get_connection
 from models import Book
 from services.scoring_service import (
     absolute_score,
@@ -94,7 +95,7 @@ def select_opponents(reader_id: int) -> tuple[Book, Book]:
 def _sampling_weight(book: Book, b_confidence: float, books: list[Book]) -> float:
     """Calculate selection weight based on confidence level and absolute_score.
 
-    Ensures a minimum weight of 0.05. Absolute_score is used to prioritize newer book
+    Ensures a minimum weight of 0.03. Absolute_score is used to prioritize newer book
     entries with few matches in.
     """
     if len(books) <= 1:
@@ -146,6 +147,9 @@ def resolve_comparison(
 
     Update Elo scores, persist match, and update book opponents and wins.
     """
+    if winner_id == loser_id:
+        raise InvalidMatchError("Books cannot face themselves")
+
     books = get_all_history(reader_id)
     book_map = {b.id: b for b in books}
 
@@ -156,20 +160,15 @@ def resolve_comparison(
         raise BookNotFoundError(f"Winner book not found: id={winner_id}")
     if loser is None:
         raise BookNotFoundError(f"Loser book not found: id={loser_id}")
-    if winner == loser:
-        raise InvalidMatchError("Books cannot face themselves")
 
     new_winner_elo, new_loser_elo = calculate_elo(winner, loser, books)
-    insert_comparison(reader_id, winner.id, loser.id)
-
     winner.update_elo(new_winner_elo)
-    winner.record_opponent(loser.id)
-    winner.record_won_over(loser.id)
-    save_elo(winner)
-
     loser.update_elo(new_loser_elo)
-    loser.record_opponent(winner.id)
-    save_elo(loser)
+
+    with get_connection(transactional=True) as conn:
+        insert_comparison(reader_id, winner.id, loser.id, conn=conn)
+        save_elo(winner, conn=conn)
+        save_elo(loser, conn=conn)
 
     return winner, loser
 

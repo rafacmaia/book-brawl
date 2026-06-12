@@ -17,12 +17,18 @@ def get_pool() -> psycopg2.pool.ThreadedConnectionPool:
 
 
 @contextmanager
-def get_connection():
+def get_connection(*, transactional: bool = False):
     pool = get_pool()
     conn = pool.getconn()
-    conn.autocommit = True
+    conn.autocommit = not transactional
     try:
         yield conn
+        if transactional:
+            conn.commit()
+    except Exception:
+        if transactional:
+            conn.rollback()
+        raise
     finally:
         pool.putconn(conn)
 

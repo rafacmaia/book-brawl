@@ -11,6 +11,7 @@ from config import (
     RATING_FLOOR_BUMP,
 )
 from db.books_repo import get_all, get_elo_range, insert, insert_many
+from db.connection import get_connection
 from models import Book, BookDraft
 
 
@@ -113,7 +114,9 @@ def import_books(
             new_books.append(book)
             existing_books.add((book_data.title.lower(), book_data.author.lower()))
 
-    insert_many(reader_id, new_books)
+    if new_books:
+        with get_connection(transactional=True) as conn:
+            insert_many(reader_id, new_books, conn=conn)
 
     return result
 

@@ -2,7 +2,6 @@ from typing import Any
 
 from psycopg2.extras import RealDictCursor, execute_values
 
-from config import E_MAX_DEFAULT, E_MIN_DEFAULT
 from db.connection import get_connection
 from models import Book, BookDraft
 
@@ -35,9 +34,6 @@ def get_all(reader_id: int) -> list[dict[str, Any]]:
 
 def get_all_history(reader_id: int) -> list[Book]:
     """Load all books, set their opponent/wins history, and set global Elo min/max."""
-    Book.elo_min = E_MIN_DEFAULT
-    Book.elo_max = E_MAX_DEFAULT
-
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
@@ -46,19 +42,19 @@ def get_all_history(reader_id: int) -> list[Book]:
             )
             rows = cur.fetchall()
 
-    books = []
-    for row in rows:
-        book = Book(
-            title=row["title"],
-            author=row["author"],
-            rating=row["rating"],
-            elo=row["elo"],
-            book_id=row["id"],
-        )
-        books.append(book)
+        books = []
+        for row in rows:
+            book = Book(
+                title=row["title"],
+                author=row["author"],
+                rating=row["rating"],
+                elo=row["elo"],
+                book_id=row["id"],
+            )
+            books.append(book)
 
-    book_map = {b.id: b for b in books}
-    with get_connection() as conn:
+        book_map = {b.id: b for b in books}
+
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
                 "SELECT winner_id, loser_id FROM comparison WHERE reader_id = %s",
@@ -88,15 +84,24 @@ def insert(reader_id: int, book: BookDraft) -> int:
             return cur.fetchone()["id"]
 
 
-def insert_many(reader_id: int, books: list[BookDraft]) -> None:
+def insert_many(reader_id: int, books: list[BookDraft], *, conn=None) -> None:
     """Insert multiple books."""
-    with get_connection() as conn:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+    if not books:
+        return
+
+    def _execute(connection):
+        with connection.cursor() as cur:
             execute_values(
                 cur,
-                "INSERT INTO book (reader_id, title, author, rating, elo) VALUES %s RETURNING id",
+                "INSERT INTO book (reader_id, title, author, rating, elo) VALUES %s",
                 [(reader_id, b.title, b.author, b.rating, b.elo) for b in books],
             )
+
+    if conn:
+        _execute(conn)
+    else:
+        with get_connection() as c:
+            _execute(c)
 
 
 def update(reader_id: int, book_id: int, title: str, author: str) -> bool:
@@ -128,15 +133,22 @@ def delete_all(reader_id: int) -> None:
             cur.execute("DELETE FROM book WHERE reader_id = %s", (reader_id,))
 
 
-def update_elo(book: Book) -> None:
+def update_elo(book: Book, *, conn=None) -> None:
     """Update the Elo score for a book."""
-    with get_connection() as conn:
-        with conn.cursor() as cur:
+
+    def _execute(connection):
+        with connection.cursor() as cur:
             cur.execute("UPDATE book SET elo = %s WHERE id = %s", (book.elo, book.id))
+
+    if conn:
+        _execute(conn)
+    else:
+        with get_connection() as c:
+            _execute(c)
 
 
 def get_elo_range(reader_id: int) -> dict | None:
-    """Return min, max, and median Elo across all books."""
+    """Return min and max Elo across all books."""
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
