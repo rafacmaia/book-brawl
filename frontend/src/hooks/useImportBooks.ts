@@ -2,6 +2,9 @@ import { useAuth } from '@clerk/react'
 import { useState } from 'react'
 import { API_BASE } from '../api'
 
+// Keep in sync with backend api.py constant.
+const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2 MB
+
 export interface ImportResult {
   imported: number
   invalid: number
@@ -23,6 +26,12 @@ export function useImportBooks() {
   const [state, setState] = useState<ImportState>({ type: 'idle' })
 
   async function importBooks(file: File, source: ImportSource, onSuccess?: () => void) {
+    // Check for file size limit before triggering loading state to prevent loading flicker.
+    if (file.size > MAX_FILE_SIZE) {
+      setState({ type: 'error', message: 'You read too much. File size exceeds 2 MB limit.' })
+      return
+    }
+
     setState({ type: 'loading', source })
 
     try {
@@ -39,8 +48,9 @@ export function useImportBooks() {
 
       if (!response.ok) {
         const err = await response.json().catch(() => ({}))
+        const message = typeof err.detail === 'string' ? err.detail : 'Import failed'
         console.error('Import failed:', err)
-        setState({ type: 'error', message: 'Import failed' })
+        setState({ type: 'error', message })
         return
       }
 

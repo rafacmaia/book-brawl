@@ -26,6 +26,9 @@ from services.scoring_service import calculate_progress
 
 # ====== APP SETUP
 
+# Keep in sync with frontend useImportBooks.ts constant.
+MAX_FILE_SIZE = 2 * 1024 * 1024  # 2 MB
+
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
@@ -168,7 +171,15 @@ def import_books(
     if not filename.lower().endswith(".csv"):
         raise HTTPException(status_code=400, detail="Invalid file type")
 
-    content = file.file.read().decode("utf-8")
+    raw = file.file.read()
+    if len(raw) > MAX_FILE_SIZE:
+        raise HTTPException(status_code=413, detail="File too large (2 MB limit)")
+
+    try:
+        content = raw.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        raise HTTPException(status_code=400, detail="File must be UTF-8 encoded")
+
     file_reader = csv.DictReader(io.StringIO(content))
 
     if not file_reader.fieldnames:
