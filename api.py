@@ -6,12 +6,24 @@ from typing import Literal
 from fastapi import Depends, FastAPI, Form, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from psycopg2 import errors as pg_errors
-from pydantic import BaseModel
 
 from auth import get_current_reader_id, get_current_user
 from config import ALLOWED_ORIGINS
 from db import books_repo, comparisons_repo, readers_repo
 from db.connection import init_db
+from schemas import (
+    BookData,
+    BookElo,
+    BookStanding,
+    BookSummary,
+    ImportOutcome,
+    Match,
+    MatchOutcome,
+    MatchResolution,
+    Progress,
+    UserBookCount,
+    UserSync,
+)
 from services import library_service
 from services.game_service import (
     BookNotFoundError,
@@ -20,13 +32,12 @@ from services.game_service import (
     resolve_comparison,
     select_opponents,
 )
-from services.library_service import add_book as add_b
 from services.ranking_service import build_leaderboard
 from services.scoring_service import calculate_progress
 
 # ====== APP SETUP
 
-# Keep in sync with frontend useImportBooks.ts constant.
+# Keep in sync with constant in frontend useImportBooks.ts
 MAX_FILE_SIZE = 2 * 1024 * 1024  # 2 MB
 
 
@@ -38,6 +49,7 @@ async def lifespan(_app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+# noinspection PyTypeChecker
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
@@ -49,46 +61,33 @@ app.add_middleware(
 
 # Health check endpoint
 @app.get("/health")
-def health() -> dict[str, str]:
+def health():
     return {"status": "ok"}
 
 
 # ====== MATCHES: MAIN GAME LOOP
 
 
-class MatchResult(BaseModel):
-    winner_id: int
-    loser_id: int
-
-
 @app.get("/brawl")
 def get_match(
     reader_id: int = Depends(get_current_reader_id),
-) -> dict[str, dict[str, int | str]]:
+) -> Match:
     """Return two books to face off"""
     try:
         book_a, book_b = select_opponents(reader_id)
     except NotEnoughBooksError:
         raise HTTPException(status_code=400, detail="Not enough books")
 
-    return {
-        "book_a": {
-            "id": book_a.id,
-            "title": book_a.title,
-            "author": book_a.author,
-        },
-        "book_b": {
-            "id": book_b.id,
-            "title": book_b.title,
-            "author": book_b.author,
-        },
-    }
+    return Match(
+        book_a=BookSummary(id=book_a.id, title=book_a.title, author=book_a.author),
+        book_b=BookSummary(id=book_b.id, title=book_b.title, author=book_b.author),
+    )
 
 
 @app.post("/brawl/resolve", status_code=status.HTTP_201_CREATED)
 def post_match(
-    result: MatchResult, reader_id: int = Depends(get_current_reader_id)
-) -> dict[str, dict[str, int]]:
+    result: MatchOutcome, reader_id: int = Depends(get_current_reader_id)
+) -> MatchResolution:
     """Resolve a match between two books and update their records."""
     try:
         winner, loser = resolve_comparison(reader_id, result.winner_id, result.loser_id)
@@ -97,10 +96,10 @@ def post_match(
     except InvalidMatchError:
         raise HTTPException(status_code=400, detail="Invalid match")
 
-    return {
-        "winner": {"id": winner.id, "elo": winner.elo},
-        "loser": {"id": loser.id, "elo": loser.elo},
-    }
+    return MatchResolution(
+        winner=BookElo(id=winner.id, elo=winner.elo),
+        loser=BookElo(id=loser.id, elo=loser.elo),
+    )
 
 
 # ====== LEADERBOARD: PROGRESS & RANKINGS
@@ -109,55 +108,51 @@ def post_match(
 @app.get("/progress")
 def get_progress(
     reader_id: int = Depends(get_current_reader_id),
-) -> float:
+) -> Progress:
     """Return the user's overall progress in the game."""
     matches_played = comparisons_repo.count(reader_id)
 
     if matches_played < 3:
-        return 0.0
+        return Progress(progress=0.0)
 
     books = books_repo.get_all_history(reader_id)
 
-    return round(calculate_progress(books), 4)
+    return Progress(progress=round(calculate_progress(books), 4))
 
 
 @app.get("/leaderboard")
 def get_leaderboard(
     reader_id: int = Depends(get_current_reader_id),
-) -> list[dict[str, int | str | float]]:
-    return build_leaderboard(reader_id)
+) -> list[BookStanding]:
+    return [BookStanding(**book) for book in build_leaderboard(reader_id)]
 
 
-# ====== COLLECTION MANAGEMENT
-
-
-class BookData(BaseModel):
-    title: str
-    author: str
-    rating: float | None = None
+# ====== LIBRARY MANAGEMENT
 
 
 @app.get("/stacks")
 def get_books(
     reader_id: int = Depends(get_current_reader_id),
-) -> list[dict[str, int | str]]:
+) -> list[BookSummary]:
     """Return the user's collection of books, sorted alphabetically by title."""
-    return books_repo.get_all(reader_id)
+    return [BookSummary(**book) for book in books_repo.get_all(reader_id)]
 
 
 @app.post("/stacks", status_code=status.HTTP_201_CREATED)
 def add_book(
     book: BookData, reader_id: int = Depends(get_current_reader_id)
-) -> dict[str, int | str]:
+) -> BookSummary:
     """Add a new book to the collection."""
     try:
-        new_book = add_b(reader_id, book.title, book.author, book.rating)
+        new_book = library_service.add_book(
+            reader_id, book.title, book.author, book.rating
+        )
     except pg_errors.UniqueViolation:
         raise HTTPException(status_code=409, detail="Book already exists")
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    return {"id": new_book.id, "title": new_book.title, "author": new_book.author}
+    return BookSummary(id=new_book.id, title=new_book.title, author=new_book.author)
 
 
 @app.post("/stacks/import", status_code=status.HTTP_201_CREATED)
@@ -165,7 +160,7 @@ def import_books(
     file: UploadFile,
     source: Literal["custom", "goodreads"] = Form("custom"),
     reader_id: int = Depends(get_current_reader_id),
-) -> dict[str, int | bool]:
+) -> ImportOutcome:
     """Import books from a CSV file."""
     filename = file.filename or ""
     if not filename.lower().endswith(".csv"):
@@ -196,23 +191,16 @@ def import_books(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    return {
-        "imported": result.imported,
-        "invalid": result.invalid,
-        "duplicates": result.duplicates,
-        "interrupted": result.interrupted,
-    }
+    return ImportOutcome.model_validate(result)
 
 
 @app.patch("/stacks/{book_id}")
 def update_book(
     book_id: int, book: BookData, reader_id: int = Depends(get_current_reader_id)
-) -> dict[str, int | str]:
+) -> BookSummary:
     """Update the details of a book in the collection."""
     try:
-        updated = books_repo.update(
-            reader_id, book_id, book.title.strip(), book.author.strip()
-        )
+        updated = books_repo.update(reader_id, book_id, book.title, book.author)
         if not updated:
             raise HTTPException(status_code=404, detail="Book not found")
     except pg_errors.UniqueViolation:
@@ -221,7 +209,7 @@ def update_book(
             detail="A book with that title and author already exists",
         )
 
-    return {"id": book_id, "title": book.title.strip(), "author": book.author.strip()}
+    return BookSummary(id=book_id, title=book.title, author=book.author)
 
 
 @app.delete("/stacks/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -240,19 +228,14 @@ def delete_all_books(reader_id: int = Depends(get_current_reader_id)) -> None:
 # ====== USERS
 
 
-class UserSync(BaseModel):
-    email: str
-    username: str
-
-
 @app.post("/readers/me")
 def bootstrap_session(
     data: UserSync, clerk_id: str = Depends(get_current_user)
-) -> dict[str, int]:
+) -> UserBookCount:
     """Sync the user with our DB and return their book count.
 
     Creates the user if they don't exist, or updates their email/username if they do.
     """
     user_id = readers_repo.upsert(clerk_id, data.email, data.username)
 
-    return {"book_count": books_repo.count(user_id)}
+    return UserBookCount(book_count=books_repo.count(user_id))

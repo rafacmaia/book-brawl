@@ -16,7 +16,7 @@ def count(reader_id: int) -> int:
             return cur.fetchone()[0]
 
 
-def get_all(reader_id: int) -> list[dict[str, Any]]:
+def get_all(reader_id: int) -> list[dict[str, str | int]]:
     """Return a reader's collection of books, sorted alphabetically by title."""
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:

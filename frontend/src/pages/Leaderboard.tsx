@@ -81,7 +81,7 @@ export default function Leaderboard() {
       ])
 
       const rankingsData = await rankingsRes.json()
-      const progressData = await progressRes.json()
+      const { progress } = await progressRes.json()
 
       if (rankingsData.length === 0) {
         setEmptyPit(true)
@@ -89,7 +89,7 @@ export default function Leaderboard() {
       }
 
       setRankings(rankingsData)
-      setProgress(progressData)
+      setProgress(progress)
     } catch {
       setError('Failed to load leaderboard. Please try again.')
     } finally {
