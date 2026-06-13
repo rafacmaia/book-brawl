@@ -54,12 +54,19 @@ export function useAddBook() {
           type: 'error',
           message: `${title}, by ${author}, is already in the pit!`,
         })
+      } else if (err instanceof ApiError && err.status >= 400 && err.status < 500) {
+        setState({
+          type: 'error',
+          message: err.message,
+        })
       } else {
+        console.error('Unexpected error adding book: ', { title, author, err })
         setState({
           type: 'error',
           message: `Something went wrong. Please try again.`,
         })
       }
+
       return null
     }
   }
