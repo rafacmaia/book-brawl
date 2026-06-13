@@ -1,5 +1,5 @@
 -- Book Brawl Database Schema
--- Last updated: 2026-06-11
+-- Last updated: 2026-06-13
 --
 -- To recreate the database from scratch, run this via psql:
 --   psql $DATABASE_URL < db/schema.sql
@@ -19,7 +19,9 @@ CREATE TABLE IF NOT EXISTS book (
     title       TEXT        NOT NULL,
     author      TEXT        NOT NULL,
     rating      REAL,
-    elo         INTEGER     NOT NULL
+    elo         INTEGER     NOT NULL,
+    CONSTRAINT title_not_empty CHECK (LENGTH(TRIM(title)) > 0),
+    CONSTRAINT author_not_empty CHECK (LENGTH(TRIM(author)) > 0)
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_book_unique_title_author
