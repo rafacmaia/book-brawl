@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS comparison (
     reader_id  INTEGER      NOT NULL REFERENCES reader(id) ON DELETE CASCADE,
     winner_id  INTEGER      NOT NULL REFERENCES book(id) ON DELETE CASCADE,
     loser_id   INTEGER      NOT NULL REFERENCES book(id) ON DELETE CASCADE,
-    timestamp  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+    timestamp  TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP
     CONSTRAINT comparison_no_self_match CHECK (winner_id <> loser_id)
 );
 

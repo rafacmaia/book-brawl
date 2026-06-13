@@ -158,7 +158,12 @@ def _perform_jwks_fetch(current_time: float) -> dict:
 
 
 def get_current_reader_id(clerk_id: Annotated[str, Depends(get_current_user)]) -> int:
-    """Resolve Clerk ID to internal reader ID."""
+    """Resolve Clerk ID to internal reader ID.
+
+    Returns 404 if the user is authenticated via Clerk but has not yet been synced to
+    our DB. Endpoints using this dependency implicitly require POST /readers/me to have
+    been called at least once to register the user.
+    """
     reader = readers_repo.get_by_clerk_id(clerk_id)
 
     if not reader:
