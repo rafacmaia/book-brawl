@@ -6,6 +6,9 @@ cffi==2.0.0
 charset-normalizer==3.4.6
 click==8.3.1
 cryptography==46.0.6
+dnspython==2.8.0
+e==1.4.5
+email-validator==2.3.0
 fastapi==0.135.2
 h11==0.16.0
 idna==3.11
@@ -20,6 +23,7 @@ PyJWT==2.12.1
 python-dotenv==1.2.2
 python-multipart==0.0.22
 requests==2.33.0
+rich==15.0.0
 starlette==0.52.1
 typing-inspection==0.4.2
 typing_extensions==4.15.0
