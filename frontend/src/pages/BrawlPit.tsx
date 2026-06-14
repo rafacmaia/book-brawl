@@ -53,7 +53,11 @@ export default function BrawlPit() {
 
   // Completes a match transition.
   async function finishTransition() {
-    await delay(50)
+    await delay(0)
+    await new Promise<void>((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+    )
+    await delay(16)
     setMatchTransition(true)
     setSelectedBook(null)
   }
@@ -137,7 +141,7 @@ export default function BrawlPit() {
     void loadInitialMatches()
   }, [])
 
-  async function handleChoice(winnerId: number, loserId: number) {
+  async function handleSelection(winnerId: number, loserId: number) {
     setError(null)
 
     let token: string | null = null
@@ -180,7 +184,7 @@ export default function BrawlPit() {
         setNextMatch(null)
       }
     } catch (err) {
-      console.error('handleChoice failed:', err)
+      console.error('handleSelection failed:', err)
       setError('Something went wrong. Please refresh and try again.')
     }
   }
@@ -247,13 +251,13 @@ export default function BrawlPit() {
             >
               <BookCard
                 book={currentMatch.book_a}
-                onClick={() => handleChoice(currentMatch.book_a.id, currentMatch.book_b.id)}
+                onClick={() => handleSelection(currentMatch.book_a.id, currentMatch.book_b.id)}
                 isSelected={selectedBook === currentMatch.book_a.id}
                 disabled={!nextMatch}
               />
               <BookCard
                 book={currentMatch.book_b}
-                onClick={() => handleChoice(currentMatch.book_b.id, currentMatch.book_a.id)}
+                onClick={() => handleSelection(currentMatch.book_b.id, currentMatch.book_a.id)}
                 isSelected={selectedBook === currentMatch.book_b.id}
                 disabled={!nextMatch}
               />
