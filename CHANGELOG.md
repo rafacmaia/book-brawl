@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bug where visiting an unknown or outdated URL showed a blank page; now redirects
   to the Brawl Pit.
+- Bug where long book titles might flicker into position during match fade-in.
 - Bug where CSV book imports were all dropped if the Book limit is reached mid-import.
   Books are now added up until the limit is reached.
 - Bug where CSV book imports were all dropped if the DB detected an uncaught duplicate.

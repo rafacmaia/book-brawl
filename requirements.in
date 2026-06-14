@@ -1,0 +1,20 @@
+# Web framework
+fastapi
+uvicorn[standard]
+
+# Validation
+pydantic[email]
+
+# Database
+psycopg2-binary
+
+# Auth
+pyjwt[crypto]
+requests
+cryptography
+
+# Config
+python-dotenv
+
+# File uploads (used by FastAPI for multipart/form-data in /stacks/import)
+python-multipart
