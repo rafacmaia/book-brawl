@@ -16,6 +16,7 @@ from schemas import (
     BookElo,
     BookStanding,
     BookSummary,
+    FileSource,
     ImportOutcome,
     Match,
     MatchOutcome,
@@ -158,7 +159,7 @@ def add_book(
 @app.post("/stacks/import", status_code=status.HTTP_201_CREATED)
 def import_books(
     file: UploadFile,
-    source: Literal["custom", "goodreads"] = Form("custom"),
+    source: FileSource = Form(FileSource.custom),
     reader_id: int = Depends(get_current_reader_id),
 ) -> ImportOutcome:
     """Import books from a CSV file."""

@@ -1,4 +1,14 @@
+from enum import Enum
+
 from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
+
+# ====== ENUMS
+
+
+class FileSource(str, Enum):
+    custom = "custom"
+    goodreads = "goodreads"
+
 
 # ====== SHARED
 
