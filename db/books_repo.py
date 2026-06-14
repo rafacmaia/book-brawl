@@ -25,7 +25,7 @@ def get_all(reader_id: int) -> list[dict[str, str | int]]:
                 SELECT id, title, author FROM book
                 WHERE reader_id = %s
                 ORDER BY
-                    REGEXP_REPLACE(title, '^(a|an|the)\\s+', '', 'i')
+                    REGEXP_REPLACE(LOWER(title), '^(a|an|the)\\s+', '')
                 """,
                 (reader_id,),
             )
