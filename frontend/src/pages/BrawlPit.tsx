@@ -1,6 +1,6 @@
 import { useAuth } from '@clerk/react'
 import { useEffect, useEffectEvent, useState } from 'react'
-import { ApiError, apiFetch } from '../api'
+import { ApiError, apiFetch } from '../api/client'
 import PlaceholderMessaging from '../components/feedback/PlaceholderMessaging'
 import { EmptyStateMessage } from '../components/feedback/EmptyStateMessage'
 import { Swords } from 'lucide-react'

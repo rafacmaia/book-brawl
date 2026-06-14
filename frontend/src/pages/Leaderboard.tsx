@@ -1,6 +1,6 @@
 import { useAuth } from '@clerk/react'
 import { useEffect, useEffectEvent, useState } from 'react'
-import { apiFetch } from '../api'
+import { apiFetch } from '../api/client'
 import PlaceholderMessaging from '../components/feedback/PlaceholderMessaging'
 import PageHeading from '../components/ui/PageHeading'
 import { BadgeCheck, Squircle, Swords } from 'lucide-react'
