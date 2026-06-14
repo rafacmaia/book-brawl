@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Users now get more specific error messaging instead of a generic "Something went
+  wrong".
+
 ### Fixed
 
 - Bug where visiting an unknown or outdated URL showed a blank page; now redirects
@@ -14,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bug where CSV book imports were all dropped if the Book limit is reached mid-import.
   Books are now added up until the limit is reached.
 - Bug where CSV book imports were all dropped if the DB detected an uncaught duplicate.
+- Bug where books were being ordered case-sensitively, so lower-case titles were being
+  listed separately.
 
 ## [1.2.0] - 2026-05-23
 
