@@ -27,7 +27,7 @@ export async function apiFetch(
     const err = await response.json().catch(() => ({}))
 
     if (response.status >= 500) {
-      console.error('Server Error: ', response.status, err.detail)
+      console.error('Server Error:', response.status, err.detail)
     }
 
     const message = parseErrorDetail(err.detail) ?? 'Request failed'
@@ -37,11 +37,10 @@ export async function apiFetch(
   return response
 }
 
-function parseErrorDetail(detail: unknown): string | null {
-  if (typeof detail === 'string') {
-    return detail
-  }
-  // Catches FastAPI/Pydantic error format: array of { msg, loc, type, ... }
+export function parseErrorDetail(detail: unknown): string | null {
+  if (typeof detail === 'string') return detail
+
+  // Catches FastAPI/Pydantic error format, where `detail` is an array of fields instead of a string
   if (Array.isArray(detail) && detail.length > 0 && typeof detail[0]?.msg === 'string') {
     return detail[0].msg
   }

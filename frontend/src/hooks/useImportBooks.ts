@@ -1,6 +1,7 @@
 import { useAuth } from '@clerk/react'
 import { useState } from 'react'
 import { API_BASE } from '../api/client'
+import { API_BASE, parseErrorDetail } from '../api/client'
 
 // Keep in sync with backend api.py constant.
 const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2 MB
@@ -48,7 +49,7 @@ export function useImportBooks() {
 
       if (!response.ok) {
         const err = await response.json().catch(() => ({}))
-        const message = typeof err.detail === 'string' ? err.detail : 'Import failed'
+        const message = parseErrorDetail(err.detail) ?? 'Import failed'
         console.error('Import failed:', err)
         setState({ type: 'error', message })
         return
@@ -58,6 +59,7 @@ export function useImportBooks() {
       setState({ type: 'success', result })
       if (result.imported > 0) onSuccess?.()
     } catch (e) {
+      console.error('Import failed:', e)
       const message = e instanceof Error ? e.message : 'Something went wrong. Please try again.'
       setState({ type: 'error', message })
     }

@@ -119,7 +119,7 @@ export default function BrawlPit() {
       if (err instanceof ApiError && err.status === 400) {
         setEmptyPit(true)
       } else {
-        console.error('Failed to load initial match: ', err)
+        console.error('Failed to load initial match:', err)
         setError("Wow, this shouldn't happen! Try refreshing!")
       }
     } finally {
@@ -133,7 +133,7 @@ export default function BrawlPit() {
       setNextMatch(await fetchNextMatch(token!, firstMatch))
     } catch (err) {
       // Logs to console but does not stop the game since user already has an ongoing match.
-      console.error('Failed to fetch second match: ', err)
+      console.error('Failed to fetch second match:', err)
     }
   })
 
@@ -184,7 +184,7 @@ export default function BrawlPit() {
         setNextMatch(null)
       }
     } catch (err) {
-      console.error('handleChoice failed: ', err)
+      console.error('handleChoice failed:', err)
       setError('Something went wrong. Please refresh the page and try again.')
     }
   }

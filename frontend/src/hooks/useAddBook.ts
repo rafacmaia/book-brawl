@@ -61,7 +61,7 @@ export function useAddBook() {
           message: err.message,
         })
       } else {
-        console.error('Unexpected error adding book: ', { title, author, err })
+        console.error('Unexpected error adding book:', { title, author, err })
         setState({
           type: 'error',
           message: `Something went wrong. Please try again.`,
