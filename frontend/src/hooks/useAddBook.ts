@@ -1,10 +1,8 @@
-import type { Book } from '../types'
 import { useAuth } from '@clerk/react'
 import { useState } from 'react'
-import { ApiError, apiFetch } from '../api'
-import { ApiError, apiFetch } from '../api/client'
 
-import { ApiError, apiFetch } from '@/api/client'
+import { ApiError, apiFetch, DEFAULT_ERROR_MESSAGE } from '@/api/client'
+import type { Book, BookData } from '@/api/types'
 
 export type AddState =
   | { type: 'idle' }
@@ -37,16 +35,18 @@ export function useAddBook() {
     try {
       const token = await getToken()
 
+      const body: BookData = {
+        title: title.trim(),
+        author: author.trim(),
+        rating: rating,
+      }
+
       const response = await apiFetch('/stacks', token!, {
         method: 'POST',
-        body: JSON.stringify({
-          title: title.trim(),
-          author: author.trim(),
-          rating: rating,
-        }),
+        body: JSON.stringify(body),
       })
 
-      const newBook = await response.json()
+      const newBook: Book = await response.json()
 
       setState({ type: 'success', book: newBook })
 
@@ -66,7 +66,7 @@ export function useAddBook() {
         console.error('Unexpected error adding book:', { title, author, err })
         setState({
           type: 'error',
-          message: `Something went wrong. Please try again.`,
+          message: DEFAULT_ERROR_MESSAGE,
         })
       }
 

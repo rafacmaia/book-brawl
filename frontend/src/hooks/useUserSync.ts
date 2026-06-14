@@ -1,8 +1,8 @@
 import { useAuth, useUser } from '@clerk/react'
 import { useEffect, useEffectEvent, useState } from 'react'
-import { apiFetch } from '../api/client'
 
 import { apiFetch } from '@/api/client'
+import type { User, UserBookCount } from '@/api/types'
 
 export type SyncState =
   | { type: 'pending' }
@@ -20,19 +20,23 @@ export function useUserSync() {
   const syncUser = useEffectEvent(async () => {
     const token = await getToken()
 
+    const body: User = {
+      email: user!.primaryEmailAddress!.emailAddress,
+      username:
+        user!.username ??
+        user!.firstName ??
+        user!.primaryEmailAddress?.emailAddress?.split('@')[0] ??
+        user!.id,
+    }
+
     const response = await apiFetch('/readers/me', token!, {
       method: 'POST',
-      body: JSON.stringify({
-        email: user!.primaryEmailAddress!.emailAddress,
-        username:
-          user!.username ??
-          user!.firstName ??
-          user!.primaryEmailAddress?.emailAddress?.split('@')[0] ??
-          user!.id,
-      }),
+      body: JSON.stringify(body),
     })
 
-    return (await response.json()) as { book_count: number }
+    const result: UserBookCount = await response.json()
+
+    return result
   })
 
   useEffect(() => {

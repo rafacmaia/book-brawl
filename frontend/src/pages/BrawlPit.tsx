@@ -1,17 +1,10 @@
 import { useAuth } from '@clerk/react'
 import { BookIcon } from '@phosphor-icons/react'
+import { Swords } from 'lucide-react'
+import { useEffect, useEffectEvent, useState } from 'react'
 
-interface Book {
-  id: number
-  title: string
-  author: string
-}
-
-interface Match {
-  book_a: Book
-  book_b: Book
-}
 import { ApiError, apiFetch } from '@/api/client'
+import type { Book, Match, MatchOutcome } from '@/api/types'
 import { EmptyStateMessage } from '@/components/feedback/EmptyStateMessage'
 import PlaceholderMessaging from '@/components/feedback/PlaceholderMessaging'
 
@@ -95,9 +88,14 @@ export default function BrawlPit() {
   // Resolves a completed match
   async function resolveMatch(token: string, winnerId: number, loserId: number): Promise<void> {
     try {
+      const body: MatchOutcome = {
+        winner_id: winnerId,
+        loser_id: loserId,
+      }
+
       await apiFetch('/brawl/resolve', token!, {
         method: 'POST',
-        body: JSON.stringify({ winner_id: winnerId, loser_id: loserId }),
+        body: JSON.stringify(body),
       })
     } catch (err) {
       console.error('Failed to resolve match:', err)
@@ -157,7 +155,7 @@ export default function BrawlPit() {
 
         if (token) void resolveMatch(token, winnerId, loserId) // silently resolve previous match
 
-        setError('Something went wrong. Please refresh the page and try again.')
+        setError('Something went wrong. Please refresh and try again.')
         return
       }
     }
@@ -183,7 +181,7 @@ export default function BrawlPit() {
       }
     } catch (err) {
       console.error('handleChoice failed:', err)
-      setError('Something went wrong. Please refresh the page and try again.')
+      setError('Something went wrong. Please refresh and try again.')
     }
   }
 

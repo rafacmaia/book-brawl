@@ -1,5 +1,7 @@
 export const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
+export const DEFAULT_ERROR_MESSAGE = 'Something went wrong. Please try again.'
+
 export class ApiError extends Error {
   status: number
 

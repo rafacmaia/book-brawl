@@ -5,8 +5,8 @@ import { BombIcon, PencilSimpleLineIcon } from '@phosphor-icons/react'
 import { Download } from 'lucide-react'
 import { useEffect, useEffectEvent, useState } from 'react'
 
-import { ApiError, apiFetch } from '@/api/client'
-import type { Book } from '@/api/types'
+import { ApiError, apiFetch, DEFAULT_ERROR_MESSAGE } from '@/api/client'
+import type { Book, BookData, Library } from '@/api/types'
 import PlaceholderMessaging from '@/components/feedback/PlaceholderMessaging'
 import { ManualAddForm } from '@/components/ManualAddForm'
 import { DeleteModal, EditModal, ImportModal, ResetModal } from '@/components/StacksModals'
@@ -17,7 +17,7 @@ export default function TheStacks() {
   const { getToken } = useAuth()
   const { state: addState, addBook, reset: resetAddState } = useAddBook()
 
-  const [books, setBooks] = useState<Book[]>([])
+  const [books, setBooks] = useState<Library>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -38,7 +38,7 @@ export default function TheStacks() {
 
       const response = await apiFetch('/stacks', token!)
 
-      const data = await response.json()
+      const data: Library = await response.json()
       setBooks(data)
     } catch {
       setError('Failed to load books. Please try again.')
@@ -94,9 +94,11 @@ export default function TheStacks() {
     try {
       const token = await getToken()
 
+      const body: BookData = { title, author, rating: null }
+
       await apiFetch(`/stacks/${bookToEdit.id}`, token!, {
         method: 'PATCH',
-        body: JSON.stringify({ title, author }),
+        body: JSON.stringify(body),
       })
 
       setBooks((prev) =>
@@ -108,7 +110,7 @@ export default function TheStacks() {
       if (err instanceof ApiError && err.status === 409) {
         setEditError(`${title}, by ${author}, is already in the pit!`)
       } else {
-        setEditError(`Something went wrong. Please try again.`)
+        setEditError(DEFAULT_ERROR_MESSAGE)
       }
     }
   }

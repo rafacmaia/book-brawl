@@ -200,12 +200,8 @@ export interface components {
         Body_import_books_stacks_import_post: {
             /** File */
             file: string;
-            /**
-             * Source
-             * @default custom
-             * @enum {string}
-             */
-            source: "custom" | "goodreads";
+            /** @default custom */
+            source: components["schemas"]["FileSource"];
         };
         /** BookData */
         BookData: {
@@ -247,6 +243,11 @@ export interface components {
             /** Author */
             author: string;
         };
+        /**
+         * FileSource
+         * @enum {string}
+         */
+        FileSource: "custom" | "goodreads";
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */

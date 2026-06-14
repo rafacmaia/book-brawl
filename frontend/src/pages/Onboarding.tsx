@@ -1,10 +1,14 @@
 import { BooksIcon, CaretCircleRightIcon, CaretRightIcon, SwordIcon } from '@phosphor-icons/react'
-import { type ImportSource, type ImportState, useImportBooks } from '../hooks/useImportBooks'
+import { type ReactNode, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 
+import type { FileSource } from '@/api/types'
 import { ImportFeedback } from '@/components/feedback/ImportFeedback'
 import { ManualAddForm } from '@/components/ManualAddForm'
 import { useAddBook } from '@/hooks/useAddBook'
+import { type ImportState, useImportBooks } from '@/hooks/useImportBooks'
+
+type OnboardingSection = 'goodreads' | 'manual' | 'custom' | null
 
 // ====== STYLE CONSTANTS
 
@@ -17,7 +21,7 @@ const textEmphasisStyle = 'font-extrabold underline decoration-accent/70 underli
 // ====== COMPONENTS
 
 export default function Onboarding() {
-  const [openSection, setOpenSection] = useState<'goodreads' | 'manual' | 'custom' | null>(null)
+  const [openSection, setOpenSection] = useState<OnboardingSection>(null)
 
   const [hasAddedBooks, setHasAddedBooks] = useState(false)
 
@@ -296,8 +300,8 @@ function ChooseFileButton({
   isLoading,
   onSuccess,
 }: {
-  onImport: (file: File, source: ImportSource, onSuccess?: () => void) => void
-  source: ImportSource
+  onImport: (file: File, source: FileSource, onSuccess?: () => void) => void
+  source: FileSource
   isLoading: boolean
   onSuccess?: () => void
 }) {

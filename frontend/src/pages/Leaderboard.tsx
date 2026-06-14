@@ -14,17 +14,10 @@ import { useEffect, useEffectEvent, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 
 import { apiFetch } from '@/api/client'
+import type { Progress, Rankings } from '@/api/types'
 import { EmptyStateMessage } from '@/components/feedback/EmptyStateMessage'
 import PlaceholderMessaging from '@/components/feedback/PlaceholderMessaging'
 import PageHeading from '@/components/ui/PageHeading'
-
-interface BookData {
-  id: number
-  rank: number
-  title: string
-  author: string
-  accuracy_tier: number
-}
 
 // ====== CONSTANTS
 
@@ -62,7 +55,7 @@ const FINAL_THRESHOLD = PROGRESS_LABELS[PROGRESS_LABELS.length - 2][0]
 export default function Leaderboard() {
   const { getToken } = useAuth()
 
-  const [rankings, setRankings] = useState<BookData[]>([])
+  const [rankings, setRankings] = useState<Rankings>([])
   const [progress, setProgress] = useState<number>(0)
 
   const [emptyPit, setEmptyPit] = useState<boolean>(false)
@@ -81,8 +74,8 @@ export default function Leaderboard() {
         apiFetch('/progress', token!),
       ])
 
-      const rankingsData = await rankingsRes.json()
-      const { progress } = await progressRes.json()
+      const rankingsData: Rankings = await rankingsRes.json()
+      const { progress }: Progress = await progressRes.json()
 
       if (rankingsData.length === 0) {
         setEmptyPit(true)
@@ -143,7 +136,7 @@ export default function Leaderboard() {
 
 // Renders the actual leaderboard once data is loaded. Split out from the Leaderboard so the main
 // component can focus on routing between loading/error/empty/content states.
-function LeaderboardContent({ progress, rankings }: { progress: number; rankings: BookData[] }) {
+function LeaderboardContent({ progress, rankings }: { progress: number; rankings: Rankings }) {
   const [showAccuracyModal, setShowAccuracyModal] = useState<boolean>(false)
 
   const showProgress = Math.round(progress * 10) / 10 < FINAL_THRESHOLD
