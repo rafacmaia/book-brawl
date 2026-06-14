@@ -1,9 +1,4 @@
 import { useAuth } from '@clerk/react'
-import { useEffect, useEffectEvent, useState } from 'react'
-import { ApiError, apiFetch } from '../api/client'
-import PlaceholderMessaging from '../components/feedback/PlaceholderMessaging'
-import { EmptyStateMessage } from '../components/feedback/EmptyStateMessage'
-import { Swords } from 'lucide-react'
 import { BookIcon } from '@phosphor-icons/react'
 
 interface Book {
@@ -16,6 +11,9 @@ interface Match {
   book_a: Book
   book_b: Book
 }
+import { ApiError, apiFetch } from '@/api/client'
+import { EmptyStateMessage } from '@/components/feedback/EmptyStateMessage'
+import PlaceholderMessaging from '@/components/feedback/PlaceholderMessaging'
 
 // Wavy underline is used as a divider between prompt and book cards on desktop viewports.
 const wavyDividerStyle =

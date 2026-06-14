@@ -1,10 +1,12 @@
-import { type KeyboardEvent, useEffect, useState } from 'react'
-import { Ban } from 'lucide-react'
 import { FireIcon } from '@heroicons/react/24/solid'
 import { BombIcon, XCircleIcon } from '@phosphor-icons/react'
-import type { Book } from '../types'
-import { useImportBooks } from '../hooks/useImportBooks'
+import { Ban } from 'lucide-react'
+import { type KeyboardEvent, useEffect, useState } from 'react'
+
 import { ImportFeedback } from './feedback/ImportFeedback'
+
+import type { Book } from '@/api/types'
+import { useImportBooks } from '@/hooks/useImportBooks'
 
 // ====== CONSTANTS
 

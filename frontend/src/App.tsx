@@ -1,14 +1,15 @@
 import { SignIn, SignUp, useAuth } from '@clerk/react'
-import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { type ReactNode } from 'react'
-import BrawlPit from './pages/BrawlPit'
-import Leaderboard from './pages/Leaderboard'
-import TheStacks from './pages/TheStacks'
-import PlaceholderMessaging from './components/feedback/PlaceholderMessaging'
-import Onboarding from './pages/Onboarding'
-import Footer from './components/layout/Footer'
-import Header from './components/layout/Header'
-import { type SyncState, useUserSync } from './hooks/useUserSync'
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
+
+import PlaceholderMessaging from '@/components/feedback/PlaceholderMessaging'
+import Footer from '@/components/layout/Footer'
+import Header from '@/components/layout/Header'
+import { type SyncState, useUserSync } from '@/hooks/useUserSync'
+import BrawlPit from '@/pages/BrawlPit'
+import Leaderboard from '@/pages/Leaderboard'
+import Onboarding from '@/pages/Onboarding'
+import TheStacks from '@/pages/TheStacks'
 
 export default function App() {
   return (

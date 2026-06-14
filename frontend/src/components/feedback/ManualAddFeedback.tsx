@@ -1,5 +1,6 @@
 import { CheckCircleIcon, ProhibitInsetIcon } from '@phosphor-icons/react'
-import type { AddState } from '../../hooks/useAddBook'
+
+import type { AddState } from '@/hooks/useAddBook'
 
 const styles = {
   default: {

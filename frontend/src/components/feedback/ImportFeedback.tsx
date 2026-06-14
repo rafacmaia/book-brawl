@@ -1,5 +1,6 @@
-import type { ImportState } from '../../hooks/useImportBooks'
 import { CheckCircleIcon, SkipForwardCircleIcon, XCircleIcon } from '@phosphor-icons/react'
+
+import type { ImportState } from '@/hooks/useImportBooks'
 
 const styles = {
   default: {

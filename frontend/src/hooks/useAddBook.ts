@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { ApiError, apiFetch } from '../api'
 import { ApiError, apiFetch } from '../api/client'
 
+import { ApiError, apiFetch } from '@/api/client'
+
 export type AddState =
   | { type: 'idle' }
   | { type: 'loading' }

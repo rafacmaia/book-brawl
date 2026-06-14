@@ -1,9 +1,4 @@
 import { useAuth } from '@clerk/react'
-import { useEffect, useEffectEvent, useState } from 'react'
-import { apiFetch } from '../api/client'
-import PlaceholderMessaging from '../components/feedback/PlaceholderMessaging'
-import PageHeading from '../components/ui/PageHeading'
-import { BadgeCheck, Squircle, Swords } from 'lucide-react'
 import { InformationCircleIcon as InfoCircleMini } from '@heroicons/react/16/solid'
 import { InformationCircleIcon as InfoCircle } from '@heroicons/react/20/solid'
 import {
@@ -14,8 +9,14 @@ import {
   TrophyIcon,
   XCircleIcon,
 } from '@phosphor-icons/react'
-import { EmptyStateMessage } from '../components/feedback/EmptyStateMessage'
+import { BadgeCheck, Squircle, Swords } from 'lucide-react'
+import { useEffect, useEffectEvent, useState } from 'react'
 import { NavLink } from 'react-router-dom'
+
+import { apiFetch } from '@/api/client'
+import { EmptyStateMessage } from '@/components/feedback/EmptyStateMessage'
+import PlaceholderMessaging from '@/components/feedback/PlaceholderMessaging'
+import PageHeading from '@/components/ui/PageHeading'
 
 interface BookData {
   id: number

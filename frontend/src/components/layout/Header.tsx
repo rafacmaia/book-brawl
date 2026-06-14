@@ -1,6 +1,7 @@
 import { UserButton } from '@clerk/react'
-import { NavLink } from 'react-router-dom'
 import { BooksIcon, SwordIcon, TrophyIcon } from '@phosphor-icons/react'
+import { NavLink } from 'react-router-dom'
+
 import WavyDivider from '../ui/WavyDivider'
 
 export default function Header() {

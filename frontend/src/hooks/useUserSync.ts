@@ -2,6 +2,8 @@ import { useAuth, useUser } from '@clerk/react'
 import { useEffect, useEffectEvent, useState } from 'react'
 import { apiFetch } from '../api/client'
 
+import { apiFetch } from '@/api/client'
+
 export type SyncState =
   | { type: 'pending' }
   | { type: 'synced'; hasBooks: boolean }

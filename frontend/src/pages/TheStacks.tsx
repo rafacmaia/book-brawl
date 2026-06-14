@@ -1,16 +1,17 @@
 import { useAuth } from '@clerk/react'
-import { useEffect, useEffectEvent, useState } from 'react'
-import { ApiError, apiFetch } from '../api/client'
-import PlaceholderMessaging from '../components/feedback/PlaceholderMessaging'
-import PageHeading from '../components/ui/PageHeading'
-import { Download } from 'lucide-react'
-import { FireIcon as FireSolid } from '@heroicons/react/24/solid'
 import { FireIcon as FireOutline } from '@heroicons/react/24/outline'
+import { FireIcon as FireSolid } from '@heroicons/react/24/solid'
 import { BombIcon, PencilSimpleLineIcon } from '@phosphor-icons/react'
-import { DeleteModal, EditModal, ImportModal, ResetModal } from '../components/StacksModals'
-import type { Book } from '../types'
-import { useAddBook } from '../hooks/useAddBook'
-import { ManualAddForm } from '../components/ManualAddForm'
+import { Download } from 'lucide-react'
+import { useEffect, useEffectEvent, useState } from 'react'
+
+import { ApiError, apiFetch } from '@/api/client'
+import type { Book } from '@/api/types'
+import PlaceholderMessaging from '@/components/feedback/PlaceholderMessaging'
+import { ManualAddForm } from '@/components/ManualAddForm'
+import { DeleteModal, EditModal, ImportModal, ResetModal } from '@/components/StacksModals'
+import PageHeading from '@/components/ui/PageHeading'
+import { useAddBook } from '@/hooks/useAddBook'
 
 export default function TheStacks() {
   const { getToken } = useAuth()

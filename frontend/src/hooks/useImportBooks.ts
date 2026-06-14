@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { API_BASE } from '../api/client'
 import { API_BASE, parseErrorDetail } from '../api/client'
 
+import { API_BASE, parseErrorDetail } from '@/api/client'
+
 // Keep in sync with backend api.py constant.
 const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2 MB
 

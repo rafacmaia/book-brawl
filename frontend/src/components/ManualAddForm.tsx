@@ -1,7 +1,9 @@
 import { type KeyboardEvent, type SubmitEvent, useRef } from 'react'
-import { type AddState } from '../hooks/useAddBook'
+
 import ManualAddFeedback from './feedback/ManualAddFeedback'
-import type { Book } from '../types'
+
+import type { Book } from '@/api/types'
+import { type AddState } from '@/hooks/useAddBook'
 
 interface Props {
   addState: AddState
