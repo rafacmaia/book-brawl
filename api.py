@@ -133,7 +133,7 @@ def get_books(
     reader_id: int = Depends(get_current_reader_id),
 ) -> list[BookSummary]:
     """Return the user's collection of books, sorted alphabetically by title."""
-    return [BookSummary(**book) for book in books_repo.get_all(reader_id)]
+    return [BookSummary.model_validate(book) for book in books_repo.get_all(reader_id)]
 
 
 @app.post("/stacks", status_code=status.HTTP_201_CREATED)

@@ -1,9 +1,17 @@
+from dataclasses import dataclass
 from typing import Any
 
 from psycopg2.extras import RealDictCursor, execute_values
 
 from db.connection import get_connection
 from models import Book, BookDraft
+
+
+@dataclass
+class BookRow:
+    id: int
+    title: str
+    author: str
 
 
 def count(reader_id: int) -> int:
@@ -16,7 +24,7 @@ def count(reader_id: int) -> int:
             return cur.fetchone()[0]
 
 
-def get_all(reader_id: int) -> list[dict[str, str | int]]:
+def get_all(reader_id: int) -> list[BookRow]:
     """Return a reader's collection of books, sorted alphabetically by title."""
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -29,7 +37,7 @@ def get_all(reader_id: int) -> list[dict[str, str | int]]:
                 """,
                 (reader_id,),
             )
-            return [dict(row) for row in cur.fetchall()]  # type: ignore[return-value]
+            return [BookRow(**row) for row in cur.fetchall()]
 
 
 def get_all_history(reader_id: int) -> list[Book]:
@@ -37,21 +45,10 @@ def get_all_history(reader_id: int) -> list[Book]:
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
-                "SELECT id, title, author, rating, elo FROM book WHERE reader_id = %s",
+                "SELECT id, title, author, elo, rating FROM book WHERE reader_id = %s",
                 (reader_id,),
             )
-            rows = cur.fetchall()
-
-        books = []
-        for row in rows:
-            book = Book(
-                title=row["title"],
-                author=row["author"],
-                rating=row["rating"],
-                elo=row["elo"],
-                book_id=row["id"],
-            )
-            books.append(book)
+            books = [Book(**row) for row in cur.fetchall()]
 
         book_map = {b.id: b for b in books}
 

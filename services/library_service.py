@@ -81,7 +81,7 @@ def import_books(
     """
     # Build set of existing books for fast duplicate detection
     books = get_all(reader_id)
-    existing_books = {(b["title"].lower(), b["author"].lower()) for b in books}
+    existing_books = {(b.title.lower(), b.author.lower()) for b in books}
 
     # Get current Elo range to scale new books appropriately, defaulting to the
     # standard 800-1200 range if no books exist yet.

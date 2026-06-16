@@ -11,13 +11,13 @@ class BookDraft:
 class Book:
     def __init__(
         self,
-        book_id: int,
+        id: int,
         title: str,
         author: str,
         elo: int,
         rating: float | None = None,
     ) -> None:
-        self.id = book_id
+        self.id = id
         self.title = title
         self.author = author
         self.elo = elo
