@@ -7,6 +7,8 @@ import type { FileSource, ImportOutcome } from '@/api/types'
 // Keep in sync with backend api.py constant.
 const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2 MB
 
+const FILE_TOO_LARGE_MESSAGE = 'You read too much! File size exceeds 2 MB limit.'
+
 export type ImportState =
   | { type: 'idle' }
   | { type: 'loading'; source: FileSource }
@@ -21,7 +23,7 @@ export function useImportBooks() {
   async function importBooks(file: File, source: FileSource, onSuccess?: () => void) {
     // Check for file size limit before triggering loading state to prevent loading flicker.
     if (file.size > MAX_FILE_SIZE) {
-      setState({ type: 'error', message: 'You read too much. File size exceeds 2 MB limit.' })
+      setState({ type: 'error', message: FILE_TOO_LARGE_MESSAGE })
       return
     }
 
@@ -41,6 +43,12 @@ export function useImportBooks() {
 
       if (!response.ok) {
         const err = await response.json().catch(() => ({}))
+
+        if (response.status === 413) {
+          setState({ type: 'error', message: FILE_TOO_LARGE_MESSAGE })
+          return
+        }
+
         const message = parseErrorDetail(err.detail) ?? 'Import failed'
         setState({ type: 'error', message })
         return

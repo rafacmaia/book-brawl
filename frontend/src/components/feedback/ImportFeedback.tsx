@@ -4,14 +4,14 @@ import type { ImportState } from '@/hooks/useImportBooks'
 
 const styles = {
   default: {
-    container: 'pl-2 mt-1',
-    p: `text-lg font-extrabold tracking-wide md:text-xl`,
+    container: 'pl-1.5 mt-1',
+    message: `text-lg font-extrabold tracking-wide md:text-xl`,
     error: 'text-red-700',
     icon: 'mr-1 inline size-5.25 -translate-y-0.5 opacity-90 md:size-5.75',
   },
   compact: {
     container: 'rounded-lg bg-button px-3 pb-1.75 pt-2.25 mt-1 md:pb-2.25 md:pt-2.75',
-    p: `text-base font-bold tracking-wide md:text-lg`,
+    message: `text-base font-bold tracking-wide md:text-lg`,
     error: 'text-red-700/90 md:text-text',
     icon: 'mr-0.5 inline size-4.75 -translate-y-0.5 opacity-90 md:mr-0.75 md:-translate-y-0.75',
   },
@@ -25,7 +25,7 @@ export function ImportFeedback({
   variant?: 'default' | 'compact'
 }) {
   const containerStyle = styles[variant].container
-  const messageStyle = styles[variant].p
+  const messageStyle = styles[variant].message
   const errorStyle = styles[variant].error
   const iconStyle = styles[variant].icon
 

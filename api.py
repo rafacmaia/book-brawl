@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from psycopg2 import errors as pg_errors
 
 from auth import get_current_reader_id, get_current_user
-from config import ALLOWED_ORIGINS
+from config import ALLOWED_ORIGINS, MAX_FILE_SIZE
 from db import books_repo, comparisons_repo, readers_repo
 from db.connection import init_db
 from schemas import (
@@ -37,9 +37,6 @@ from services.ranking_service import build_leaderboard
 from services.scoring_service import calculate_progress
 
 # ====== APP SETUP
-
-# Keep in sync with constant in frontend useImportBooks.ts
-MAX_FILE_SIZE = 2 * 1024 * 1024  # 2 MB
 
 
 @asynccontextmanager
@@ -165,7 +162,10 @@ def import_books(
     """Import books from a CSV file."""
     filename = file.filename or ""
     if not filename.lower().endswith(".csv"):
-        raise HTTPException(status_code=400, detail="Invalid file type")
+        raise HTTPException(
+            status_code=415,
+            detail="That doesn't look like a CSV! Make sure you're uploading a .csv file.",
+        )
 
     raw = file.file.read()
     if len(raw) > MAX_FILE_SIZE:
@@ -174,21 +174,19 @@ def import_books(
     try:
         content = raw.decode("utf-8-sig")
     except UnicodeDecodeError:
-        raise HTTPException(status_code=400, detail="File must be UTF-8 encoded")
+        raise HTTPException(status_code=415, detail="File must be UTF-8 encoded!")
 
     file_reader = csv.DictReader(io.StringIO(content))
+    file_reader.fieldnames = [f.lower().strip() for f in (file_reader.fieldnames or [])]
 
-    if not file_reader.fieldnames:
-        raise HTTPException(status_code=400, detail="CSV file is empty")
-
-    file_reader.fieldnames = [f.lower().strip() for f in file_reader.fieldnames]
     if "title" not in file_reader.fieldnames or "author" not in file_reader.fieldnames:
-        raise HTTPException(status_code=400, detail="CSV file missing required columns")
+        raise HTTPException(
+            status_code=422,
+            detail="Looks like your CSV is missing some columns. Make sure the first row contains 'title' and 'author' headers.",
+        )
 
     try:
         result = library_service.import_books(reader_id, source, file_reader)
-    except pg_errors.UniqueViolation:
-        raise HTTPException(status_code=409, detail="Book already exists")
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

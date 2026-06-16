@@ -20,6 +20,9 @@ ALLOWED_ORIGINS = [
 
 BOOK_LIMIT = 2000
 
+# Keep in sync with constant in frontend useImportBooks.ts
+MAX_FILE_SIZE = 2 * 1024 * 1024  # 2 MB
+
 ## == ELO & RATING PARAMETERS
 
 ELO_DEFAULT = 1040  # Given to new entries with no initial rating to map from
