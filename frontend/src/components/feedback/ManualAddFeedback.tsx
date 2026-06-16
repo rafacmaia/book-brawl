@@ -33,7 +33,7 @@ export default function ManualAddFeedback({
 
     case 'error':
       return (
-        <p className={`font-extrabold text-red-800 opacity-96 md:opacity-90 ${pStyle}`}>
+        <p className={`font-bold text-red-800 opacity-96 md:opacity-90 ${pStyle}`}>
           <ProhibitInsetIcon weight={'duotone'} className={iconStyle} />
           {addState.message}
         </p>
@@ -43,8 +43,8 @@ export default function ManualAddFeedback({
       return (
         <p className={`text-text ${pStyle}`}>
           <CheckCircleIcon weight={'duotone'} className={`md:-translate-y-0.75 ${iconStyle}`} />
-          Added: <span className={`font-calistoga md:ml-1`}>{addState.book.title}</span>, by{' '}
-          <span className={`font-calistoga`}>{addState.book.author}</span>
+          Added: <span className={`font-extrabold md:ml-1`}>{addState.book.title}</span>, by{' '}
+          <span className={`font-extrabold`}>{addState.book.author}</span>
         </p>
       )
     }

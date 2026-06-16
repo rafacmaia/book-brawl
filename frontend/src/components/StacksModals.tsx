@@ -1,6 +1,6 @@
 import { FireIcon } from '@heroicons/react/24/solid'
 import { BombIcon, XCircleIcon } from '@phosphor-icons/react'
-import { Ban } from 'lucide-react'
+import { TriangleAlert } from 'lucide-react'
 import { type KeyboardEvent, useEffect, useState } from 'react'
 
 import { ImportFeedback } from './feedback/ImportFeedback'
@@ -108,10 +108,12 @@ export function DeleteModal({
   book,
   onConfirm,
   onCancel,
+  error,
 }: {
   book: Book
   onConfirm: () => void
   onCancel: () => void
+  error: string | null
 }) {
   return (
     <div
@@ -144,6 +146,15 @@ export function DeleteModal({
             KEEP
           </button>
         </div>
+        {error && (
+          <p
+            className={`w-full self-center rounded-md bg-red-800/85 px-4 py-3 text-center text-base font-extrabold text-pretty text-primary opacity-95 md:rounded-lg md:px-4 md:pb-2.75 md:text-lg md:text-primary md:opacity-90 md:brightness-110`}
+          >
+            <TriangleAlert strokeWidth={2.25} className={'inline size-4 md:size-4.5'} />
+            <br />
+            {error}
+          </p>
+        )}
       </div>
     </div>
   )
@@ -213,12 +224,10 @@ export function EditModal({
           </button>
           {error && (
             <p
-              className={`w-full self-center rounded-md bg-red-800/85 px-4 py-3 text-left text-base font-extrabold text-primary opacity-95 md:rounded-lg md:px-4 md:pt-2.5 md:text-lg md:text-primary md:opacity-90 md:brightness-110`}
+              className={`w-full self-center rounded-md bg-red-800/85 px-4 py-3 text-center text-base font-extrabold text-pretty text-primary opacity-95 md:rounded-lg md:px-4 md:pb-2.75 md:text-lg md:text-primary md:opacity-90 md:brightness-110`}
             >
-              <Ban
-                strokeWidth={3}
-                className={'mr-2 inline size-4 -translate-y-px sm:-translate-y-0.5 md:size-4.25'}
-              />
+              <TriangleAlert strokeWidth={2.25} className={'inline size-4 md:size-4.75'} />
+              <br />
               {error}
             </p>
           )}
@@ -231,9 +240,11 @@ export function EditModal({
 export function ResetModal({
   onConfirm,
   onCancel,
+  error,
 }: {
   onConfirm: () => void
   onCancel: () => void
+  error: string | null
 }) {
   // Resetting is a two-step process requiring a final confirmation, and the reset button is
   // disabled for a few seconds using an interval timer to prevent accidental clicks.
@@ -278,21 +289,23 @@ export function ResetModal({
           <button
             onClick={onCancel}
             aria-label="Close reset modal and cancel reset"
-            className={`flex-3 border-red-800 bg-background hover:bg-background hover:opacity-100 active:bg-background active:opacity-90 ${modalButtonStyle} ${finalConfirmation ? 'opacity-85' : 'opacity-75'}`}
+            className={`flex-3 border-red-800 bg-background hover:bg-background hover:opacity-100 active:bg-background active:opacity-90 ${modalButtonStyle} ${finalConfirmation ? 'opacity-80' : 'opacity-85'}`}
           >
             CANCEL
           </button>
         </div>
         {finalConfirmation && (
           <div className="flex w-full flex-col items-center justify-center gap-4">
-            <p className="rounded-lg bg-red-800/85 px-4 py-3 font-zain text-lg font-extrabold tracking-wide text-primary/92">
+            <p
+              className={`rounded-lg bg-red-800 px-4 py-3 font-zain text-lg font-bold tracking-wide text-primary/92 transition-opacity ${error !== null ? 'opacity-80' : 'opacity-90'}`}
+            >
               Last warning: this cannot be undone. All data will be lost. Do you wish to continue?
             </p>
             <button
               onClick={onConfirm}
               aria-label="Confirm reset"
-              disabled={resetTimer > 0}
-              className={`w-full border-background bg-red-800/85 pt-2.75! pb-1.75! hover:bg-red-800 active:bg-red-800 ${resetTimer === 0 ? 'hover:scale-104 active:scale-95' : 'cursor-not-allowed!'} ${modalButtonStyle}`}
+              disabled={resetTimer > 0 || error !== null}
+              className={`w-full border-background bg-red-800 pt-2.75! pb-1.75! transition-all ${resetTimer > 0 || error !== null ? 'cursor-not-allowed! opacity-85 hover:scale-100!' : 'opacity-90 hover:scale-103 hover:opacity-100 active:scale-95 active:bg-red-800'} ${modalButtonStyle}`}
             >
               {resetTimer > 0 ? (
                 `Wait... ${resetTimer}`
@@ -304,6 +317,15 @@ export function ResetModal({
               )}
             </button>
           </div>
+        )}
+        {error && (
+          <p
+            className={`w-full self-center rounded-md bg-red-800/95 px-4 py-3 text-center text-base font-extrabold text-pretty text-primary opacity-95 md:rounded-lg md:px-4 md:pb-2.75 md:text-lg md:text-primary`}
+          >
+            <TriangleAlert strokeWidth={2.25} className={'inline size-4 md:size-4.5'} />
+            <br />
+            {error}
+          </p>
         )}
       </div>
     </div>

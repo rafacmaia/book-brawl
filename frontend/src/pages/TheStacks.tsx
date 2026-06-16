@@ -22,8 +22,10 @@ export default function TheStacks() {
   const [error, setError] = useState<string | null>(null)
 
   const [bookToBurn, setBookToBurn] = useState<Book | null>(null)
+  const [burnError, setBurnError] = useState<string | null>(null)
   const [bookToEdit, setBookToEdit] = useState<Book | null>(null)
   const [editError, setEditError] = useState<string | null>(null)
+  const [resetError, setResetError] = useState<string | null>(null)
 
   const [showImportModal, setShowImportModal] = useState<boolean>(false)
   const [showResetModal, setShowResetModal] = useState<boolean>(false)
@@ -69,13 +71,17 @@ export default function TheStacks() {
       const token = await getToken()
 
       await apiFetch(`/stacks/${book.id}`, token!, { method: 'DELETE' })
-
-      setBooks((prev) => prev.filter((b) => b.id !== book.id))
-    } catch {
-      setError('Failed to burn book. Please try again.')
-    } finally {
-      setBookToBurn(null)
+    } catch (err) {
+      // Ignore 404 errors (book has already been deleted)
+      if (!(err instanceof ApiError && err.status === 404)) {
+        setBurnError('Failed to burn book! Please refresh and try again.')
+        return
+      }
     }
+
+    setBooks((prev) => prev.filter((b) => b.id !== book.id))
+    setBurnError(null)
+    setBookToBurn(null)
   }
 
   async function handleEdit(title: string, author: string) {
@@ -108,7 +114,9 @@ export default function TheStacks() {
       setEditError(null)
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {
-        setEditError(`${title}, by ${author}, is already in the pit!`)
+        setEditError(`${title}, by ${author}, is already in the brawl pit!`)
+      } else if (err instanceof ApiError && err.status === 404) {
+        setEditError('Book not found! Please refresh and try again.')
       } else {
         setEditError(DEFAULT_ERROR_MESSAGE)
       }
@@ -124,10 +132,10 @@ export default function TheStacks() {
       await apiFetch('/stacks', token!, { method: 'DELETE' })
 
       setBooks([])
-    } catch {
-      setError('Failed to reset pit. Please try again.')
-    } finally {
+      setResetError(null)
       setShowResetModal(false)
+    } catch {
+      setResetError('Failed to reset! Please refresh and try again.')
     }
   }
 
@@ -163,12 +171,23 @@ export default function TheStacks() {
         <DeleteModal
           book={bookToBurn}
           onConfirm={() => handleBurn(bookToBurn)}
-          onCancel={() => setBookToBurn(null)}
+          onCancel={() => {
+            setBookToBurn(null)
+            setBurnError(null)
+          }}
+          error={burnError}
         />
       )}
 
       {showResetModal && (
-        <ResetModal onConfirm={handleReset} onCancel={() => setShowResetModal(false)} />
+        <ResetModal
+          onConfirm={handleReset}
+          onCancel={() => {
+            setShowResetModal(false)
+            setResetError(null)
+          }}
+          error={resetError}
+        />
       )}
 
       {error ? (

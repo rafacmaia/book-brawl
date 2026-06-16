@@ -84,8 +84,9 @@ export default function Leaderboard() {
 
       setRankings(rankingsData)
       setProgress(progress)
-    } catch {
-      setError('Failed to load leaderboard. Please try again.')
+    } catch (err) {
+      console.error('Failed to fetch the leaderboard:', err)
+      setError('Failed to fetch the leaderboard. Please refresh to try again.')
     } finally {
       setLoading(false)
     }
