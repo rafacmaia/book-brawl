@@ -1,12 +1,15 @@
 import { useAuth } from '@clerk/react'
 import { BookIcon } from '@phosphor-icons/react'
 import { Swords } from 'lucide-react'
-import { useEffect, useEffectEvent, useState } from 'react'
+import { useEffect, useEffectEvent, useRef, useState } from 'react'
 
 import { ApiError, apiFetch } from '@/api/client'
 import type { Book, Match, MatchOutcome } from '@/api/types'
 import { EmptyStateMessage } from '@/components/feedback/EmptyStateMessage'
 import PlaceholderMessaging from '@/components/feedback/PlaceholderMessaging'
+
+const FAILED_RESOLVE_THRESHOLD = 3
+const TRANSITION_DURATION = 300
 
 // Wavy underline is used as a divider between prompt and book cards on desktop viewports.
 const wavyDividerStyle =
@@ -30,6 +33,8 @@ export default function BrawlPit() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  const failedResolves = useRef(0)
+
   // Coordinates triggering match transitions on mobile and desktop.
   async function playMatchTransition(winnerId: number) {
     const isCompactViewport =
@@ -47,7 +52,7 @@ export default function BrawlPit() {
     } else {
       // Desktop: triggers fade-in-and-out of book cards.
       setMatchTransition(false)
-      await delay(300)
+      await delay(TRANSITION_DURATION)
     }
   }
 
@@ -89,7 +94,7 @@ export default function BrawlPit() {
     return candidate
   }
 
-  // Resolves a completed match
+  // Resolves a completed match, stops the game if matches keep failing to resolve
   async function resolveMatch(token: string, winnerId: number, loserId: number): Promise<void> {
     try {
       const body: MatchOutcome = {
@@ -101,8 +106,20 @@ export default function BrawlPit() {
         method: 'POST',
         body: JSON.stringify(body),
       })
+
+      failedResolves.current = 0
     } catch (err) {
       console.error('Failed to resolve match:', err)
+
+      // Ignore book not found errors (404), likely means book got deleted, so not a system failure.
+      if (!(err instanceof ApiError && err.status === 404)) {
+        failedResolves.current++
+        if (failedResolves.current >= FAILED_RESOLVE_THRESHOLD) {
+          setError(
+            "Something is off, we can't seem to log your brawls. Please refresh or try again later."
+          )
+        }
+      }
     }
   }
 
@@ -116,7 +133,7 @@ export default function BrawlPit() {
       firstMatch = await fetchMatch(token!)
       setCurrentMatch(firstMatch)
     } catch (err) {
-      if (err instanceof ApiError && err.status === 400) {
+      if (err instanceof ApiError && err.status === 404) {
         setEmptyPit(true)
       } else {
         console.error('Failed to load initial match:', err)
@@ -142,7 +159,7 @@ export default function BrawlPit() {
   }, [])
 
   async function handleSelection(winnerId: number, loserId: number) {
-    setError(null)
+    if (error) return
 
     let token: string | null = null
     let newCurrentMatch: Match | null = null
@@ -240,14 +257,15 @@ export default function BrawlPit() {
             >
               <hr className="my-0 h-px w-full text-button opacity-70" />
               <p
-                className={`${matchTransition ? 'opacity-80' : 'opacity-0'} mx-4 font-gaegu text-lg font-bold tracking-widest transition-opacity duration-250 ease-in-out [@media(max-height:500px)]:mx-3 [@media(max-height:500px)]:text-base`}
+                className={`${matchTransition ? 'opacity-80' : 'opacity-0'} mx-4 font-gaegu text-lg font-bold tracking-widest transition-opacity duration-275 ease-in-out [@media(max-height:500px)]:mx-3 [@media(max-height:500px)]:text-base`}
               >
                 {matchCount}
               </p>
               <hr className="my-0 h-px w-full text-button opacity-70 [@media(max-height:500px)]:w-6" />
             </div>
             <div // Book cards container
-              className={`${matchTransition ? 'translate-y-0 opacity-100' : 'pointer-events-none opacity-0 max-md:scale-96 sm:translate-y-3'} my-1 flex w-full grow flex-col items-center justify-center gap-0.5 transition-all duration-275 ease-in-out md:mb-3 [@media(min-height:350px)]:gap-1.5 [@media(min-height:500px)]:mt-1.5 [@media(min-height:500px)]:gap-3 [@media(min-height:700px)]:mt-3 [@media(min-height:700px)]:mb-3 [@media(min-height:700px)]:gap-6 [@media(min-height:700px)]:md:mb-1 [@media(min-height:700px)]:lg:my-0 [@media(min-height:700px)]:lg:flex-row [@media(min-height:700px)]:lg:gap-12 [@media(min-height:700px)]:xl:gap-27`}
+              className={`${matchTransition ? 'translate-y-0 opacity-100' : 'pointer-events-none opacity-0 max-md:scale-96 sm:translate-y-3'} my-1 flex w-full grow flex-col items-center justify-center gap-0.5 transition-all ease-in-out md:mb-3 [@media(min-height:350px)]:gap-1.5 [@media(min-height:500px)]:mt-1.5 [@media(min-height:500px)]:gap-3 [@media(min-height:700px)]:mt-3 [@media(min-height:700px)]:mb-3 [@media(min-height:700px)]:gap-6 [@media(min-height:700px)]:md:mb-1 [@media(min-height:700px)]:lg:my-0 [@media(min-height:700px)]:lg:flex-row [@media(min-height:700px)]:lg:gap-12 [@media(min-height:700px)]:xl:gap-27`}
+              style={{ transitionDuration: `${TRANSITION_DURATION}ms` }}
             >
               <BookCard
                 book={currentMatch.book_a}
@@ -268,7 +286,7 @@ export default function BrawlPit() {
               }
             >
               <p
-                className={`${matchTransition ? 'opacity-75' : 'opacity-0'} mx-4 font-gaegu text-xl font-black tracking-widest transition-opacity duration-250 ease-in-out`}
+                className={`${matchTransition ? 'opacity-75' : 'opacity-0'} mx-4 font-gaegu text-xl font-black tracking-widest transition-opacity duration-275 ease-in-out`}
               >
                 {matchCount}
               </p>
@@ -350,9 +368,10 @@ function BookCard({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`flex w-[95%] flex-1 basis-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-b-8 py-2 font-calistoga shadow-xl transition-all duration-300 md:border-b-8 lg:h-80 lg:flex-none lg:rounded-xl xl:h-72 [@media(max-height:500px)]:gap-0.5 [@media(max-height:500px)]:py-1 [@media(min-height:700px)]:w-11/12 [@media(min-height:700px)]:lg:w-116 [@media(min-height:700px)]:xl:w-134 ${hoverStyling} ${cardStyle} ${selectedStyling}`}
+      className={`flex w-[95%] flex-1 basis-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-b-8 py-2 font-calistoga shadow-xl transition-all md:border-b-8 lg:h-80 lg:flex-none lg:rounded-xl xl:h-72 [@media(max-height:500px)]:gap-0.5 [@media(max-height:500px)]:py-1 [@media(min-height:700px)]:w-11/12 [@media(min-height:700px)]:lg:w-116 [@media(min-height:700px)]:xl:w-134 ${hoverStyling} ${cardStyle} ${selectedStyling}`}
       style={{
         boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.20)',
+        transitionDuration: `${TRANSITION_DURATION}ms`,
       }}
     >
       <p
