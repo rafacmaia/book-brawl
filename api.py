@@ -74,7 +74,7 @@ def get_match(
     try:
         book_a, book_b = select_opponents(reader_id)
     except NotEnoughBooksError:
-        raise HTTPException(status_code=400, detail="Not enough books")
+        raise HTTPException(status_code=404, detail="Not enough books")
 
     return Match(
         book_a=BookSummary(id=book_a.id, title=book_a.title, author=book_a.author),
@@ -164,7 +164,7 @@ def import_books(
     if not filename.lower().endswith(".csv"):
         raise HTTPException(
             status_code=415,
-            detail="That doesn't look like a CSV! Make sure you're uploading a .csv file.",
+            detail="That doesn't look like a CSV! Make sure you're uploading a .csv file and try again.",
         )
 
     raw = file.file.read()
@@ -174,7 +174,10 @@ def import_books(
     try:
         content = raw.decode("utf-8-sig")
     except UnicodeDecodeError:
-        raise HTTPException(status_code=415, detail="File must be UTF-8 encoded!")
+        raise HTTPException(
+            status_code=415,
+            detail="We couldn't read this file's content. If you exported from a spreadsheet app, try re-exporting and choose 'UTF-8' as the encoding.",
+        )
 
     file_reader = csv.DictReader(io.StringIO(content))
     file_reader.fieldnames = [f.lower().strip() for f in (file_reader.fieldnames or [])]
@@ -185,10 +188,7 @@ def import_books(
             detail="Looks like your CSV is missing some columns. Make sure the first row contains 'title' and 'author' headers.",
         )
 
-    try:
-        result = library_service.import_books(reader_id, source, file_reader)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    result = library_service.import_books(reader_id, source, file_reader)
 
     return ImportOutcome.model_validate(result)
 
