@@ -204,7 +204,10 @@ function LeaderboardContent({ progress, rankings }: { progress: number; rankings
               </th>
               <th className={`max-md:hidden md:w-[31%] ${thStyle}`}>Author</th>
               <th className={`w-[16%] text-right md:w-[13%] lg:text-left ${thStyle}`}>
-                <button onClick={() => setShowAccuracyModal(true)} className={'inline-flex'}>
+                <button
+                  onClick={() => setShowAccuracyModal(true)}
+                  className={'inline-flex cursor-pointer'}
+                >
                   <span className={'lg:hidden'}>Acc.</span>
                   <span className={'hidden lg:inline'}>Accuracy</span>
                   <InfoCircleMini className={'size-3.5 shrink-0 -translate-x-0.5 lg:hidden'} />
@@ -238,7 +241,7 @@ function LeaderboardContent({ progress, rankings }: { progress: number; rankings
                   <span className={'line-clamp-3'}>{book.author}</span>
                 </td>
                 <td className={`text-right opacity-90 sm:pr-4 lg:pr-2 lg:text-left ${tdStyle}`}>
-                  <div onClick={() => setShowAccuracyModal(true)}>
+                  <div onClick={() => setShowAccuracyModal(true)} className={'cursor-pointer'}>
                     <TierSymbol
                       accuracyTier={book.accuracy_tier}
                       styling="inline lg:-translate-y-0.5 size-5.75 sm:size-6"
@@ -297,8 +300,7 @@ function AccuracyModal({ onClose }: { onClose: () => void }) {
                   />
                 </td>
                 <td>
-                  <span className={fieldStyling}>Very Low</span> – Just added, ranking mostly based
-                  on any initial rating
+                  <span className={fieldStyling}>Very Low</span> – Fresh entry! Very few brawls in.
                 </td>
               </tr>
               <tr>
@@ -310,7 +312,7 @@ function AccuracyModal({ onClose }: { onClose: () => void }) {
                 </td>
                 <td>
                   <span className={fieldStyling}>Low</span> – Some brawls in, broad tier likely
-                  correct (top/mid/bottom)
+                  correct (top/mid/bottom).
                 </td>
               </tr>
               <tr>
@@ -321,8 +323,10 @@ function AccuracyModal({ onClose }: { onClose: () => void }) {
                   />
                 </td>
                 <td>
-                  <span className={fieldStyling}>Moderate</span> – Position is fairly reliable,
-                  exact rank still shifting
+                  <p className={'text-pretty'}>
+                    <span className={fieldStyling}>Moderate</span> – Reliable position, but exact
+                    rank still shifting.
+                  </p>
                 </td>
               </tr>
               <tr>
@@ -333,8 +337,8 @@ function AccuracyModal({ onClose }: { onClose: () => void }) {
                   />
                 </td>
                 <td>
-                  <span className={fieldStyling}>High</span> – Position is well established, likely
-                  within ~5 spots
+                  <span className={fieldStyling}>High</span> – Veteran brawler! Might flip a couple
+                  ranks at most.
                 </td>
               </tr>
               <tr>
@@ -345,8 +349,8 @@ function AccuracyModal({ onClose }: { onClose: () => void }) {
                   />
                 </td>
                 <td>
-                  <span className={fieldStyling}>Very High</span> – Locked in, unlikely to shift by
-                  more than 1 or 2 spots
+                  <span className={fieldStyling}>Very High</span> – Locked in, unlikely to shift
+                  until new contenders arrive!
                 </td>
               </tr>
             </tbody>

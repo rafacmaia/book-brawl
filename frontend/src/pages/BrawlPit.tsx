@@ -1,6 +1,4 @@
 import { useAuth } from '@clerk/react'
-import { BookIcon } from '@phosphor-icons/react'
-import { Swords } from 'lucide-react'
 import { useEffect, useEffectEvent, useRef, useState } from 'react'
 
 import { ApiError, apiFetch } from '@/api/client'
@@ -29,8 +27,7 @@ export default function BrawlPit() {
   const [selectedBook, setSelectedBook] = useState<number | null>(null)
   const [matchTransition, setMatchTransition] = useState(false)
 
-  const [emptyPit, setEmptyPit] = useState<boolean>(false)
-  const [loading, setLoading] = useState(true)
+  const [emptyPit, setEmptyPit] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const failedResolves = useRef(0)
@@ -139,8 +136,6 @@ export default function BrawlPit() {
         console.error('Failed to load initial match:', err)
         setError("Wow, this shouldn't happen! Try refreshing!")
       }
-    } finally {
-      setLoading(false)
     }
 
     if (!firstMatch) return
@@ -208,20 +203,7 @@ export default function BrawlPit() {
 
   return (
     <main className="relative flex grow flex-col items-center px-4 text-primary/95">
-      {loading ? (
-        <div
-          className={
-            'flex w-full grow animate-pulse flex-col items-center justify-center gap-4 text-center font-zain text-[2.5rem]/12 font-extrabold tracking-wider text-balance text-primary/85 sm:text-5xl/20 md:mb-12 md:w-2xl'
-          }
-        >
-          <div className="mb-4 flex items-center justify-center gap-4 md:gap-6">
-            <BookIcon weight={'duotone'} className={'size-12 sm:size-16'} />
-            <Swords className={'size-14 sm:size-20'} />
-            <BookIcon weight={'duotone'} className={'size-12 -scale-x-100 sm:size-16'} />
-          </div>
-          <p>Summoning contenders...</p>
-        </div>
-      ) : error ? (
+      {error ? (
         <PlaceholderMessaging message={error} />
       ) : emptyPit ? (
         <EmptyStateMessage message={'No books to brawl!'} />

@@ -50,11 +50,11 @@ function AppRouter({ state }: { state: SyncState }) {
         <Routes>
           <Route
             path={'/'}
-            element={<Navigate to={state.hasBooks ? '/brawl' : '/onboarding'} replace />}
+            element={<Navigate to={state.hasBooks ? '/brawl' : '/freshstart'} replace />}
           />
           <Route element={<AppLayout />}>
             <Route
-              path={'/onboarding'}
+              path={'/freshstart'}
               element={state.hasBooks ? <Navigate to={'/brawl'} replace /> : <Onboarding />}
             />
           </Route>

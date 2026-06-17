@@ -94,16 +94,19 @@ export default function Onboarding() {
       {/* CONTINUE */}
       <NavLink
         to={'/brawl'}
-        className={`flex cursor-pointer items-center justify-end gap-1 p-1 text-lg font-bold tracking-wide sm:text-xl ${width} ${hasAddedBooks ? 'animate-pulse' : ''}`}
+        className={`flex cursor-pointer items-center justify-end gap-1 p-1 font-bold ${width} ${hasAddedBooks ? 'animate-pulse' : ''}`}
       >
         {hasAddedBooks ? (
           <>
-            <p>Ready to Brawl?</p>
-            <SwordIcon weight="duotone" className="inline size-5 -translate-y-px sm:size-5.5" />
+            <p className={`text-xl tracking-wider sm:text-2xl`}>Ready to Brawl?</p>
+            <SwordIcon
+              weight="duotone"
+              className="inline size-5.5 -translate-y-px sm:ml-1 sm:size-7"
+            />
           </>
         ) : (
           <>
-            <p>Skip for now</p>
+            <p className={'text-lg tracking-wide sm:text-xl'}>Skip for now</p>
             <CaretRightIcon
               weight="duotone"
               className="inline size-5 -translate-y-px sm:size-5.5"
@@ -148,8 +151,17 @@ function GoodreadsImport({ onSuccess }: { onSuccess?: () => void }) {
           >
             <ol className="flex list-decimal flex-col gap-2 pl-4.5 marker:font-extrabold sm:pl-5">
               <li>
-                On desktop (not the app), log in to Goodreads and go to{' '}
-                <span className={textEmphasisStyle}>My Books</span>.
+                On desktop (not the app), log in to{' '}
+                <a href={'https://goodreads.com'} target={'_blank'} rel={'noopener noreferrer'}>
+                  <span
+                    className={
+                      'cursor-pointer font-black underline decoration-accent decoration-wavy decoration-2 underline-offset-2 transition-all hover:text-xl hover:underline-offset-1'
+                    }
+                  >
+                    Goodreads
+                  </span>
+                </a>{' '}
+                and go to <span className={textEmphasisStyle}>My Books</span>.
               </li>
               <li>
                 Select <span className={textEmphasisStyle}>Import and export</span> in the left-side
@@ -161,9 +173,9 @@ function GoodreadsImport({ onSuccess }: { onSuccess?: () => void }) {
               </li>
               <li>
                 Once ready, click the download link (likely named "
-                <span className={textEmphasisStyle}>Your export from...</span>").
+                <span className={textEmphasisStyle}>Your export from...</span>") and then upload it
+                here!
               </li>
-              <li>Throw the file in here and we'll do the rest!</li>
             </ol>
           </div>
         </Collapsible>
@@ -186,9 +198,8 @@ function GoodreadsImport({ onSuccess }: { onSuccess?: () => void }) {
               some titles awkwardly long, and duplicates harder to catch.
             </p>
             <p>
-              You'll be able to delete sneaky duplicates, fix a book's title and author, or add any
-              missing reads, in{' '}
-              <span className={`font-extrabold`}>
+              Check your imported books in{' '}
+              <span className={textEmphasisStyle}>
                 The{' '}
                 <span className={'whitespace-nowrap'}>
                   Stacks
@@ -197,7 +208,8 @@ function GoodreadsImport({ onSuccess }: { onSuccess?: () => void }) {
                   </span>
                 </span>
               </span>{' '}
-              page anytime.
+              page, where you can delete sneaky duplicates, fix a book's title and author, or add
+              any missing reads.
             </p>
           </div>
         </Collapsible>
@@ -219,10 +231,10 @@ function ManualEntry({ onSuccess }: { onSuccess?: () => void }) {
 
   return (
     <div className={`gap-2 sm:gap-3 ${collapsibleDivStyle}`}>
-      <p>Add as many worthy contenders as you'd like by providing the info below for each.</p>
+      <p>Add as many worthy contenders as you'd like below.</p>
       <p className={'mb-1 border-b border-primary/30 pb-3 sm:pb-4'}>
-        <span className={textEmphasisStyle}>Rating</span> (1-10, decimals welcome) is optional, but
-        encouraged. It provides an initial placement for the{' '}
+        Note that <span className={textEmphasisStyle}>Rating</span> (1-10, decimals welcome) is
+        optional, but encouraged. It provides an initial placement for the{' '}
         <span className={`font-extrabold`}>
           Brawl Pit
           <span>
@@ -250,8 +262,8 @@ function CustomCSV({ onSuccess }: { onSuccess?: () => void }) {
   return (
     <div className={`gap-2 sm:gap-3 ${collapsibleDivStyle}`}>
       <p>
-        If you track your books in a spreadsheet — Excel, Google Sheets, Notion, anywhere with
-        columns and rows — you can export or download it as a CSV file and throw it in here.
+        If you're a spreadsheet person and track your books in Excel, Sheets, Notion, or anywhere
+        with columns and rows, you can export it as a CSV file and throw it in here.
       </p>
       <p>
         Your file must have <span className={textEmphasisStyle}>title</span> and{' '}

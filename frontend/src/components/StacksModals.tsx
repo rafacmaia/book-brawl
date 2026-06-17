@@ -275,7 +275,7 @@ export function ResetModal({
           <span className={'font-extrabold underline decoration-primary/70 underline-offset-2'}>
             permanently
           </span>{' '}
-          delete all books and trigger a complete Pit reset.
+          delete all books, discard all brawls, and trigger a complete reset.
         </p>
         <div className="flex w-full items-center justify-center gap-4">
           <button
