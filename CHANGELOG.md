@@ -7,17 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-06-17
+
 ### Changed
 
 - Users now get more specific error messaging instead of a generic "Something went
   wrong".
+- Copy across all pages to be clearer, less technical, and more consistent with the app's
+  tone.
 
 ### Fixed
 
-- Bug where visiting an unknown or outdated URL showed a blank page; now redirects
-  to the Brawl Pit.
+- Visiting an unknown or outdated URL redirects to the Brawl Pit instead of showing a
+  blank page.
 - Bug where long book titles might flicker into position during match fade-in.
-- Bug where CSV book imports were all dropped if the Book limit is reached mid-import.
+- Bug where the progress percentage was being hidden prematurely, before reaching
+  progress completion.
+- Bug where CSV book imports were all dropped if the book limit is reached mid-import.
   Books are now added up until the limit is reached.
 - Bug where CSV book imports were all dropped if the DB detected an uncaught duplicate.
 - Bug where books were being ordered case-sensitively, so lower-case titles were being
