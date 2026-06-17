@@ -46,9 +46,9 @@ const PROGRESS_LABELS: [number, string][] = [
   [Infinity, 'The brawl pit has spoken!'],
 ]
 
-// The threshold above which the rankings are considered settled. Used to trigger hiding the exact
-// percentage and display the progress bar as completed once a user reaches this point.
-const FINAL_THRESHOLD = PROGRESS_LABELS[PROGRESS_LABELS.length - 2][0]
+// The threshold above which the rankings are considered settled. The exact percentage is now
+// hidden, and the progress bar is displayed as completed.
+const FINAL_THRESHOLD = PROGRESS_LABELS[PROGRESS_LABELS.length - 2][0] // second-to-last threshold
 
 // ====== MAIN PAGE
 
@@ -140,7 +140,7 @@ export default function Leaderboard() {
 function LeaderboardContent({ progress, rankings }: { progress: number; rankings: Rankings }) {
   const [showAccuracyModal, setShowAccuracyModal] = useState<boolean>(false)
 
-  const showProgress = Math.round(progress * 10) / 10 < FINAL_THRESHOLD
+  const showProgress = Math.round(progress * 100) / 100 < FINAL_THRESHOLD
   const progressLabel = PROGRESS_LABELS.find(
     ([threshold]) => Math.round(progress * 100) / 100 < threshold
   )![1]
