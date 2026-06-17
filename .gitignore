@@ -24,7 +24,8 @@ ENV/
 *.sqlite
 *.sqlite3
 *.csv
-!sample-data/sample.csv
+!sample-data/sample-of-25.csv
+!sample-data/sample-of-10.csv
 cli/backup/
 cli/exports/
 cli/data/
