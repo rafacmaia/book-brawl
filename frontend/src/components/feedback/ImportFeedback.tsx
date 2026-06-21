@@ -4,10 +4,10 @@ import type { ImportState } from '@/hooks/useImportBooks'
 
 const styles = {
   default: {
-    container: 'pl-1.5 mt-1',
-    message: `text-lg font-extrabold tracking-wide md:text-xl`,
+    container: 'mt-1 px-2.5',
+    message: `text-base font-extrabold tracking-wide md:text-lg`,
     error: 'text-red-700',
-    icon: 'mr-1 inline size-5.25 -translate-y-0.5 opacity-90 md:size-5.75',
+    icon: 'mr-0.5 inline size-4.5 -translate-y-0.5 opacity-90 md:size-5.75',
   },
   compact: {
     container: 'rounded-lg bg-button px-3 pb-1.75 pt-2.25 mt-1 md:pb-2.25 md:pt-2.75',

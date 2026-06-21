@@ -262,7 +262,7 @@ function CustomCSV({ onSuccess }: { onSuccess?: () => void }) {
   return (
     <div className={`gap-2 sm:gap-3 ${collapsibleDivStyle}`}>
       <p>
-        If you're a spreadsheet person and track your books in Excel, Sheets, Notion, or anywhere
+        If you are a spreadsheet person and track your books in Excel, Sheets, Notion, or anywhere
         with columns and rows, you can export it as a CSV file and throw it in here.
       </p>
       <p>
@@ -296,7 +296,7 @@ function CustomCSV({ onSuccess }: { onSuccess?: () => void }) {
 const chooseFileButtonStyle =
   'cursor-pointer w-1/2 sm:w-2/5 rounded-lg border-b-3 px-6 pb-1.25 pt-2.25 font-zain text-sm text-center [@media(min-height:700px)]:text-base font-extrabold tracking-wide text-text drop-shadow-md transition-all [@media(min-height:700px)]:sm:text-lg sm:pt-2.75 sm:pb-1.5 hover:scale-104 active:scale-95'
 
-function Collapsible({ isOpen, children }: { isOpen: boolean; children: ReactNode }) {
+export function Collapsible({ isOpen, children }: { isOpen: boolean; children: ReactNode }) {
   return (
     <div
       className={`grid w-full transition-[grid-template-rows] duration-600 ease-out ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
@@ -375,7 +375,7 @@ function StacksMessage() {
   )
 }
 
-function ToggleIcon({
+export function ToggleIcon({
   isOpen,
   variant = 'default',
 }: {

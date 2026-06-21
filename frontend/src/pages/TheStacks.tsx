@@ -1,15 +1,21 @@
 import { useAuth } from '@clerk/react'
 import { FireIcon as FireOutline } from '@heroicons/react/24/outline'
 import { FireIcon as FireSolid } from '@heroicons/react/24/solid'
-import { BombIcon, PencilSimpleLineIcon } from '@phosphor-icons/react'
-import { Download } from 'lucide-react'
+import { BombIcon, CloudArrowUpIcon, PencilSimpleLineIcon } from '@phosphor-icons/react'
 import { useEffect, useEffectEvent, useState } from 'react'
 
 import { ApiError, apiFetch, DEFAULT_ERROR_MESSAGE } from '@/api/client'
 import type { Book, BookData, Library } from '@/api/types'
+import goodreadsLogo from '@/assets/goodreads-logo-1.svg'
 import PlaceholderMessaging from '@/components/feedback/PlaceholderMessaging'
 import { ManualAddForm } from '@/components/ManualAddForm'
-import { DeleteModal, EditModal, ImportModal, ResetModal } from '@/components/StacksModals'
+import {
+  DeleteModal,
+  EditModal,
+  ImportCSVModal,
+  ImportGoodreadsModal,
+  ResetModal,
+} from '@/components/StacksModals'
 import PageHeading from '@/components/ui/PageHeading'
 import { useAddBook } from '@/hooks/useAddBook'
 
@@ -27,8 +33,7 @@ export default function TheStacks() {
   const [editError, setEditError] = useState<string | null>(null)
   const [resetError, setResetError] = useState<string | null>(null)
 
-  const [showImportModal, setShowImportModal] = useState<boolean>(false)
-  const [showResetModal, setShowResetModal] = useState<boolean>(false)
+  const [openModal, setOpenModal] = useState<'csv' | 'goodreads' | 'reset' | null>(null)
 
   // --- data fetching
   async function fetchBooks() {
@@ -133,7 +138,7 @@ export default function TheStacks() {
 
       setBooks([])
       setResetError(null)
-      setShowResetModal(false)
+      setOpenModal(null)
     } catch {
       setResetError('Failed to reset! Please refresh and try again.')
     }
@@ -148,10 +153,25 @@ export default function TheStacks() {
     <main className="mx-auto flex h-full min-h-0 w-[97%] grow flex-col items-center gap-4 overflow-y-auto px-2 pb-2 text-primary/95 sm:max-w-6xl sm:gap-4 md:p-4">
       <PageHeading title={'The Stacks'} style={'mb-5 mt-2 max-md:hidden'} />
 
-      {showImportModal && (
-        <ImportModal
-          onClose={() => setShowImportModal(false)}
+      {openModal === 'csv' && (
+        <ImportCSVModal onClose={() => setOpenModal(null)} onImportSuccess={handleImportSuccess} />
+      )}
+
+      {openModal === 'goodreads' && (
+        <ImportGoodreadsModal
+          onClose={() => setOpenModal(null)}
           onImportSuccess={handleImportSuccess}
+        />
+      )}
+
+      {openModal === 'reset' && (
+        <ResetModal
+          onConfirm={handleReset}
+          onCancel={() => {
+            setOpenModal(null)
+            setResetError(null)
+          }}
+          error={resetError}
         />
       )}
 
@@ -176,17 +196,6 @@ export default function TheStacks() {
             setBurnError(null)
           }}
           error={burnError}
-        />
-      )}
-
-      {showResetModal && (
-        <ResetModal
-          onConfirm={handleReset}
-          onCancel={() => {
-            setShowResetModal(false)
-            setResetError(null)
-          }}
-          error={resetError}
         />
       )}
 
@@ -222,26 +231,39 @@ export default function TheStacks() {
           {/* TABLE OF CURRENT BOOKS */}
           <section className="flex w-full flex-col gap-3 md:mt-1">
             <div className="flex w-full justify-between">
-              <p
+              <p // book count
                 className={
                   'text-md h-fit w-fit rounded-md bg-button px-4 py-2 font-calistoga font-bold tracking-wide text-text shadow-2xl md:text-xl'
                 }
               >
                 {books.length} Book{books.length !== 1 && 's'}
               </p>
-              <button
-                onClick={() => {
-                  setShowImportModal(true)
-                }}
-                className={`text-md cursor-pointer rounded-full border-b-3 border-red-700/75 bg-button/95 px-6 pt-1.75 pb-1.5 font-calistoga font-bold tracking-wider text-text shadow-2xl transition-all hover:scale-104 hover:bg-button active:scale-96 active:opacity-90 md:bg-button/95 md:text-lg`}
-              >
-                <Download
-                  className={
-                    'mr-1.25 inline size-3.75 -translate-y-px stroke-3 drop-shadow-2xl drop-shadow-zinc-950 md:mr-1.5 md:size-4.25 md:stroke-4'
-                  }
-                />
-                CSV
-              </button>
+              <div className={`flex gap-2.5`}>
+                <button
+                  onClick={() => {
+                    setOpenModal('csv')
+                  }}
+                  className={`mt-auto size-10 cursor-pointer rounded-full border-b-2 border-red-700/75 bg-button font-calistoga text-lg font-semibold tracking-wider text-text opacity-95 shadow-2xl transition-all hover:scale-104 hover:bg-button hover:opacity-100 active:scale-96 active:opacity-80 md:h-11 md:w-fit md:border-b-3 md:px-4.5 md:text-xl`}
+                >
+                  <CloudArrowUpIcon
+                    weight={`duotone`}
+                    className={'inline size-5.25 -translate-y-px md:mr-1.75'}
+                  />
+                  <span className={`hidden md:inline`}>CSV</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setOpenModal('goodreads')
+                  }}
+                  className={`mt-auto size-10 cursor-pointer overflow-hidden rounded-full border-b-2 border-red-700/75 bg-button opacity-95 transition-all hover:scale-104 hover:bg-button hover:opacity-100 active:scale-96 active:opacity-80 md:size-11 md:border-b-3`}
+                >
+                  <img
+                    src={goodreadsLogo}
+                    alt="Goodreads"
+                    className="block size-5 h-full w-full object-contain py-1.75 md:py-1.5"
+                  />
+                </button>
+              </div>
             </div>
 
             {books.length > 0 && (
@@ -329,7 +351,7 @@ export default function TheStacks() {
             {books.length > 0 && (
               <button
                 onClick={() => {
-                  setShowResetModal(true)
+                  setOpenModal('reset')
                 }}
                 className={`ml-auto cursor-pointer rounded-lg border-b-3 border-red-700/90 bg-button/90 px-6 py-2.5 font-calistoga text-sm font-semibold tracking-wide text-text shadow-2xl transition-all hover:scale-104 hover:bg-button active:scale-96 active:opacity-100 md:bg-button/95 md:text-base md:font-extrabold md:tracking-wider`}
               >
