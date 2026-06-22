@@ -5,14 +5,17 @@ import { type KeyboardEvent, type ReactNode, useEffect, useState } from 'react'
 
 import { ImportFeedback } from './feedback/ImportFeedback'
 
-import type { Book, FileSource } from '@/api/types'
-import { type ImportState, useImportBooks } from '@/hooks/useImportBooks'
-import { Collapsible, ToggleIcon } from '@/pages/Onboarding'
+import type { Book } from '@/api/types'
+import { ChooseFileButton } from '@/components/ui/ChooseFileButton'
+import { Collapsible } from '@/components/ui/Collapsible'
+import { ToggleIcon } from '@/components/ui/ToggleIcon'
+import { useImportBooks } from '@/hooks/useImportBooks'
 
 // ====== CONSTANTS
 
 const modalButtonStyle =
   'cursor-pointer rounded-t-xl rounded-b-3xl border-b-3 px-4 pb-1.25 pt-2.5 font-zain text-sm text-center [@media(min-height:700px)]:text-base font-extrabold tracking-wider text-primary drop-shadow-md transition-all md:text-lg md:pt-2.75 md:pb-1.5 hover:scale-104 active:scale-95'
+const chooseFileButtonStyle = `mx-auto w-1/2 border-red-600/80 bg-text/95 shadow-md hover:bg-text hover:opacity-100 ${modalButtonStyle}`
 const textEmphasisStyle = 'font-bold underline underline-offset-2 decoration-red-600/60'
 
 // ====== COMPONENTS
@@ -60,7 +63,11 @@ export function ImportCSVModal({
         </p>
       </div>
       <div className="flex flex-col gap-4">
-        <ChooseFileButton state={state} importBooks={importBooks} onSuccess={onImportSuccess} />
+        <ChooseFileButton
+          isLoading={state.type === 'loading'}
+          onFileSelect={(file) => importBooks(file, 'custom', onImportSuccess)}
+          className={`${chooseFileButtonStyle} ${state.type === 'success' ? 'opacity-85' : 'opacity-95'}`}
+        />
         <ImportFeedback state={state} />
       </div>
     </Modal>
@@ -177,7 +184,11 @@ export function ImportGoodreadsModal({
         </div>
       </div>
       <div className="flex w-full flex-col gap-4" onClick={() => setOpenSection(null)}>
-        <ChooseFileButton state={state} importBooks={importBooks} onSuccess={onImportSuccess} />
+        <ChooseFileButton
+          isLoading={state.type === 'loading'}
+          onFileSelect={(file) => importBooks(file, 'goodreads', onImportSuccess)}
+          className={`${chooseFileButtonStyle} ${state.type === 'success' ? 'opacity-85' : 'opacity-95'}`}
+        />
         <ImportFeedback state={state} />
       </div>
     </Modal>
@@ -383,37 +394,6 @@ export function ResetModal({
         </p>
       )}
     </Modal>
-  )
-}
-
-function ChooseFileButton({
-  state,
-  importBooks,
-  onSuccess,
-}: {
-  state: ImportState
-  importBooks: (file: File, source: FileSource, onSuccess?: () => void) => void
-  onSuccess?: () => void
-}) {
-  return (
-    <label
-      className={`mx-auto w-1/2 border-red-600/80 bg-text/95 shadow-md hover:bg-text hover:opacity-100 ${modalButtonStyle} ${state.type === 'success' ? 'opacity-85' : 'opacity-95'}`}
-    >
-      {state.type === 'loading' ? 'Importing...' : 'Choose File'}
-      <input
-        type="file"
-        accept=".csv"
-        onChange={(e) => {
-          const file = e.target.files?.[0]
-          if (file) void importBooks(file, 'custom', onSuccess)
-          // Reset so the same file can be re-selected (file inputs don't fire OnChange
-          // when the same file is selected twice)
-          e.target.value = ''
-        }}
-        disabled={state.type === 'loading'}
-        className="sr-only"
-      />
-    </label>
   )
 }
 

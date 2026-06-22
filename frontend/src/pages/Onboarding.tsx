@@ -1,10 +1,12 @@
-import { BooksIcon, CaretCircleRightIcon, CaretRightIcon, SwordIcon } from '@phosphor-icons/react'
-import { type ReactNode, useState } from 'react'
+import { BooksIcon, CaretRightIcon, SwordIcon } from '@phosphor-icons/react'
+import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 
-import type { FileSource } from '@/api/types'
 import { ImportFeedback } from '@/components/feedback/ImportFeedback'
 import { ManualAddForm } from '@/components/ManualAddForm'
+import { ChooseFileButton } from '@/components/ui/ChooseFileButton'
+import { Collapsible } from '@/components/ui/Collapsible'
+import { ToggleIcon } from '@/components/ui/ToggleIcon'
 import { useAddBook } from '@/hooks/useAddBook'
 import { type ImportState, useImportBooks } from '@/hooks/useImportBooks'
 
@@ -214,13 +216,13 @@ function GoodreadsImport({ onSuccess }: { onSuccess?: () => void }) {
           </div>
         </Collapsible>
       </div>
-
-      <ChooseFileButton
-        onImport={importBooks}
-        source="goodreads"
-        isLoading={state.type === 'loading'}
-        onSuccess={onSuccess}
-      />
+      <div onClick={() => setOpenSection(null)} className={`flex w-full flex-col`}>
+        <ChooseFileButton
+          isLoading={state.type === 'loading'}
+          onFileSelect={(file) => importBooks(file, 'goodreads', onSuccess)}
+          className={`my-1 self-center border-red-600/80 bg-button/95 shadow-md hover:bg-primary ${chooseFileButtonStyle}`}
+        />
+      </div>
       <ImportOutcome state={state} />
     </div>
   )
@@ -281,10 +283,9 @@ function CustomCSV({ onSuccess }: { onSuccess?: () => void }) {
         to put to the test.
       </p>
       <ChooseFileButton
-        onImport={importBooks}
-        source="custom"
         isLoading={state.type === 'loading'}
-        onSuccess={onSuccess}
+        onFileSelect={(file) => importBooks(file, 'custom', onSuccess)}
+        className={`my-1 self-center border-red-600/80 bg-button/95 shadow-md hover:bg-primary ${chooseFileButtonStyle}`}
       />
       <ImportOutcome state={state} />
     </div>
@@ -295,49 +296,6 @@ function CustomCSV({ onSuccess }: { onSuccess?: () => void }) {
 
 const chooseFileButtonStyle =
   'cursor-pointer w-1/2 sm:w-2/5 rounded-lg border-b-3 px-6 pb-1.25 pt-2.25 font-zain text-sm text-center [@media(min-height:700px)]:text-base font-extrabold tracking-wide text-text drop-shadow-md transition-all [@media(min-height:700px)]:sm:text-lg sm:pt-2.75 sm:pb-1.5 hover:scale-104 active:scale-95'
-
-export function Collapsible({ isOpen, children }: { isOpen: boolean; children: ReactNode }) {
-  return (
-    <div
-      className={`grid w-full transition-[grid-template-rows] duration-600 ease-out ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
-    >
-      <div className={`overflow-hidden`}>{children}</div>
-    </div>
-  )
-}
-
-function ChooseFileButton({
-  onImport,
-  source,
-  isLoading,
-  onSuccess,
-}: {
-  onImport: (file: File, source: FileSource, onSuccess?: () => void) => void
-  source: FileSource
-  isLoading: boolean
-  onSuccess?: () => void
-}) {
-  return (
-    <label
-      className={`my-1 self-center border-red-600/80 bg-button/95 shadow-md hover:bg-primary ${chooseFileButtonStyle}`}
-    >
-      {isLoading ? 'Importing...' : 'Choose File'}
-      <input
-        type="file"
-        accept=".csv"
-        onChange={(e) => {
-          const file = e.target.files?.[0]
-          if (file) void onImport(file, source, onSuccess)
-          // Reset so the same file can be re-selected (file inputs don't fire OnChange when the
-          // same file is selected twice)
-          e.target.value = ''
-        }}
-        disabled={isLoading}
-        className="sr-only"
-      />
-    </label>
-  )
-}
 
 function ImportOutcome({ state }: { state: ImportState }) {
   if (state.type !== 'success' && state.type !== 'error') return null
@@ -372,22 +330,5 @@ function StacksMessage() {
         .
       </p>
     </div>
-  )
-}
-
-export function ToggleIcon({
-  isOpen,
-  variant = 'default',
-}: {
-  isOpen?: boolean
-  variant?: 'default' | 'small'
-}) {
-  const size = variant === 'small' ? 'size-3.5 sm:size-4.25' : 'size-4.5 sm:size-5'
-
-  return (
-    <CaretCircleRightIcon
-      weight="duotone"
-      className={`inline -translate-y-0.5 transition-transform duration-350 ${size} ${isOpen ? 'rotate-90' : 'rotate-0'}`}
-    />
   )
 }
