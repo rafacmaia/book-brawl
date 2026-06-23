@@ -127,10 +127,9 @@ export function DeleteModal({
   return (
     <Modal heading="Burn this Book?" onClose={onCancel} variant="red">
       <p className="rounded-lg bg-background/90 px-4 py-3 text-left font-zain text-base text-primary/90 md:text-xl">
-        <span className={`font-calistoga tracking-wider ${textEmphasisStyle}`}>{book.title}</span>,
-        by{' '}
-        <span className={`font-calistoga tracking-wider ${textEmphasisStyle}`}>{book.author}</span>,
-        will be permanently removed from the Book Pit.
+        <span className={`font-calistoga text-emphasis tracking-wider`}>{book.title}</span>, by{' '}
+        <span className={`font-calistoga text-emphasis tracking-wider`}>{book.author}</span>, will
+        be permanently removed from the Book Pit.
       </p>
       <div className="flex w-full gap-4">
         <button

@@ -11,19 +11,15 @@
     --color-green: oklch(0.766 0.118 145.295);
     --color-footer: var(--color-primary);
     --color-text: var(--color-background);
-    /**/
-    /* THEME 2: Green / Yellow / Red*/
-    /*--color-primary: #ffab00;*/
-    /*--color-button: var(--color-primary);*/
-    /*--color-background: #008aa1;*/
-    /*--color-accent: #00592e;*/
-    /*--color-footer: var(--color-sky-950);*/
-    /*--color-text: var(--color-sky-900);*/
-    /**/
+
     /* FONTS */
     --font-gaegu: 'Gaegu', sans-serif;
     --font-zain: 'Zain', sans-serif;
     --font-calistoga: 'Calistoga', serif;
+}
+
+@utility text-emphasis {
+    @apply font-extrabold underline underline-offset-2 decoration-red-600/65;
 }
 
 :root {

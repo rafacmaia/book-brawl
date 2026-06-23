@@ -3,7 +3,6 @@ import { type ReactNode } from 'react'
 import { Collapsible } from '@/components/ui/Collapsible'
 import { ToggleIcon } from '@/components/ui/ToggleIcon'
 
-const textEmphasisStyle = 'font-extrabold underline underline-offset-1 decoration-red-600/65'
 const sectionToggleStyle = 'flex w-full cursor-pointer text-left items-center gap-1.5 sm:gap-2'
 const h3Style = 'font-bold sm:font-extrabold underline decoration-accent/50 underline-offset-2'
 
@@ -48,19 +47,19 @@ export function GoodreadsInstructions({
                     Goodreads
                   </span>
                 </a>{' '}
-                and go to <span className={textEmphasisStyle}>My Books</span>.
+                and go to <span className={`text-emphasis`}>My Books</span>.
               </li>
               <li>
-                Select <span className={textEmphasisStyle}>Import and export</span> in the left-side
+                Select <span className={`text-emphasis`}>Import and export</span> in the left-side
                 menu.
               </li>
               <li>
-                Under Export, click <span className={textEmphasisStyle}>Export Library</span> and
-                wait for it to generate your file.
+                Under Export, click <span className={`text-emphasis`}>Export Library</span> and wait
+                for it to generate your file.
               </li>
               <li>
                 Once ready, click the download link (likely named "
-                <span className={textEmphasisStyle}>Your export from...</span>") and then upload it
+                <span className={`text-emphasis`}>Your export from...</span>") and then upload it
                 here!
               </li>
             </ol>

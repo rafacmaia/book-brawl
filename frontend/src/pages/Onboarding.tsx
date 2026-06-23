@@ -148,7 +148,7 @@ function GoodreadsImport({ onSuccess }: { onSuccess?: () => void }) {
           quirksNote={
             <p>
               Check your imported books in{' '}
-              <span className={textEmphasisStyle}>
+              <span className={`text-emphasis`}>
                 The{' '}
                 <span className={'whitespace-nowrap'}>
                   Stacks
@@ -183,7 +183,7 @@ function ManualEntry({ onSuccess }: { onSuccess?: () => void }) {
     <div className={`gap-2 sm:gap-3 ${collapsibleDivStyle}`}>
       <p>Add as many worthy contenders as you'd like below.</p>
       <p className={'mb-1 border-b border-primary/30 pb-3 sm:pb-4'}>
-        Note that <span className={textEmphasisStyle}>Rating</span> (1-10, decimals welcome) is
+        Note that <span className={`text-emphasis`}>Rating</span> (1-10, decimals welcome) is
         optional, but encouraged. It provides an initial placement for the{' '}
         <span className={`font-extrabold`}>
           Brawl Pit
@@ -252,7 +252,7 @@ function StacksMessage() {
       <p>
         <span className={'font-extrabold'}>Please note:</span> You can add new reads, and view,
         edit, or delete existing ones, anytime, in{' '}
-        <NavLink to={'/stacks'} className={textEmphasisStyle}>
+        <NavLink to={'/stacks'} className={`text-emphasis`}>
           The{' '}
           <span className={'whitespace-nowrap'}>
             Stacks
