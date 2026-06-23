@@ -19,6 +19,26 @@ import {
 import PageHeading from '@/components/ui/PageHeading'
 import { useAddBook } from '@/hooks/useAddBook'
 
+// ====== TYPES
+
+type Modal =
+  | { type: 'csv' }
+  | { type: 'goodreads' }
+  | { type: 'reset' }
+  | { type: 'edit'; book: Book }
+  | { type: 'burn'; book: Book }
+  | null
+
+// ====== STYLE CONSTANTS
+
+const importButtonStyle =
+  'mt-auto size-10 cursor-pointer rounded-full border-b-2 border-red-700/75 bg-button opacity-95 transition-all hover:scale-104 hover:opacity-100 active:scale-96 active:opacity-80 md:border-b-3'
+const cellXPadding = 'first:pl-2.25 lg:px-2 lg:first:pl-4'
+const thStyle = `font-calistoga text-base tracking-wider pt-1.5 lg:pt-2 lg:pb-1.5 pb-1.25 font-extrabold md:text-lg lg:text-xl  ${cellXPadding}`
+const tdStyle = `py-1.25 lg:py-1.75 ${cellXPadding}`
+
+// ===== COMPONENT
+
 export default function TheStacks() {
   const { getToken } = useAuth()
   const { state: addState, addBook, reset: resetAddState } = useAddBook()
@@ -27,13 +47,8 @@ export default function TheStacks() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const [bookToBurn, setBookToBurn] = useState<Book | null>(null)
-  const [burnError, setBurnError] = useState<string | null>(null)
-  const [bookToEdit, setBookToEdit] = useState<Book | null>(null)
-  const [editError, setEditError] = useState<string | null>(null)
-  const [resetError, setResetError] = useState<string | null>(null)
-
-  const [openModal, setOpenModal] = useState<'csv' | 'goodreads' | 'reset' | null>(null)
+  const [openModal, setOpenModal] = useState<Modal>(null)
+  const [modalError, setModalError] = useState<string | null>(null)
 
   // --- data fetching
   async function fetchBooks() {
@@ -79,26 +94,25 @@ export default function TheStacks() {
     } catch (err) {
       // Ignore 404 errors (book has already been deleted)
       if (!(err instanceof ApiError && err.status === 404)) {
-        setBurnError('Failed to burn book! Please refresh and try again.')
+        setModalError('Failed to burn book! Please refresh and try again.')
         return
       }
     }
 
     setBooks((prev) => prev.filter((b) => b.id !== book.id))
-    setBurnError(null)
-    setBookToBurn(null)
+    closeModal()
   }
 
-  async function handleEdit(title: string, author: string) {
+  async function handleEdit(bookTitle: string, bookAuthor: string) {
     resetAddState()
-    if (!bookToEdit) return
+    if (openModal?.type !== 'edit') return
 
-    title = title.trim()
-    author = author.trim()
+    const title = bookTitle.trim()
+    const author = bookAuthor.trim()
 
     // Don't trigger edit if the title and author have not been changed.
-    if (title === bookToEdit.title && author === bookToEdit.author) {
-      setBookToEdit(null)
+    if (title === openModal.book.title && author === openModal.book.author) {
+      closeModal()
       return
     }
 
@@ -107,23 +121,22 @@ export default function TheStacks() {
 
       const body: BookData = { title, author, rating: null }
 
-      await apiFetch(`/stacks/${bookToEdit.id}`, token!, {
+      await apiFetch(`/stacks/${openModal.book.id}`, token!, {
         method: 'PATCH',
         body: JSON.stringify(body),
       })
 
       setBooks((prev) =>
-        prev.map((b) => (b.id === bookToEdit.id ? { ...b, title: title, author: author } : b))
+        prev.map((b) => (b.id === openModal.book.id ? { ...b, title: title, author: author } : b))
       )
-      setBookToEdit(null)
-      setEditError(null)
+      closeModal()
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) {
-        setEditError(`${title}, by ${author}, is already in the brawl pit!`)
+        setModalError(`${title}, by ${author}, is already in the brawl pit!`)
       } else if (err instanceof ApiError && err.status === 404) {
-        setEditError('Book not found! Please refresh and try again.')
+        setModalError('Book not found! Please refresh and try again.')
       } else {
-        setEditError(DEFAULT_ERROR_MESSAGE)
+        setModalError(DEFAULT_ERROR_MESSAGE)
       }
     }
   }
@@ -137,65 +150,48 @@ export default function TheStacks() {
       await apiFetch('/stacks', token!, { method: 'DELETE' })
 
       setBooks([])
-      setResetError(null)
-      setOpenModal(null)
+      closeModal()
     } catch {
-      setResetError('Failed to reset! Please refresh and try again.')
+      setModalError('Failed to reset! Please refresh and try again.')
     }
   }
 
-  // --- styles
-  const cellXPadding = 'first:pl-2.25 lg:px-2 lg:first:pl-4'
-  const thStyle = `font-calistoga text-base tracking-wider pt-1.5 lg:pt-2 lg:pb-1.5 pb-1.25 font-extrabold md:text-lg lg:text-xl  ${cellXPadding}`
-  const tdStyle = `py-1.25 lg:py-1.75 ${cellXPadding}`
+  function closeModal() {
+    setOpenModal(null)
+    setModalError(null)
+  }
 
   return (
     <main className="mx-auto flex h-full min-h-0 w-[97%] grow flex-col items-center gap-4 overflow-y-auto px-2 pb-2 text-primary/95 sm:max-w-6xl sm:gap-4 md:p-4">
       <PageHeading title={'The Stacks'} style={'mb-5 mt-2 max-md:hidden'} />
 
-      {openModal === 'csv' && (
-        <ImportCSVModal onClose={() => setOpenModal(null)} onImportSuccess={handleImportSuccess} />
+      {openModal?.type === 'csv' && (
+        <ImportCSVModal onClose={closeModal} onImportSuccess={handleImportSuccess} />
       )}
 
-      {openModal === 'goodreads' && (
-        <ImportGoodreadsModal
-          onClose={() => setOpenModal(null)}
-          onImportSuccess={handleImportSuccess}
-        />
+      {openModal?.type === 'goodreads' && (
+        <ImportGoodreadsModal onClose={closeModal} onImportSuccess={handleImportSuccess} />
       )}
 
-      {openModal === 'reset' && (
-        <ResetModal
-          onConfirm={handleReset}
-          onCancel={() => {
-            setOpenModal(null)
-            setResetError(null)
-          }}
-          error={resetError}
-        />
+      {openModal?.type === 'reset' && (
+        <ResetModal onConfirm={handleReset} onCancel={closeModal} error={modalError} />
       )}
 
-      {bookToEdit && (
+      {openModal?.type === 'edit' && (
         <EditModal
-          book={bookToEdit}
+          book={openModal.book}
           onConfirm={handleEdit}
-          onCancel={() => {
-            setBookToEdit(null)
-            setEditError(null)
-          }}
-          error={editError}
+          onCancel={closeModal}
+          error={modalError}
         />
       )}
 
-      {bookToBurn && (
+      {openModal?.type === 'burn' && (
         <DeleteModal
-          book={bookToBurn}
-          onConfirm={() => handleBurn(bookToBurn)}
-          onCancel={() => {
-            setBookToBurn(null)
-            setBurnError(null)
-          }}
-          error={burnError}
+          book={openModal.book}
+          onConfirm={() => handleBurn(openModal.book)}
+          onCancel={closeModal}
+          error={modalError}
         />
       )}
 
@@ -241,9 +237,9 @@ export default function TheStacks() {
               <div className={`flex gap-2.5`}>
                 <button
                   onClick={() => {
-                    setOpenModal('csv')
+                    setOpenModal({ type: 'csv' })
                   }}
-                  className={`mt-auto size-10 cursor-pointer rounded-full border-b-2 border-red-700/75 bg-button font-calistoga text-lg font-semibold tracking-wider text-text opacity-95 shadow-2xl transition-all hover:scale-104 hover:bg-button hover:opacity-100 active:scale-96 active:opacity-80 md:h-11 md:w-fit md:border-b-3 md:px-4.5 md:text-xl`}
+                  className={`font-calistoga text-lg font-semibold tracking-wider text-text shadow-2xl md:h-11 md:w-fit md:px-4.5 md:text-xl ${importButtonStyle}`}
                 >
                   <CloudArrowUpIcon
                     weight={`duotone`}
@@ -253,9 +249,9 @@ export default function TheStacks() {
                 </button>
                 <button
                   onClick={() => {
-                    setOpenModal('goodreads')
+                    setOpenModal({ type: 'goodreads' })
                   }}
-                  className={`mt-auto size-10 cursor-pointer overflow-hidden rounded-full border-b-2 border-red-700/75 bg-button opacity-95 transition-all hover:scale-104 hover:bg-button hover:opacity-100 active:scale-96 active:opacity-80 md:size-11 md:border-b-3`}
+                  className={`overflow-hidden md:size-11 ${importButtonStyle}`}
                 >
                   <img
                     src={goodreadsLogo}
@@ -266,6 +262,7 @@ export default function TheStacks() {
               </div>
             </div>
 
+            {/* Books Table */}
             {books.length > 0 && (
               <table className="w-full table-fixed border-collapse rounded-md bg-button text-text shadow-lg">
                 <thead className={'text-left'}>
@@ -310,7 +307,7 @@ export default function TheStacks() {
                       <td className={`pr-2.5 text-right lg:pr-0`}>
                         <div className={'flex justify-end gap-3.5 lg:justify-center lg:gap-6'}>
                           <button
-                            onClick={() => setBookToBurn(book)}
+                            onClick={() => setOpenModal({ type: 'burn', book })}
                             title={'Delete book'}
                             className={`group cursor-pointer transition-all duration-200 hover:scale-120 hover:animate-pulse hover:brightness-120 active:scale-130 active:brightness-110`}
                           >
@@ -324,7 +321,7 @@ export default function TheStacks() {
                             />
                           </button>
                           <button
-                            onClick={() => setBookToEdit(book)}
+                            onClick={() => setOpenModal({ type: 'edit', book })}
                             title="Edit book details"
                             className={`group cursor-pointer transition-all duration-200 hover:scale-120 hover:animate-pulse hover:brightness-120 active:scale-130 active:brightness-110`}
                           >
@@ -351,7 +348,7 @@ export default function TheStacks() {
             {books.length > 0 && (
               <button
                 onClick={() => {
-                  setOpenModal('reset')
+                  setOpenModal({ type: 'reset' })
                 }}
                 className={`ml-auto cursor-pointer rounded-lg border-b-3 border-red-700/90 bg-button/90 px-6 py-2.5 font-calistoga text-sm font-semibold tracking-wide text-text shadow-2xl transition-all hover:scale-104 hover:bg-button active:scale-96 active:opacity-100 md:bg-button/95 md:text-base md:font-extrabold md:tracking-wider`}
               >
