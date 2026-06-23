@@ -146,6 +146,7 @@ function LeaderboardContent({ progress, rankings }: { progress: number; rankings
   )![1]
 
   const thStyle = `px-2 pt-1.25 pb-1 first:pl-2 md:first:pl-5 text-base tracking-wider md:pb-1.25 md:pt-2 md:text-xl font-extrabold font-calistoga `
+
   const tdStyle = `md:py-2 py-1.25 first:pl-3 md:first:pl-6 last:max-md:pr-2.25 px-2`
 
   return (

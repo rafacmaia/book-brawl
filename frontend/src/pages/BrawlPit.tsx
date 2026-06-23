@@ -280,6 +280,28 @@ export default function BrawlPit() {
   )
 }
 
+const defaultCardStyle =
+  'gap-1 px-5 [@media(min-height:600px)]:gap-1.75 [@media(min-height:700px)]:px-8 [@media(min-height:700px)]:gap-4 [@media(min-height:700px)]:sm:gap-6 [@media(min-height:700px)]:sm:py-4'
+const defaultTitleStyle =
+  '[@media(min-height:350px)]:text-[1.6rem]/8  [@media(min-height:600px)]:text-[1.85rem]/10 [@media(min-height:700px)]:text-[2.125rem]/11 [@media(min-height:700px)]:sm:text-[2.75rem]/15'
+const defaultAuthorStyle =
+  '[@media(min-height:350px)]:text-[1.25rem]/6 [@media(min-height:600px)]:text-[1.35rem]/7 [@media(min-height:700px)]:text-[1.5rem] [@media(min-height:700px)]:sm:text-[1.875rem]'
+
+const tightCardStyle =
+  'gap-1 px-5 [@media(min-height:700px)]:gap-3 [@media(min-height:700px)]:sm:gap-4 [@media(min-height:700px)]:px-6 [@media(min-height:700px)]:sm:px-8 sm:py-3'
+const tightTitleStyle =
+  '[@media(min-height:350px)]:text-[1.6rem]/8  [@media(min-height:600px)]:text-[1.65rem]/8 [@media(min-height:700px)]:text-[2rem]/10 [@media(min-height:700px)]:sm:text-[2.4rem]/13'
+const tightAuthorStyle =
+  '[@media(min-height:350px)]:text-[1.25rem]/6 [@media(min-height:600px)]:text-[1.3rem]/7 [@media(min-height:700px)]:text-[1.4rem]/8 [@media(min-height:700px)]:sm:text-[1.6rem]/10'
+
+const tighterCardStyle =
+  'gap-1 px-2 [@media(min-height:500px)]:px-4 [@media(min-height:600px)]:px-6 [@media(min-height:700px)]:gap-2 sm:gap-4 sm:px-7 sm:py-3'
+const tighterTitleStyle =
+  '[@media(min-height:350px)]:text-[1.5rem]/7  [@media(min-height:600px)]:text-[1.55rem]/7 [@media(min-height:700px)]:text-[2rem]/10 [@media(min-height:700px)]:sm:text-[2.4rem]/12'
+
+const hoverStyling =
+  'md:hover:-translate-y-2 md:hover:scale-[1.02] md:hover:border-primary/80 md:hover:bg-linear-to-b md:hover:from-sky-800 md:hover:to-sky-900 md:hover:text-primary md:hover:shadow-2xl md:hover:brightness-105 max-md:active:scale-95 max-md:active:border-primary/80 max-md:active:bg-linear-to-b max-md:active:from-sky-800 max-md:active:to-sky-900 max-md:active:text-primary max-md:active:shadow-2xl'
+
 function BookCard({
   book,
   onClick,
@@ -303,38 +325,19 @@ function BookCard({
   const veryLongTitle = title.length >= 69
   const longAuthor = author.length >= 30
 
-  const regularCardStyle =
-    'gap-1 px-5 [@media(min-height:600px)]:gap-1.75 [@media(min-height:700px)]:px-8 [@media(min-height:700px)]:gap-4 [@media(min-height:700px)]:sm:gap-6 [@media(min-height:700px)]:sm:py-4'
-  const regularTitleStyle =
-    '[@media(min-height:350px)]:text-[1.6rem]/8  [@media(min-height:600px)]:text-[1.85rem]/10 [@media(min-height:700px)]:text-[2.125rem]/11 [@media(min-height:700px)]:sm:text-[2.75rem]/15'
-  const regularAuthorStyle =
-    '[@media(min-height:350px)]:text-[1.25rem]/6 [@media(min-height:600px)]:text-[1.35rem]/7 [@media(min-height:700px)]:text-[1.5rem] [@media(min-height:700px)]:sm:text-[1.875rem]'
-
-  const tightCardStyle =
-    'gap-1 px-5 [@media(min-height:700px)]:gap-3 [@media(min-height:700px)]:sm:gap-4 [@media(min-height:700px)]:px-6 [@media(min-height:700px)]:sm:px-8 sm:py-3'
-  const tightTitleStyle =
-    '[@media(min-height:350px)]:text-[1.6rem]/8  [@media(min-height:600px)]:text-[1.65rem]/8 [@media(min-height:700px)]:text-[2rem]/10 [@media(min-height:700px)]:sm:text-[2.4rem]/13'
-  const tightAuthorStyle =
-    '[@media(min-height:350px)]:text-[1.25rem]/6 [@media(min-height:600px)]:text-[1.3rem]/7 [@media(min-height:700px)]:text-[1.4rem]/8 [@media(min-height:700px)]:sm:text-[1.6rem]/10'
-
-  const tighterCardStyle =
-    'gap-1 px-2 [@media(min-height:500px)]:px-4 [@media(min-height:600px)]:px-6 [@media(min-height:700px)]:gap-2 sm:gap-4 sm:px-7 sm:py-3'
-  const tighterTitleStyle =
-    '[@media(min-height:350px)]:text-[1.5rem]/7  [@media(min-height:600px)]:text-[1.55rem]/7 [@media(min-height:700px)]:text-[2rem]/10 [@media(min-height:700px)]:sm:text-[2.4rem]/12'
-
   const cardStyle = veryLongTitle
     ? tighterCardStyle
     : longTitle || longAuthor
       ? tightCardStyle
-      : regularCardStyle
+      : defaultCardStyle
 
   const titleStyle = veryLongTitle
     ? tighterTitleStyle
     : longTitle
       ? tightTitleStyle
-      : regularTitleStyle
+      : defaultTitleStyle
 
-  const authorStyle = longAuthor || veryLongTitle ? tightAuthorStyle : regularAuthorStyle
+  const authorStyle = longAuthor || veryLongTitle ? tightAuthorStyle : defaultAuthorStyle
 
   // Selected styling is applied on mobile when user taps a book, to provide feedback on their
   // selection while the next match is being prepared and transitioned in.
@@ -342,9 +345,6 @@ function BookCard({
   const selectedStyling = isSelected
     ? 'scale-85 -translate-y-2 border-primary/80 bg-background text-primary shadow-2xl'
     : 'text-text border-accent/80 bg-linear-to-b from-[oklch(0.860_0.152_97.399)] to-[oklch(0.815_0.152_97.399)] shadow-lg'
-
-  const hoverStyling =
-    'md:hover:-translate-y-2 md:hover:scale-[1.02] md:hover:border-primary/80 md:hover:bg-linear-to-b md:hover:from-sky-800 md:hover:to-sky-900 md:hover:text-primary md:hover:shadow-2xl md:hover:brightness-105 max-md:active:scale-95 max-md:active:border-primary/80 max-md:active:bg-linear-to-b max-md:active:from-sky-800 max-md:active:to-sky-900 max-md:active:text-primary max-md:active:shadow-2xl'
 
   return (
     <button

@@ -17,6 +17,7 @@ import { useImportBooks } from '@/hooks/useImportBooks'
 
 const modalButtonStyle =
   'cursor-pointer rounded-t-xl rounded-b-3xl border-b-3 px-4 pb-1.25 pt-2.5 font-zain text-sm text-center [@media(min-height:700px)]:text-base font-extrabold tracking-wider text-primary drop-shadow-md transition-all md:text-lg md:pt-2.75 md:pb-1.5 hover:scale-104 active:scale-95'
+
 const chooseFileButtonStyle = `mx-auto w-1/2 border-red-600/80 bg-text/95 shadow-md hover:bg-text hover:opacity-100 ${modalButtonStyle}`
 
 // ====== COMPONENTS

@@ -5,13 +5,6 @@ import ManualAddFeedback from './feedback/ManualAddFeedback'
 import type { Book } from '@/api/types'
 import { type AddState } from '@/hooks/useAddBook'
 
-interface Props {
-  addState: AddState
-  addBook: (title: string, author: string, rating: number | null) => Promise<Book | null>
-  onSuccess?: (book: Book) => void
-  variant?: 'default' | 'compact'
-}
-
 const styles = {
   default: {
     form: 'gap-3 flex w-full flex-col justify-between font-bold text-text sm:text-lg md:flex-row md:gap-0',
@@ -27,6 +20,13 @@ const styles = {
     button:
       'text-base cursor-pointer rounded-lg w-full border-b-3 border-primary/75 bg-accent/80 pt-2 pb-1.5 text-center font-zain font-extrabold text-primary/90 shadow-md transition-all hover:scale-102 hover:bg-accent/85 active:scale-97 active:bg-accent/70 md:bg-accent/75 md:text-xl md:pt-2.5',
   },
+}
+
+interface Props {
+  addState: AddState
+  addBook: (title: string, author: string, rating: number | null) => Promise<Book | null>
+  onSuccess?: (book: Book) => void
+  variant?: 'default' | 'compact'
 }
 
 export function ManualAddForm({ addState, addBook, onSuccess, variant = 'default' }: Props) {

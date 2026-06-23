@@ -3,10 +3,11 @@ import { type ReactNode } from 'react'
 import { Collapsible } from '@/components/ui/Collapsible'
 import { ToggleIcon } from '@/components/ui/ToggleIcon'
 
-const sectionToggleStyle = 'flex w-full cursor-pointer text-left items-center gap-1.5 sm:gap-2'
-const h3Style = 'font-bold sm:font-extrabold underline decoration-accent/50 underline-offset-2'
-
 export type GoodreadsSections = 'instructions' | 'quirks' | null
+
+const sectionToggleStyle = 'flex w-full cursor-pointer text-left items-center gap-1.5 sm:gap-2'
+
+const h3Style = 'font-bold sm:font-extrabold underline decoration-accent/50 underline-offset-2'
 
 export function GoodreadsInstructions({
   openSection,

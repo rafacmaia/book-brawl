@@ -33,8 +33,11 @@ type Modal =
 
 const importButtonStyle =
   'mt-auto size-10 cursor-pointer rounded-full border-b-2 border-red-700/75 bg-button opacity-95 transition-all hover:scale-104 hover:opacity-100 active:scale-96 active:opacity-80 md:border-b-3'
+
 const cellXPadding = 'first:pl-2.25 lg:px-2 lg:first:pl-4'
+
 const thStyle = `font-calistoga text-base tracking-wider pt-1.5 lg:pt-2 lg:pb-1.5 pb-1.25 font-extrabold md:text-lg lg:text-xl  ${cellXPadding}`
+
 const tdStyle = `py-1.25 lg:py-1.75 ${cellXPadding}`
 
 // ===== COMPONENT
