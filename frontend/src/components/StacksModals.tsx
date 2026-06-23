@@ -1,14 +1,16 @@
 import { FireIcon } from '@heroicons/react/24/solid'
-import { BombIcon, PencilSimpleIcon, SwordIcon, XCircleIcon } from '@phosphor-icons/react'
+import { BombIcon, PencilSimpleIcon, XCircleIcon } from '@phosphor-icons/react'
 import { TriangleAlert } from 'lucide-react'
 import { type KeyboardEvent, type ReactNode, useEffect, useState } from 'react'
 
-import { ImportFeedback } from './feedback/ImportFeedback'
-
 import type { Book } from '@/api/types'
-import { ChooseFileButton } from '@/components/ui/ChooseFileButton'
-import { Collapsible } from '@/components/ui/Collapsible'
-import { ToggleIcon } from '@/components/ui/ToggleIcon'
+import { ChooseFileButton } from '@/components/import/ChooseFileButton'
+import { CustomCSVInstructions } from '@/components/import/CustomCSVInstructions'
+import {
+  GoodreadsInstructions,
+  type GoodreadsSections,
+} from '@/components/import/GoodreadsInstructions'
+import { ImportFeedback } from '@/components/import/ImportFeedback'
 import { useImportBooks } from '@/hooks/useImportBooks'
 
 // ====== CONSTANTS
@@ -42,25 +44,7 @@ export function ImportCSVModal({
         <XCircleIcon weight={'duotone'} className="size-6.25 md:size-7" />
       </button>
       <div className="flex flex-col gap-3 rounded-lg bg-background/95 px-4 py-3 text-base tracking-wide text-primary/95 md:px-5 md:py-4 [@media(min-height:700px)]:text-lg">
-        <p>
-          If you track your books in Excel, Sheets, Notion, or anywhere with columns and rows, you
-          can export it as a CSV file and throw it in here.
-        </p>
-        <p>
-          Your file must have <span className={textEmphasisStyle}>title</span> and{' '}
-          <span className={textEmphasisStyle}>author</span> columns.
-        </p>
-        <p>
-          A <span className={textEmphasisStyle}>rating</span> column (1-10, decimals welcome) is
-          optional, but encouraged. It gives a starting placement for the{' '}
-          <span className={textEmphasisStyle}>
-            Brawl Pit
-            <span>
-              <SwordIcon weight={'bold'} className="ml-1 inline -translate-y-0.5" />
-            </span>
-          </span>{' '}
-          to put to the test.
-        </p>
+        <CustomCSVInstructions />
       </div>
       <div className="flex flex-col gap-4">
         <ChooseFileButton
@@ -81,14 +65,11 @@ export function ImportGoodreadsModal({
   onClose: () => void
   onImportSuccess: () => void
 }) {
-  const [openSection, setOpenSection] = useState<'instructions' | 'quirks' | null>(null)
+  const [openSection, setOpenSection] = useState<GoodreadsSections>(null)
 
   const { state, importBooks } = useImportBooks()
 
   const isImporting = state.type === 'loading'
-
-  const sectionToggleStyle = 'flex w-full cursor-pointer text-left items-center gap-1.5 sm:gap-2'
-  const h3Style = 'font-bold sm:font-extrabold underline decoration-accent/50 underline-offset-2'
 
   return (
     <Modal heading="Import from Goodreads" isActive={isImporting} onClose={onClose}>
@@ -101,96 +82,33 @@ export function ImportGoodreadsModal({
         <XCircleIcon weight={'duotone'} className="size-6.25 md:size-7" />
       </button>
       <div className="flex flex-col gap-2 rounded-lg bg-background/95 px-4 py-3 text-base tracking-wide text-primary/95 md:gap-3 md:px-5 md:py-4 [@media(min-height:700px)]:text-lg">
-        <p>Upload your Goodreads export file below to auto import all your books!</p>
-        <div className="flex w-full flex-col gap-1">
-          <button
-            className={sectionToggleStyle}
-            onClick={() => setOpenSection(openSection === 'instructions' ? null : 'instructions')}
-            aria-expanded={openSection === 'instructions'}
-          >
-            <ToggleIcon variant="small" isOpen={openSection === 'instructions'} />
-            <h3 className={h3Style}>How to get your export file</h3>
-          </button>
-          <Collapsible isOpen={openSection === 'instructions'}>
-            <div
-              className={
-                'mb-2 ml-1.75 flex flex-col gap-2 border-l border-primary/30 pl-3.5 sm:mb-3 sm:ml-2 sm:pl-5 sm:text-lg'
-              }
-            >
-              <ol className="flex list-decimal flex-col gap-2 pl-4.5 marker:font-extrabold sm:pl-5">
-                <li>
-                  On desktop (not the app), log in to{' '}
-                  <a href={'https://goodreads.com'} target={'_blank'} rel={'noopener noreferrer'}>
-                    <span
-                      className={
-                        'cursor-pointer font-black underline decoration-accent decoration-wavy decoration-1 underline-offset-2 transition-all hover:text-xl hover:underline-offset-1'
-                      }
-                    >
-                      Goodreads
-                    </span>
-                  </a>{' '}
-                  and go to <span className={textEmphasisStyle}>My Books</span>.
-                </li>
-                <li>
-                  Select <span className={textEmphasisStyle}>Import and export</span> in the
-                  left-side menu.
-                </li>
-                <li>
-                  Under Export, click <span className={textEmphasisStyle}>Export Library</span> and
-                  wait for it to generate your file.
-                </li>
-                <li>
-                  Once ready, click the download link (likely named "
-                  <span className={textEmphasisStyle}>Your export from...</span>") and then upload
-                  it here!
-                </li>
-              </ol>
-            </div>
-          </Collapsible>
-          <button
-            className={sectionToggleStyle}
-            onClick={() => setOpenSection(openSection === 'quirks' ? null : 'quirks')}
-            aria-expanded={openSection === 'quirks'}
-          >
-            <ToggleIcon variant="small" isOpen={openSection === 'quirks'} />
-            <h3 className={h3Style}>Goodreads quirks</h3>
-          </button>
-          <Collapsible isOpen={openSection === 'quirks'}>
-            <div
-              className={
-                'ml-1.75 flex flex-col gap-2 border-l border-primary/30 pl-3.5 sm:mb-1 sm:ml-2 sm:pl-4 sm:text-lg'
-              }
-            >
-              <p>
-                Goodreads often groups titles, subtitles, and series information together, which
-                makes some titles awkwardly long, and duplicates harder to catch.
-              </p>
-              <p>
-                After importing, you can burn any sneaky duplicates
-                <span>
-                  <FireIcon className="ml-1 inline size-4 -translate-y-0.5" />
-                </span>
-                , fix a book's title and author
-                <span>
-                  <PencilSimpleIcon
-                    weight={'fill'}
-                    className="ml-1 inline size-4 -translate-y-0.5"
-                  />
-                </span>
-                , or add any missing reads.
-              </p>
-            </div>
-          </Collapsible>
-        </div>
-      </div>
-      <div className="flex w-full flex-col gap-4" onClick={() => setOpenSection(null)}>
-        <ChooseFileButton
-          isLoading={state.type === 'loading'}
-          onFileSelect={(file) => importBooks(file, 'goodreads', onImportSuccess)}
-          className={`${chooseFileButtonStyle} ${state.type === 'success' ? 'opacity-85' : 'opacity-95'}`}
+        <GoodreadsInstructions
+          openSection={openSection}
+          setOpenSection={setOpenSection}
+          quirksNote={
+            <p>
+              After importing, you can burn any sneaky duplicates
+              <span>
+                <FireIcon className="ml-1 inline size-4 -translate-y-0.5" />
+              </span>
+              , fix a book's title and author
+              <span>
+                <PencilSimpleIcon weight={'fill'} className="ml-1 inline size-4 -translate-y-0.5" />
+              </span>
+              , or add any missing reads.
+            </p>
+          }
         />
-        <ImportFeedback state={state} />
       </div>
+      <ChooseFileButton
+        isLoading={state.type === 'loading'}
+        onFileSelect={(file) => {
+          setOpenSection(null)
+          void importBooks(file, 'goodreads', onImportSuccess)
+        }}
+        className={`${chooseFileButtonStyle} ${state.type === 'success' ? 'opacity-85' : 'opacity-95'}`}
+      />
+      <ImportFeedback state={state} />
     </Modal>
   )
 }

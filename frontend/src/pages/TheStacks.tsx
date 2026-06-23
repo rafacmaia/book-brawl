@@ -260,7 +260,7 @@ export default function TheStacks() {
                   <img
                     src={goodreadsLogo}
                     alt="Goodreads"
-                    className="block size-5 h-full w-full object-contain py-1.75 md:py-1.5"
+                    className="block h-full w-full object-contain py-1.75"
                   />
                 </button>
               </div>

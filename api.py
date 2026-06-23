@@ -1,7 +1,6 @@
 import csv
 import io
 from contextlib import asynccontextmanager
-from typing import Literal
 
 from fastapi import Depends, FastAPI, Form, HTTPException, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -156,7 +155,7 @@ def add_book(
 @app.post("/stacks/import", status_code=status.HTTP_201_CREATED)
 def import_books(
     file: UploadFile,
-    source: FileSource = Form(FileSource.custom),
+    source: FileSource = Form(),
     reader_id: int = Depends(get_current_reader_id),
 ) -> ImportOutcome:
     """Import books from a CSV file."""
