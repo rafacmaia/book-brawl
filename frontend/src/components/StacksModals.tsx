@@ -1,7 +1,6 @@
 import { FireIcon } from '@heroicons/react/24/solid'
-import { BombIcon, PencilSimpleIcon, XCircleIcon } from '@phosphor-icons/react'
-import { TriangleAlert } from 'lucide-react'
-import { type KeyboardEvent, type ReactNode, useEffect, useState } from 'react'
+import { BombIcon, PencilSimpleIcon } from '@phosphor-icons/react'
+import { type KeyboardEvent, useEffect, useState } from 'react'
 
 import type { Book } from '@/api/types'
 import { ChooseFileButton } from '@/components/import/ChooseFileButton'
@@ -11,14 +10,14 @@ import {
   type GoodreadsSections,
 } from '@/components/import/GoodreadsInstructions'
 import { ImportFeedback } from '@/components/import/ImportFeedback'
+import { Modal, ModalError } from '@/components/ui/Modal'
 import { useImportBooks } from '@/hooks/useImportBooks'
 
-// ====== CONSTANTS
+// ====== STYLE CONSTANTS
 
 const modalButtonStyle =
   'cursor-pointer rounded-t-xl rounded-b-3xl border-b-3 px-4 pb-1.25 pt-2.5 font-zain text-sm text-center [@media(min-height:700px)]:text-base font-extrabold tracking-wider text-primary drop-shadow-md transition-all md:text-lg md:pt-2.75 md:pb-1.5 hover:scale-104 active:scale-95'
 const chooseFileButtonStyle = `mx-auto w-1/2 border-red-600/80 bg-text/95 shadow-md hover:bg-text hover:opacity-100 ${modalButtonStyle}`
-const textEmphasisStyle = 'font-bold underline underline-offset-2 decoration-red-600/60'
 
 // ====== COMPONENTS
 
@@ -35,14 +34,6 @@ export function ImportCSVModal({
 
   return (
     <Modal heading="Import from a CSV" isActive={isImporting} onClose={onClose}>
-      <button
-        onClick={onClose}
-        disabled={isImporting}
-        aria-label="Close import modal"
-        className="absolute top-2 right-2 cursor-pointer text-red-800/80 transition-all hover:scale-112 active:scale-95 md:top-3 md:right-3"
-      >
-        <XCircleIcon weight={'duotone'} className="size-6.25 md:size-7" />
-      </button>
       <div className="flex flex-col gap-3 rounded-lg bg-background/95 px-4 py-3 text-base tracking-wide text-primary/95 md:px-5 md:py-4 [@media(min-height:700px)]:text-lg">
         <CustomCSVInstructions />
       </div>
@@ -73,14 +64,6 @@ export function ImportGoodreadsModal({
 
   return (
     <Modal heading="Import from Goodreads" isActive={isImporting} onClose={onClose}>
-      <button
-        onClick={onClose}
-        disabled={isImporting}
-        aria-label="Close import modal"
-        className="absolute top-2 right-2 cursor-pointer text-red-800/80 transition-all hover:scale-112 active:scale-95 md:top-3 md:right-3"
-      >
-        <XCircleIcon weight={'duotone'} className="size-6.25 md:size-7" />
-      </button>
       <div className="flex flex-col gap-2 rounded-lg bg-background/95 px-4 py-3 text-base tracking-wide text-primary/95 md:gap-3 md:px-5 md:py-4 [@media(min-height:700px)]:text-lg">
         <GoodreadsInstructions
           openSection={openSection}
@@ -145,15 +128,7 @@ export function DeleteModal({
           KEEP
         </button>
       </div>
-      {error && (
-        <p
-          className={`w-full self-center rounded-md bg-red-800/85 px-4 py-3 text-center text-base font-extrabold text-pretty text-primary opacity-95 md:rounded-lg md:px-4 md:pb-2.75 md:text-lg md:text-primary md:opacity-90 md:brightness-110`}
-        >
-          <TriangleAlert strokeWidth={2.25} className={'inline size-4 md:size-4.5'} />
-          <br />
-          {error}
-        </p>
-      )}
+      {error && <ModalError error={error} />}
     </Modal>
   )
 }
@@ -185,13 +160,6 @@ export function EditModal({
 
   return (
     <Modal heading="Edit Book" onClose={onCancel} variant="red">
-      <button
-        onClick={onCancel}
-        aria-label="Close edit modal"
-        className="absolute top-2 right-2 cursor-pointer text-red-800/80 transition-all hover:scale-112 active:scale-95 md:top-3 md:right-3"
-      >
-        <XCircleIcon weight={'duotone'} className="size-6.25 md:size-7" />
-      </button>
       <div className="flex flex-col gap-2.5 font-zain text-base md:text-lg">
         <input
           type="text"
@@ -213,15 +181,7 @@ export function EditModal({
         >
           SAVE
         </button>
-        {error && (
-          <p
-            className={`w-full self-center rounded-md bg-red-800/85 px-4 py-3 text-center text-base font-extrabold text-pretty text-primary opacity-95 md:rounded-lg md:px-4 md:pb-2.75 md:text-lg md:text-primary md:opacity-90 md:brightness-110`}
-          >
-            <TriangleAlert strokeWidth={2.25} className={'inline size-4 md:size-4.75'} />
-            <br />
-            {error}
-          </p>
-        )}
+        {error && <ModalError error={error} />}
       </div>
     </Modal>
   )
@@ -242,14 +202,20 @@ export function ResetModal({
   const [resetTimer, setResetTimer] = useState(3)
 
   useEffect(() => {
-    if (!finalConfirmation || resetTimer === 0) return
+    if (!finalConfirmation) return
 
     const interval = setInterval(() => {
-      setResetTimer((prev) => prev - 1)
+      setResetTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval)
+          return 0
+        }
+        return prev - 1
+      })
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [finalConfirmation, resetTimer])
+  }, [finalConfirmation])
 
   return (
     <Modal heading="Burn it all?" onClose={onCancel} variant="red">
@@ -301,47 +267,7 @@ export function ResetModal({
           </button>
         </div>
       )}
-      {error && (
-        <p
-          className={`w-full self-center rounded-md bg-red-800/95 px-4 py-3 text-center text-base font-extrabold text-pretty text-primary opacity-95 md:rounded-lg md:px-4 md:pb-2.75 md:text-lg md:text-primary`}
-        >
-          <TriangleAlert strokeWidth={2.25} className={'inline size-4 md:size-4.5'} />
-          <br />
-          {error}
-        </p>
-      )}
+      {error && <ModalError error={error} />}
     </Modal>
-  )
-}
-
-function Modal({
-  children,
-  heading,
-  onClose,
-  isActive = false,
-  variant = 'blue',
-}: {
-  children: ReactNode
-  heading: string
-  onClose: () => void
-  isActive?: boolean
-  variant?: 'blue' | 'red'
-}) {
-  const borderColor = variant === 'red' ? 'border-red-800/80' : 'border-background/90'
-
-  return (
-    <div
-      onClick={(e) => {
-        if (!isActive && e.target === e.currentTarget) onClose()
-      }}
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 py-4 md:items-center"
-    >
-      <div
-        className={`relative my-auto flex max-h-[calc(100vh-2rem)] w-[90%] flex-col gap-4 overflow-y-auto rounded-lg border border-y-8 bg-button/97 p-4 font-zain text-text shadow-2xl md:w-lg md:gap-4 md:rounded-md md:border-t-8 md:border-b-8 md:p-8 ${borderColor}`}
-      >
-        <h2 className={`font-calistoga text-2xl font-bold tracking-wide md:text-3xl`}>{heading}</h2>
-        {children}
-      </div>
-    </div>
   )
 }

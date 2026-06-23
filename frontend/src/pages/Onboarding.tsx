@@ -20,10 +20,18 @@ type OnboardingSection = 'goodreads' | 'manual' | 'custom' | null
 // ====== STYLE CONSTANTS
 
 const width = 'w-full sm:w-[34rem]'
+
 const sectionStyle = `flex flex-col items-center justify-center py-2 px-2 border-2 rounded-lg sm:p-3 sm:pt-3.25 ${width}`
+
 const toggleOptionStyle = 'flex w-full items-center gap-2 cursor-pointer'
+
 const toggleHeadingStyle = 'text-lg sm:text-2xl font-extrabold tracking-wide'
-const textEmphasisStyle = 'font-extrabold underline decoration-accent/70 underline-offset-1'
+
+const collapsibleDivStyle =
+  'mt-1.25 flex w-full flex-col items-start justify-center border-t border-primary/30 p-1 pt-3 tracking-wide leading-normal text-primary text-base text-pretty sm:mt-2 sm:text-xl sm:pt-4'
+
+const chooseFileButtonStyle =
+  'cursor-pointer w-1/2 sm:w-2/5 rounded-lg border-b-3 px-6 pb-1.25 pt-2.25 font-zain text-sm text-center [@media(min-height:700px)]:text-base font-extrabold tracking-wide text-text drop-shadow-md transition-all [@media(min-height:700px)]:sm:text-lg sm:pt-2.75 sm:pb-1.5 hover:scale-104 active:scale-95'
 
 // ====== COMPONENTS
 
@@ -127,9 +135,6 @@ export default function Onboarding() {
 
 // --- SECTIONS
 
-const collapsibleDivStyle =
-  'mt-1.25 flex w-full flex-col items-start justify-center border-t border-primary/30 p-1 pt-3 tracking-wide leading-normal text-primary text-base text-pretty sm:mt-2 sm:text-xl sm:pt-4'
-
 function GoodreadsImport({ onSuccess }: { onSuccess?: () => void }) {
   const { state, importBooks } = useImportBooks()
 
@@ -211,9 +216,7 @@ function CustomCSV({ onSuccess }: { onSuccess?: () => void }) {
 
   return (
     <div className={`gap-2 sm:gap-3 ${collapsibleDivStyle}`}>
-      <div
-        className={`'mb-1 sm:pb-4' flex flex-col gap-2 border-b border-primary/30 pb-3 sm:gap-3`}
-      >
+      <div className={`mb-1 flex flex-col gap-2 border-b border-primary/30 pb-3 sm:gap-3 sm:pb-4`}>
         <CustomCSVInstructions />
       </div>
       <ChooseFileButton
@@ -227,9 +230,6 @@ function CustomCSV({ onSuccess }: { onSuccess?: () => void }) {
 }
 
 // --- PRIMITIVES
-
-const chooseFileButtonStyle =
-  'cursor-pointer w-1/2 sm:w-2/5 rounded-lg border-b-3 px-6 pb-1.25 pt-2.25 font-zain text-sm text-center [@media(min-height:700px)]:text-base font-extrabold tracking-wide text-text drop-shadow-md transition-all [@media(min-height:700px)]:sm:text-lg sm:pt-2.75 sm:pb-1.5 hover:scale-104 active:scale-95'
 
 function ImportOutcome({ state }: { state: ImportState }) {
   if (state.type !== 'success' && state.type !== 'error') return null
