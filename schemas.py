@@ -1,6 +1,7 @@
 from enum import Enum
+from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, StringConstraints, field_validator
 
 # ====== ENUMS
 
@@ -91,7 +92,7 @@ class ImportOutcome(BaseModel):
 
 class UserSync(BaseModel):
     email: EmailStr
-    username: str
+    username: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 
 
 class UserBookCount(BaseModel):

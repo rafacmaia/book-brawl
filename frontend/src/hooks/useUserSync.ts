@@ -18,25 +18,24 @@ export function useUserSync() {
   const userId = user?.id
 
   const syncUser = useEffectEvent(async () => {
-    const token = await getToken()
+    if (!user) throw new Error('Mo authenticated user')
 
-    const body: User = {
-      email: user!.primaryEmailAddress!.emailAddress,
-      username:
-        user!.username ??
-        user!.firstName ??
-        user!.primaryEmailAddress?.emailAddress?.split('@')[0] ??
-        user!.id,
-    }
+    const email = user.primaryEmailAddress?.emailAddress
+    if (!email) throw new Error('Account has no email address')
+
+    const token = await getToken()
+    if (!token) throw new Error('Not authenticated')
+
+    const username = user.username ?? user.firstName ?? email.split('@')[0] ?? user.id
+
+    const body: User = { email, username }
 
     const response = await apiFetch('/readers/me', token!, {
       method: 'POST',
       body: JSON.stringify(body),
     })
 
-    const result: UserBookCount = await response.json()
-
-    return result
+    return (await response.json()) as UserBookCount
   })
 
   useEffect(() => {
