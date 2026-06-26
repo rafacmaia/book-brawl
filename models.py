@@ -16,12 +16,16 @@ class Book:
         author: str,
         elo: int,
         rating: float | None = None,
+        isbn: str | None = None,
+        cover_url: str | None = None,
     ) -> None:
         self.id = id
         self.title = title
         self.author = author
         self.elo = elo
         self.rating = rating
+        self.isbn = isbn
+        self.cover_url = cover_url
         self.faced_opponents = {}  # {opp_id: times_matched} - used in confidence scoring
         self.won_over = {}  # {opp_id: times_won_over} - used for tiebreaking
 

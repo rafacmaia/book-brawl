@@ -1,5 +1,5 @@
 -- Book Brawl Database Schema
--- Last updated: 2026-06-13
+-- Last updated: 2026-06-26
 --
 -- To recreate the database from scratch, run this via psql:
 --   psql $DATABASE_URL < db/schema.sql
@@ -15,11 +15,13 @@ CREATE TABLE IF NOT EXISTS reader (
 
 CREATE TABLE IF NOT EXISTS book (
     id          SERIAL      PRIMARY KEY,
+    isbn        TEXT,
     reader_id   INTEGER     NOT NULL REFERENCES reader(id) ON DELETE CASCADE,
     title       TEXT        NOT NULL,
     author      TEXT        NOT NULL,
     rating      REAL,
     elo         INTEGER     NOT NULL,
+    cover_url   TEXT,
     CONSTRAINT title_not_empty CHECK (LENGTH(TRIM(title)) > 0),
     CONSTRAINT author_not_empty CHECK (LENGTH(TRIM(author)) > 0)
 );
