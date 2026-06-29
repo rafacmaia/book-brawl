@@ -1,11 +1,19 @@
 class BookDraft:
     def __init__(
-        self, title: str, author: str, elo: int, rating: float | None = None
+        self,
+        title: str,
+        author: str,
+        elo: int,
+        rating: float | None = None,
+        isbn: str | None = None,
+        cover_url: str | None = None,
     ) -> None:
         self.title = title
         self.author = author
         self.elo = elo
         self.rating = rating
+        self.isbn = isbn
+        self.cover_url = cover_url
 
 
 class Book:

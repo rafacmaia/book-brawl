@@ -198,7 +198,7 @@ def update_book(
 ) -> BookSummary:
     """Update the details of a book in the collection."""
     try:
-        updated = books_repo.update(reader_id, book_id, book.title, book.author)
+        updated = books_repo.update_title_and_author(reader_id, book_id, book.title, book.author)
         if not updated:
             raise HTTPException(status_code=404, detail="Book not found")
     except pg_errors.UniqueViolation:

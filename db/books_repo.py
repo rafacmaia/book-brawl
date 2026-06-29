@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Any
 
 from psycopg2.extras import RealDictCursor, execute_values
 
@@ -72,11 +71,19 @@ def insert(reader_id: int, book: BookDraft) -> int:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
                 """
-                    INSERT INTO book (reader_id, title, author, rating, elo) 
-                    VALUES (%s, %s, %s, %s, %s) 
+                    INSERT INTO book (reader_id, title, author, rating, elo, isbn, cover_url) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s) 
                     RETURNING id
                 """,
-                (reader_id, book.title, book.author, book.rating, book.elo),
+                (
+                    reader_id,
+                    book.title,
+                    book.author,
+                    book.rating,
+                    book.elo,
+                    book.isbn,
+                    book.cover_url,
+                ),
             )
             return cur.fetchone()["id"]
 
@@ -94,12 +101,15 @@ def insert_many(reader_id: int, books: list[BookDraft], *, conn=None) -> list[in
             result = execute_values(
                 cur,
                 """
-                INSERT INTO book (reader_id, title, author, rating, elo) 
+                INSERT INTO book (reader_id, title, author, rating, elo, isbn, cover_url) 
                 VALUES %s
                 ON CONFLICT (reader_id, LOWER(title), LOWER(author)) DO NOTHING
                 RETURNING id
                 """,
-                [(reader_id, b.title, b.author, b.rating, b.elo) for b in books],
+                [
+                    (reader_id, b.title, b.author, b.rating, b.elo, b.isbn, b.cover_url)
+                    for b in books
+                ],
                 fetch=True,
             )
             return [row[0] for row in result]
@@ -111,8 +121,10 @@ def insert_many(reader_id: int, books: list[BookDraft], *, conn=None) -> list[in
             return _execute(c)
 
 
-def update(reader_id: int, book_id: int, title: str, author: str) -> bool:
-    """Update an existing book."""
+def update_title_and_author(
+    reader_id: int, book_id: int, title: str, author: str
+) -> bool:
+    """Update a book's title and author, returning True if the update was successful."""
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
@@ -120,6 +132,65 @@ def update(reader_id: int, book_id: int, title: str, author: str) -> bool:
                 (title, author, reader_id, book_id),
             )
             return cur.rowcount > 0
+
+
+def update_cover_and_isbn(
+    book_id: int, cover_url: str | None, isbn: str | None
+) -> bool:
+    """Set the cover URL and ISBN for a book, returning True if the update was successful."""
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "UPDATE book SET cover_url = %s, isbn = %s WHERE id = %s",
+                (cover_url, isbn, book_id),
+            )
+            return cur.rowcount > 0
+
+
+def update_covers_and_isbns(
+    updates: list[tuple[int, str | None, str | None]], *, conn=None
+) -> None:
+    """Bulk-update cover URLs and ISBNs for many books in a single statement.
+
+    Each tuple is (book_id, cover_url, isbn). Used by the backfill script to fetch
+    covers and ISBNs of books that were already in the system before cover and
+    ISBN support.
+    """
+    if not updates:
+        return
+
+    def _execute(connection):
+        with connection.cursor() as cur:
+            execute_values(
+                cur,
+                """
+                UPDATE book AS b
+                SET cover_url = v.cover_url, isbn = v.isbn
+                FROM (VALUES %s) AS v(id, cover_url, isbn)
+                WHERE b.id = v.id
+                """,
+                updates,
+            )
+
+    if conn:
+        _execute(conn)
+    else:
+        with get_connection() as c:
+            _execute(c)
+
+
+def update_elo(book: Book, *, conn=None) -> None:
+    """Update the Elo score for a book."""
+
+    def _execute(connection):
+        with connection.cursor() as cur:
+            cur.execute("UPDATE book SET elo = %s WHERE id = %s", (book.elo, book.id))
+
+    if conn:
+        _execute(conn)
+    else:
+        with get_connection() as c:
+            _execute(c)
 
 
 def delete(reader_id: int, book_id: int) -> bool:
@@ -138,20 +209,6 @@ def delete_all(reader_id: int) -> None:
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("DELETE FROM book WHERE reader_id = %s", (reader_id,))
-
-
-def update_elo(book: Book, *, conn=None) -> None:
-    """Update the Elo score for a book."""
-
-    def _execute(connection):
-        with connection.cursor() as cur:
-            cur.execute("UPDATE book SET elo = %s WHERE id = %s", (book.elo, book.id))
-
-    if conn:
-        _execute(conn)
-    else:
-        with get_connection() as c:
-            _execute(c)
 
 
 def get_elo_range(reader_id: int) -> dict | None:
