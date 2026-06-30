@@ -10,9 +10,12 @@ from config import (
     RATING_FLOOR,
     RATING_FLOOR_BUMP,
 )
-from db.books_repo import get_all, get_elo_range, insert, insert_many
+from db.books_repo import EloRange, get_all, get_elo_range, insert, insert_many
 from db.connection import get_connection
 from models import Book, BookDraft
+from services.catalog_service import fetch_book_metadata
+
+# ====== TYPES
 
 
 class RowStatus(Enum):
@@ -58,10 +61,10 @@ def add_book(
 
     # Get current Elo range to scale new books appropriately, defaulting to the
     # standard 800-1200 range if no books exist yet.
-    elo_range = get_elo_range(reader_id) or {
-        "elo_min": E_MIN_DEFAULT,
-        "elo_max": E_MAX_DEFAULT,
-    }
+    elo_range = get_elo_range(reader_id) or EloRange(
+        min=E_MIN_DEFAULT, max=E_MAX_DEFAULT
+    )
+
     elo = _rating_to_elo(elo_range, rating)
 
     # Fetch cover image url and ISBN from Google Books API. Returns None if not
@@ -96,10 +99,9 @@ def import_books(
 
     # Get current Elo range to scale new books appropriately, defaulting to the
     # standard 800-1200 range if no books exist yet.
-    elo_range = get_elo_range(reader_id) or {
-        "elo_min": E_MIN_DEFAULT,
-        "elo_max": E_MAX_DEFAULT,
-    }
+    elo_range = get_elo_range(reader_id) or EloRange(
+        min=E_MIN_DEFAULT, max=E_MAX_DEFAULT
+    )
 
     row_processor = ROW_PROCESSORS[source]
     result = ImportResult()  # Set up the result object
@@ -125,7 +127,7 @@ def import_books(
 
             # Check if any books were rejected due to uniqueness constraint, meaning
             # any duplicates that weren't captured before the insert.
-            db_conflicts = len(new_books) - len(inserted_books)
+            db_conflicts = len(new_books) - inserted_books
 
             result.imported -= db_conflicts
             result.duplicates += db_conflicts
@@ -215,13 +217,13 @@ def _parse_title_author(
 # ====== RATING TO ELO CONVERSION
 
 
-def _rating_to_elo(elo_range: dict[str, int], raw_rating: float | None) -> int:
+def _rating_to_elo(elo_range: EloRange, raw_rating: float | None) -> int:
     """Convert a user rating, or lack of, to an Elo score."""
     if raw_rating is None:
         return ELO_DEFAULT
 
-    elo_min = elo_range["elo_min"]
-    elo_max = elo_range["elo_max"]
+    elo_min = elo_range.min
+    elo_max = elo_range.max
 
     # If Elo scores have not strayed from the default window, map to it, otherwise,
     # map to the current elo range.

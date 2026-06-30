@@ -22,6 +22,12 @@ class BookMetadata:
     isbn: str | None
 
 
+@dataclass
+class EloRange:
+    min: int
+    max: int
+
+
 # ====== READS
 
 
@@ -77,6 +83,22 @@ def get_all_history(reader_id: int) -> list[Book]:
     return books
 
 
+def get_elo_range(reader_id: int) -> EloRange | None:
+    """Return min and max Elo across all books."""
+    with get_connection() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                "SELECT MIN(elo) as min, MAX(elo) as max FROM book WHERE reader_id = %s",
+                (reader_id,),
+            )
+            result = cur.fetchone()
+
+            return (
+                EloRange(**dict(result))
+                if result and result["min"] is not None
+                else None
+            )
+
 
 # ====== INSERTS
 
@@ -104,13 +126,13 @@ def insert(reader_id: int, book: BookDraft) -> Book:
             return Book(**cur.fetchone())
 
 
-def insert_many(reader_id: int, books: list[BookDraft], *, conn=None) -> list[int]:
+def insert_many(reader_id: int, books: list[BookDraft], *, conn=None) -> int:
     """Insert multiple books, skipping rows that collide with the unique constraint.
 
-    Returns the IDs of books actually inserted (collisions excluded).
+    Returns the count of books actually inserted (collisions excluded).
     """
     if not books:
-        return []
+        return 0
 
     def _execute(connection):
         with connection.cursor() as cur:
@@ -128,7 +150,7 @@ def insert_many(reader_id: int, books: list[BookDraft], *, conn=None) -> list[in
                 ],
                 fetch=True,
             )
-            return [row[0] for row in result]
+            return len(result)
 
     if conn:
         return _execute(conn)
@@ -226,16 +248,3 @@ def delete_all(reader_id: int) -> None:
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("DELETE FROM book WHERE reader_id = %s", (reader_id,))
-
-
-def get_elo_range(reader_id: int) -> dict | None:
-    """Return min and max Elo across all books."""
-    with get_connection() as conn:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute(
-                "SELECT MIN(elo) as elo_min, MAX(elo) as elo_max FROM book WHERE reader_id = %s",
-                (reader_id,),
-            )
-            result = cur.fetchone()
-
-            return dict(result) if result and result["elo_min"] is not None else None
