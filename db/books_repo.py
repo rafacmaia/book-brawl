@@ -5,12 +5,24 @@ from psycopg2.extras import RealDictCursor, execute_values
 from db.connection import get_connection
 from models import Book, BookDraft
 
+# ====== TYPES
+
 
 @dataclass
 class BookRow:
     id: int
     title: str
     author: str
+
+
+@dataclass
+class BookMetadata:
+    book_id: int
+    cover_url: str | None
+    isbn: str | None
+
+
+# ====== READS
 
 
 def count(reader_id: int) -> int:
@@ -65,7 +77,11 @@ def get_all_history(reader_id: int) -> list[Book]:
     return books
 
 
-def insert(reader_id: int, book: BookDraft) -> int:
+
+# ====== INSERTS
+
+
+def insert(reader_id: int, book: BookDraft) -> Book:
     """Insert a new book."""
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -73,7 +89,7 @@ def insert(reader_id: int, book: BookDraft) -> int:
                 """
                     INSERT INTO book (reader_id, title, author, rating, elo, isbn, cover_url) 
                     VALUES (%s, %s, %s, %s, %s, %s, %s) 
-                    RETURNING id
+                    RETURNING id, title, author, elo, rating, isbn, cover_url
                 """,
                 (
                     reader_id,
@@ -85,7 +101,7 @@ def insert(reader_id: int, book: BookDraft) -> int:
                     book.cover_url,
                 ),
             )
-            return cur.fetchone()["id"]
+            return Book(**cur.fetchone())
 
 
 def insert_many(reader_id: int, books: list[BookDraft], *, conn=None) -> list[int]:
@@ -121,6 +137,9 @@ def insert_many(reader_id: int, books: list[BookDraft], *, conn=None) -> list[in
             return _execute(c)
 
 
+# ====== UPDATES
+
+
 def update_title_and_author(
     reader_id: int, book_id: int, title: str, author: str
 ) -> bool:
@@ -134,27 +153,22 @@ def update_title_and_author(
             return cur.rowcount > 0
 
 
-def update_cover_and_isbn(
-    book_id: int, cover_url: str | None, isbn: str | None
-) -> bool:
+def update_cover_and_isbn(update: BookMetadata) -> bool:
     """Set the cover URL and ISBN for a book, returning True if the update was successful."""
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
                 "UPDATE book SET cover_url = %s, isbn = %s WHERE id = %s",
-                (cover_url, isbn, book_id),
+                (update.cover_url, update.isbn, update.book_id),
             )
             return cur.rowcount > 0
 
 
-def update_covers_and_isbns(
-    updates: list[tuple[int, str | None, str | None]], *, conn=None
-) -> None:
+def update_covers_and_isbns(updates: list[BookMetadata], *, conn=None) -> None:
     """Bulk-update cover URLs and ISBNs for many books in a single statement.
 
-    Each tuple is (book_id, cover_url, isbn). Used by the backfill script to fetch
-    covers and ISBNs of books that were already in the system before cover and
-    ISBN support.
+    Used by backfill scripts to fetch covers and ISBNs of books that were already in
+    the system before cover and ISBN support.
     """
     if not updates:
         return
@@ -169,7 +183,7 @@ def update_covers_and_isbns(
                 FROM (VALUES %s) AS v(id, cover_url, isbn)
                 WHERE b.id = v.id
                 """,
-                updates,
+                [(u.book_id, u.cover_url, u.isbn) for u in updates],
             )
 
     if conn:
@@ -191,6 +205,9 @@ def update_elo(book: Book, *, conn=None) -> None:
     else:
         with get_connection() as c:
             _execute(c)
+
+
+# ====== DELETES
 
 
 def delete(reader_id: int, book_id: int) -> bool:

@@ -1,19 +1,4 @@
-class BookDraft:
-    def __init__(
-        self,
-        title: str,
-        author: str,
-        elo: int,
-        rating: float | None = None,
-        isbn: str | None = None,
-        cover_url: str | None = None,
-    ) -> None:
-        self.title = title
-        self.author = author
-        self.elo = elo
-        self.rating = rating
-        self.isbn = isbn
-        self.cover_url = cover_url
+from dataclasses import dataclass
 
 
 class Book:
@@ -49,3 +34,19 @@ class Book:
 
     def __repr__(self) -> str:
         return f"{self.title}, by {self.author}"
+
+
+@dataclass
+class BookDraft:
+    """A book staged for insertion, before it has a DB id or match history.
+
+    Carries the fields needed to store a book into the DB. Distinct from `Book`, which
+    represents a persisted book with an id and accumulated comparison history.
+    """
+
+    title: str
+    author: str
+    elo: int
+    rating: float | None = None
+    isbn: str | None = None
+    cover_url: str | None = None
