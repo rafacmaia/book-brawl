@@ -1,11 +1,12 @@
 from dataclasses import dataclass
-from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 import httpx
 
-from config import GOOGLE_BOOKS_API_KEY
-
-GOOGLE_BOOKS_URL = "https://www.googleapis.com/books/v1/volumes"
+OPEN_LIBRARY_SEARCH_URL = "https://openlibrary.org/search.json"
+OPEN_LIBRARY_COVER_URL = (
+    "https://covers.openlibrary.org/b/id/{cover_id}.jpg?default=false"
+)
+HEADERS = {"User-Agent": "BookBrawl/1.0 (https://bookbrawl.app; zoulabs.dev@gmail.com)"}
 
 
 # ====== TYPES
@@ -21,17 +22,17 @@ class CatalogResult:
 
 
 def fetch_book_metadata(title: str, author: str) -> CatalogResult:
-    """Look up a book by title and author in Google Books, returning cover URL and ISBN.
+    """Look up a book by title and author in Open Library, returning cover URL and ISBN.
 
     Returns CatalogResult with None values if the book isn't found or the request fails.
     """
-    book_data = _call_google_books(title, author)
+    doc = _search_open_library(title, author)
 
-    if book_data is None:
+    if doc is None:
         return CatalogResult(None, None)
 
-    cover_url = _extract_cover_url(book_data)
-    isbn = _extract_isbn(book_data)
+    cover_url = _extract_cover_url(doc)
+    isbn = _extract_isbn(doc)
 
     return CatalogResult(cover_url, isbn)
 
@@ -39,84 +40,54 @@ def fetch_book_metadata(title: str, author: str) -> CatalogResult:
 # ====== HELPERS
 
 
-def _call_google_books(title: str, author: str) -> dict | None:
-    """Make a request to the Google Books API and return the first result's volume info.
+def _search_open_library(title: str, author: str) -> dict | None:
+    """Query Open Library search and return the top result or None.
 
-    Return None if the request fails or no results are found.
+    Returns None if the request fails or no results are found.
     """
     params = {
-        "q": f"intitle:{title}+inauthor:{author}",  # Google Books field names
-        "maxResults": 1,  # Get only the top result
-        "key": GOOGLE_BOOKS_API_KEY,
+        # q= matches more reliably than searching by title=/author=, which apply
+        # stricter filters and mis-rank works like box sets above the actual book.
+        "q": f"{title} {author}",
+        "limit": 1,
+        "fields": "cover_i,isbn",  # Only request what we need
     }
 
     try:
-        response = httpx.get(GOOGLE_BOOKS_URL, params=params, timeout=5.0)
+        response = httpx.get(
+            OPEN_LIBRARY_SEARCH_URL, params=params, headers=HEADERS, timeout=5.0
+        )
         response.raise_for_status()
         data = response.json()
     except (httpx.HTTPError, ValueError):
         return None
 
-    items = data.get("items")
-    if not items:
+    docs = data.get("docs")
+    if not docs:
         return None
 
-    return items[0].get("volumeInfo", {})
+    return docs[0]
 
 
-def _extract_cover_url(volume_info: dict) -> str | None:
-    """Return the best available cover image URL, or None.
+def _extract_cover_url(doc: dict) -> str | None:
+    """Build a cover image URL from the doc's cover ID."""
+    cover_id = doc.get("cover_i")
+    if cover_id is None:
+        return None
 
-    Aim for ~300x450px (Google Books' 'small' size), falling back to an upsized
-    'thumbnail' if necessary.
+    return OPEN_LIBRARY_COVER_URL.format(cover_id=cover_id)
+
+
+def _extract_isbn(doc: dict) -> str | None:
+    """Return an ISBN-13 from the doc's ISBN list, falling back to ISBN-10 if needed.
+
+    Open Library search returns a list of ISBNs spanning all editions, we only need
+    one ISBN-13.
     """
-    image_links = volume_info.get("imageLinks", {})
+    isbns = doc.get("isbn")
+    if not isbns:
+        return None
 
-    cover_url: str | None = image_links.get("small")
-    if cover_url:
-        return cover_url.replace("http://", "https://")
+    isbn_13 = next((i for i in isbns if len(i) == 13), None)
 
-    fallback_url: str | None = image_links.get("thumbnail")
-    if fallback_url:
-        return _upsize_cover_url(fallback_url.replace("http://", "https://"))
-
-    return None
-
-
-def _upsize_cover_url(url: str, zoom: int = 2) -> str:
-    """Bump a Google Books image URL to a larger zoom level.
-
-    Manipulates the zoom query param directly rather than string-replacing.
-    """
-    parsed_url = urlparse(url)
-    params = parse_qs(parsed_url.query)
-    params["zoom"] = [str(zoom)]
-
-    return str(urlunparse(parsed_url._replace(query=urlencode(params, doseq=True))))
-
-
-def _extract_isbn(volume_info: dict) -> str | None:
-    """Return the book's ISBN-13, falling back to ISBN-10 if needed."""
-    identifiers = volume_info.get("industryIdentifiers", [])
-
-    isbn_13 = next(
-        (
-            entry["identifier"]
-            for entry in identifiers
-            if entry.get("type") == "ISBN_13"
-        ),
-        None,
-    )
-
-    if isbn_13:
-        return isbn_13
-
-    # Older books might only have ISBN-10
-    return next(
-        (
-            entry["identifier"]
-            for entry in identifiers
-            if entry.get("type") == "ISBN_10"
-        ),
-        None,
-    )
+    return isbn_13 or isbns[0]
