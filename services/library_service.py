@@ -67,8 +67,7 @@ def add_book(
 
     elo = _rating_to_elo(elo_range, rating)
 
-    # Fetch cover image url and ISBN from Google Books API. Returns None if not
-    # available or not found.
+    # Fetch cover image url and ISBN. Returns None if not available or not found.
     metadata = fetch_book_metadata(title, author)
 
     book_to_add = BookDraft(

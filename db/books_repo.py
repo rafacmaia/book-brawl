@@ -62,7 +62,7 @@ def get_all_history(reader_id: int) -> list[Book]:
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
-                "SELECT id, title, author, elo, rating FROM book WHERE reader_id = %s",
+                "SELECT id, title, author, elo, rating, cover_url FROM book WHERE reader_id = %s",
                 (reader_id,),
             )
             books = [Book(**row) for row in cur.fetchall()]

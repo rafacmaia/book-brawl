@@ -76,8 +76,8 @@ def get_match(
         raise HTTPException(status_code=404, detail="Not enough books")
 
     return Match(
-        book_a=BookSummary(id=book_a.id, title=book_a.title, author=book_a.author),
-        book_b=BookSummary(id=book_b.id, title=book_b.title, author=book_b.author),
+        book_a=BookSummary.model_validate(book_a),
+        book_b=BookSummary.model_validate(book_b),
     )
 
 
@@ -149,7 +149,7 @@ def add_book(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    return BookSummary(id=new_book.id, title=new_book.title, author=new_book.author)
+    return BookSummary.model_validate(new_book)
 
 
 @app.post("/stacks/import", status_code=status.HTTP_201_CREATED)
@@ -198,7 +198,9 @@ def update_book(
 ) -> BookSummary:
     """Update the details of a book in the collection."""
     try:
-        updated = books_repo.update_title_and_author(reader_id, book_id, book.title, book.author)
+        updated = books_repo.update_title_and_author(
+            reader_id, book_id, book.title, book.author
+        )
         if not updated:
             raise HTTPException(status_code=404, detail="Book not found")
     except pg_errors.UniqueViolation:

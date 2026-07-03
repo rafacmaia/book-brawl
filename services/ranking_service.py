@@ -27,6 +27,7 @@ def build_leaderboard(reader_id: int) -> list[dict[str, int | str | float]]:
                 "author": book.author,
                 "accuracy_score": round(accuracy_score, 4),
                 "accuracy_tier": accuracy_tier,
+                "cover_url": book.cover_url,
             }
         )
 

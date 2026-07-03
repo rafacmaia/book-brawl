@@ -20,6 +20,7 @@ class BookSummary(BaseModel):
     id: int
     title: str
     author: str
+    cover_url: str | None = None
 
 
 # ====== MATCHES
@@ -59,6 +60,7 @@ class BookStanding(BaseModel):
     author: str
     accuracy_score: float
     accuracy_tier: int
+    cover_url: str | None = None
 
 
 # ====== LIBRARY MANAGEMENT
