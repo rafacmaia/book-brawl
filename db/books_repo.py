@@ -83,6 +83,17 @@ def get_all_history(reader_id: int) -> list[Book]:
     return books
 
 
+def get_missing_covers(reader_id: int) -> list[BookRow]:
+    """Return a reader's books that don't have a cover URL."""
+    with get_connection() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                "SELECT id, title, author FROM book WHERE reader_id = %s AND cover_url IS NULL",
+                (reader_id,),
+            )
+            return [BookRow(**row) for row in cur.fetchall()]
+
+
 def get_elo_range(reader_id: int) -> EloRange | None:
     """Return min and max Elo across all books."""
     with get_connection() as conn:
