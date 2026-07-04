@@ -1,3 +1,4 @@
+import time
 from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Iterable
@@ -10,10 +11,19 @@ from config import (
     RATING_FLOOR,
     RATING_FLOOR_BUMP,
 )
-from db.books_repo import EloRange, get_all, get_elo_range, insert, insert_many
+from db.books_repo import (
+    BookMetadata,
+    EloRange,
+    get_all,
+    get_elo_range,
+    get_missing_covers,
+    insert,
+    insert_many,
+    update_covers_and_isbns,
+)
 from db.connection import get_connection
 from models import Book, BookDraft
-from services.catalog_service import fetch_book_metadata
+from services.catalog_service import OPEN_LIBRARY_REQUEST_DELAY, fetch_book_metadata
 
 # ====== TYPES
 
@@ -213,7 +223,28 @@ def _parse_title_author(
     return RowStatus.VALID, title, author
 
 
-# ====== RATING TO ELO CONVERSION
+# ====== ENRICH MISSING COVERS
+
+
+def enrich_covers(reader_id: int) -> None:
+    """Enrich missing cover URLs for books in the database."""
+    books = get_missing_covers(reader_id)
+
+    updates = []
+    for book in books:
+        metadata = fetch_book_metadata(book.title, book.author)
+        if metadata.cover_url is not None:
+            updates.append(BookMetadata(book.id, metadata.cover_url, metadata.isbn))
+
+        # Delay calls to respect Open Library's API rate limits
+        time.sleep(OPEN_LIBRARY_REQUEST_DELAY)
+
+    if updates:
+        with get_connection(transactional=True) as conn:
+            update_covers_and_isbns(updates, conn=conn)
+
+
+# ====== HELPERS
 
 
 def _rating_to_elo(elo_range: EloRange, raw_rating: float | None) -> int:

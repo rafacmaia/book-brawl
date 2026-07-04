@@ -191,7 +191,12 @@ def update_cover_and_isbn(update: BookMetadata) -> bool:
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
-                "UPDATE book SET cover_url = %s, isbn = %s WHERE id = %s",
+                """
+                UPDATE book 
+                SET cover_url = COALESCE(%s, cover_url), 
+                    isbn = COALESCE(%s, isbn) 
+                WHERE id = %s
+                """,
                 (update.cover_url, update.isbn, update.book_id),
             )
             return cur.rowcount > 0
@@ -212,7 +217,8 @@ def update_covers_and_isbns(updates: list[BookMetadata], *, conn=None) -> None:
                 cur,
                 """
                 UPDATE book AS b
-                SET cover_url = v.cover_url, isbn = v.isbn
+                SET cover_url = COALESCE(v.cover_url, b.cover_url), 
+                    isbn = COALESCE(v.isbn, b.isbn)
                 FROM (VALUES %s) AS v(id, cover_url, isbn)
                 WHERE b.id = v.id
                 """,
