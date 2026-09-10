@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 import httpx
 
-# ====== CONSTANTS
+# ====== CONFIG
 
 # Open Library API search endpoint
 OPEN_LIBRARY_SEARCH_URL = "https://openlibrary.org/search.json"
@@ -21,6 +21,8 @@ HEADERS = {"User-Agent": "BookBrawl/1.0 (https://bookbrawl.app; zoulabs.dev@gmai
 # simultaneous requests without exceeding limit)
 OPEN_LIBRARY_REQUEST_DELAY = (5 * 60 / 100) * 3
 
+logger = logging.getLogger(__name__)
+
 # ====== TYPES
 
 
@@ -31,8 +33,6 @@ class CatalogResult:
 
 
 # ====== PUBLIC API
-
-logger = logging.getLogger(__name__)
 
 
 def fetch_book_metadata(title: str, author: str) -> CatalogResult:
