@@ -1,7 +1,9 @@
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 
 from psycopg2.extras import RealDictCursor, execute_values
 
+from config import DAYS_BETWEEN_ATTEMPTS
 from db.connection import get_connection
 from models import Book, BookDraft
 
@@ -84,12 +86,25 @@ def get_all_history(reader_id: int) -> list[Book]:
 
 
 def get_missing_covers(reader_id: int) -> list[BookRow]:
-    """Return a reader's books that don't have a cover URL."""
+    """Return all books in a reader's catalog due for cover enrichment.
+
+    Searched all books that don't have a cover URL and that have had no enrichment
+    attempt in the last DAYS_BETWEEN_ATTEMPTS days.
+    """
+    cutoff = datetime.now(timezone.utc) - timedelta(days=DAYS_BETWEEN_ATTEMPTS)
+
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
-                "SELECT id, title, author FROM book WHERE reader_id = %s AND cover_url IS NULL",
-                (reader_id,),
+                """
+                    SELECT id, title, author 
+                    FROM book 
+                    WHERE reader_id = %s 
+                        AND cover_url IS NULL
+                        AND (enrichment_attempted_at IS NULL 
+                            OR enrichment_attempted_at < %s)
+                """,
+                (reader_id, cutoff),
             )
             return [BookRow(**row) for row in cur.fetchall()]
 
@@ -120,8 +135,18 @@ def insert(reader_id: int, book: BookDraft) -> Book:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute(
                 """
-                    INSERT INTO book (reader_id, title, author, rating, elo, isbn, cover_url) 
-                    VALUES (%s, %s, %s, %s, %s, %s, %s) 
+                    INSERT INTO 
+                        book (
+                            reader_id, 
+                            title, 
+                            author, 
+                            rating, 
+                            elo, 
+                            isbn, 
+                            cover_url, 
+                            enrichment_attempted_at
+                        ) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, NOW()) 
                     RETURNING id, title, author, elo, rating, isbn, cover_url
                 """,
                 (
@@ -150,15 +175,12 @@ def insert_many(reader_id: int, books: list[BookDraft], *, conn=None) -> int:
             result = execute_values(
                 cur,
                 """
-                INSERT INTO book (reader_id, title, author, rating, elo, isbn, cover_url) 
-                VALUES %s
-                ON CONFLICT (reader_id, LOWER(title), LOWER(author)) DO NOTHING
-                RETURNING id
+                    INSERT INTO book (reader_id, title, author, rating, elo) 
+                    VALUES %s
+                    ON CONFLICT (reader_id, LOWER(title), LOWER(author)) DO NOTHING
+                    RETURNING id
                 """,
-                [
-                    (reader_id, b.title, b.author, b.rating, b.elo, b.isbn, b.cover_url)
-                    for b in books
-                ],
+                [(reader_id, b.title, b.author, b.rating, b.elo) for b in books],
                 fetch=True,
             )
             return len(result)
@@ -186,30 +208,12 @@ def update_title_and_author(
             return cur.rowcount > 0
 
 
-def update_cover_and_isbn(update: BookMetadata) -> bool:
-    """Set the cover URL and ISBN for a book, returning True if the update was successful."""
-    with get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                """
-                UPDATE book 
-                SET cover_url = COALESCE(%s, cover_url), 
-                    isbn = COALESCE(%s, isbn) 
-                WHERE id = %s
-                """,
-                (update.cover_url, update.isbn, update.book_id),
-            )
-            return cur.rowcount > 0
+def record_enrichment_results(updates: list[BookMetadata], *, conn=None) -> None:
+    """Record the outcome of a batch of cover enrichment attempts.
 
-
-def update_covers_and_isbns(updates: list[BookMetadata], *, conn=None) -> None:
-    """Bulk-update cover URLs and ISBNs for many books in a single statement.
-
-    Used by backfill scripts to fetch covers and ISBNs of books that were already in
-    the system before cover and ISBN support.
+    Stamps enrichment_attempted_at on every book in the batch, and fills cover_url and
+    isbn where the attempt returned values (never clears existing data).
     """
-    if not updates:
-        return
 
     def _execute(connection):
         with connection.cursor() as cur:
@@ -218,7 +222,8 @@ def update_covers_and_isbns(updates: list[BookMetadata], *, conn=None) -> None:
                 """
                 UPDATE book AS b
                 SET cover_url = COALESCE(v.cover_url, b.cover_url), 
-                    isbn = COALESCE(v.isbn, b.isbn)
+                    isbn = COALESCE(v.isbn, b.isbn),
+                    enrichment_attempted_at = NOW()
                 FROM (VALUES %s) AS v(id, cover_url, isbn)
                 WHERE b.id = v.id
                 """,

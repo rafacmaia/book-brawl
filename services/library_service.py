@@ -19,7 +19,7 @@ from db.books_repo import (
     get_missing_covers,
     insert,
     insert_many,
-    update_covers_and_isbns,
+    record_enrichment_results,
 )
 from db.connection import get_connection
 from models import Book, BookDraft
@@ -200,6 +200,29 @@ ROW_PROCESSORS = {
     "goodreads": _process_goodreads_row,
 }
 
+# ====== ENRICH MISSING COVERS
+
+
+def enrich_covers(reader_id: int) -> None:
+    """Enrich missing cover URLs for books in the database."""
+    books = get_missing_covers(reader_id)
+    if not books:
+        return
+
+    results = []
+    for book in books:
+        metadata = fetch_book_metadata(book.title, book.author)
+        results.append(BookMetadata(book.id, metadata.cover_url, metadata.isbn))
+
+        # Delay calls to respect Open Library's API rate limits
+        time.sleep(REQUEST_DELAY)
+
+    with get_connection(transactional=True) as conn:
+        record_enrichment_results(results, conn=conn)
+
+
+# ====== HELPERS
+
 
 def _parse_title_author(
     row: dict[str, str | None], existing_books: set[tuple[str, str]]
@@ -221,30 +244,6 @@ def _parse_title_author(
         return RowStatus.DUPLICATE, title, author
 
     return RowStatus.VALID, title, author
-
-
-# ====== ENRICH MISSING COVERS
-
-
-def enrich_covers(reader_id: int) -> None:
-    """Enrich missing cover URLs for books in the database."""
-    books = get_missing_covers(reader_id)
-
-    updates = []
-    for book in books:
-        metadata = fetch_book_metadata(book.title, book.author)
-        if metadata.cover_url is not None:
-            updates.append(BookMetadata(book.id, metadata.cover_url, metadata.isbn))
-
-        # Delay calls to respect Open Library's API rate limits
-        time.sleep(REQUEST_DELAY)
-
-    if updates:
-        with get_connection(transactional=True) as conn:
-            update_covers_and_isbns(updates, conn=conn)
-
-
-# ====== HELPERS
 
 
 def _rating_to_elo(elo_range: EloRange, raw_rating: float | None) -> int:

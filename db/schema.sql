@@ -1,5 +1,5 @@
 -- Book Brawl Database Schema
--- Last updated: 2026-06-26
+-- Last updated: 2026-09-17
 --
 -- To recreate the database from scratch, run this via psql:
 --   psql $DATABASE_URL < db/schema.sql
@@ -14,14 +14,15 @@ CREATE TABLE IF NOT EXISTS reader (
 
 
 CREATE TABLE IF NOT EXISTS book (
-    id          SERIAL      PRIMARY KEY,
-    isbn        TEXT,
-    reader_id   INTEGER     NOT NULL REFERENCES reader(id) ON DELETE CASCADE,
-    title       TEXT        NOT NULL,
-    author      TEXT        NOT NULL,
-    rating      REAL,
-    elo         INTEGER     NOT NULL,
-    cover_url   TEXT,
+    id                      SERIAL      PRIMARY KEY,
+    isbn                    TEXT,
+    reader_id               INTEGER     NOT NULL REFERENCES reader(id) ON DELETE CASCADE,
+    title                   TEXT        NOT NULL,
+    author                  TEXT        NOT NULL,
+    rating                  REAL,
+    elo                     INTEGER     NOT NULL,
+    cover_url               TEXT,
+    enrichment_attempted_at TIMESTAMPTZ,
     CONSTRAINT title_not_empty CHECK (LENGTH(TRIM(title)) > 0),
     CONSTRAINT author_not_empty CHECK (LENGTH(TRIM(author)) > 0)
 );
@@ -35,7 +36,7 @@ CREATE TABLE IF NOT EXISTS comparison (
     reader_id  INTEGER      NOT NULL REFERENCES reader(id) ON DELETE CASCADE,
     winner_id  INTEGER      NOT NULL REFERENCES book(id) ON DELETE CASCADE,
     loser_id   INTEGER      NOT NULL REFERENCES book(id) ON DELETE CASCADE,
-    timestamp  TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP
+    timestamp  TIMESTAMPTZ  NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT comparison_no_self_match CHECK (winner_id <> loser_id)
 );
 

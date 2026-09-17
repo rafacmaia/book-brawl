@@ -1,8 +1,7 @@
+import httpx
 import logging
 import time
 from dataclasses import dataclass
-
-import httpx
 
 # ====== CONFIG
 
@@ -32,6 +31,7 @@ RETRY_DELAY = 1.5
 REQUEST_DELAY = (5 * 60 / 100) * 3
 
 logger = logging.getLogger(__name__)
+
 
 # ====== TYPES
 

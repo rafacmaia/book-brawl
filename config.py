@@ -72,3 +72,7 @@ DENSITY_CAP = 10  # Maximum number of neighbors to consider in stability scoring
 # Thresholds of individual book accuracy tiers. Used to interpret a book's confidence
 #   score (0-1) in terms of tiers of rank trust (i.e., accuracy).
 ACCURACY_TIERS = [0.10, 0.35, 0.7, 0.9, 1.00]
+
+## == BOOK COVER ENRICHMENT
+
+DAYS_BETWEEN_ATTEMPTS = 30
