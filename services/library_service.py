@@ -23,7 +23,7 @@ from db.books_repo import (
 )
 from db.connection import get_connection
 from models import Book, BookDraft
-from services.catalog_service import OPEN_LIBRARY_REQUEST_DELAY, fetch_book_metadata
+from services.catalog_service import REQUEST_DELAY, fetch_book_metadata
 
 # ====== TYPES
 
@@ -237,7 +237,7 @@ def enrich_covers(reader_id: int) -> None:
             updates.append(BookMetadata(book.id, metadata.cover_url, metadata.isbn))
 
         # Delay calls to respect Open Library's API rate limits
-        time.sleep(OPEN_LIBRARY_REQUEST_DELAY)
+        time.sleep(REQUEST_DELAY)
 
     if updates:
         with get_connection(transactional=True) as conn:

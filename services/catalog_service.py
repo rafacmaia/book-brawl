@@ -1,4 +1,5 @@
 import logging
+import time
 from dataclasses import dataclass
 
 import httpx
@@ -16,10 +17,19 @@ OPEN_LIBRARY_COVER_URL = (
 # Courtesy User-Agent header to identify BookBrawl in Open Library API requests
 HEADERS = {"User-Agent": "BookBrawl/1.0 (https://bookbrawl.app; zoulabs.dev@gmail.com)"}
 
+# Open Library's search endpoint is slow — 10s accommodates their typical response
+# times without hanging indefinitely if OL is truly down.
+OPEN_LIBRARY_TIMEOUT = 10.0
+
+# One retry with a short backoff handles OL's frequent transient failures (timeouts,
+# connection resets) without hammering them.
+MAX_RETRIES = 1
+RETRY_DELAY = 1.5
+
 # Open Library API rate limit: 100 requests per 5 minutes; for batch requests, use this
 # delay to stay under limit. Multiplied by 3 for extra safety (allows up to 3
 # simultaneous requests without exceeding limit)
-OPEN_LIBRARY_REQUEST_DELAY = (5 * 60 / 100) * 3
+REQUEST_DELAY = (5 * 60 / 100) * 3
 
 logger = logging.getLogger(__name__)
 
@@ -64,14 +74,66 @@ def _search_open_library(title: str, author: str) -> dict | None:
         "fields": "cover_i,isbn",  # Only request what we need
     }
 
-    try:
-        response = httpx.get(
-            OPEN_LIBRARY_SEARCH_URL, params=params, headers=HEADERS, timeout=5.0
-        )
-        response.raise_for_status()
-        data = response.json()
-    except (httpx.HTTPError, ValueError) as e:
-        logger.warning("Open Library request failed for %r by %r: %s", title, author, e)
+    for attempt in range(1 + MAX_RETRIES):
+        try:
+            response = httpx.get(
+                OPEN_LIBRARY_SEARCH_URL,
+                params=params,
+                headers=HEADERS,
+                timeout=OPEN_LIBRARY_TIMEOUT,
+            )
+            response.raise_for_status()
+            data = response.json()
+            break  # Success, exit retry loop
+
+        except httpx.RequestError as e:
+            # Transient network failure (timeout, connection reset, read error, etc.)
+            if attempt < MAX_RETRIES:
+                logger.info(
+                    "Open Library request failed for %r by %r: %s, retrying...",
+                    title,
+                    author,
+                    e,
+                )
+                time.sleep(RETRY_DELAY)
+                continue
+            logger.warning(
+                "Open Library request failed for %r by %r: %s", title, author, e
+            )
+            return None
+
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code >= 500:
+                # Server error — transient, worth retrying
+                if attempt < MAX_RETRIES:
+                    logger.info(
+                        "Open Library returned %s for %r by %r, retrying...",
+                        e.response.status_code,
+                        title,
+                        author,
+                    )
+                    time.sleep(RETRY_DELAY)
+                    continue
+
+            # 4xx or exhausted retries — log and give up
+            logger.warning(
+                "Open Library request failed for %r by %r: %s",
+                title,
+                author,
+                e,
+            )
+            return None
+
+        except ValueError as e:
+            # JSON decode failure — not transient, don't retry
+            logger.warning(
+                "Open Library returned invalid JSON for %r by %r: %s",
+                title,
+                author,
+                e,
+            )
+            return None
+    else:
         return None
 
     docs = data.get("docs")  # Open Library returns matching records in a "docs" array

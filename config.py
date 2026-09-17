@@ -13,6 +13,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Vite's dev server
+    "http://localhost:5174",  # Vite's alt dev server
     "https://bookbrawl.app",  # Production domain
 ]
 
