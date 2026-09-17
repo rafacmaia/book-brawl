@@ -2,7 +2,8 @@ import csv
 import io
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, Form, HTTPException, UploadFile, status
+from fastapi import Depends, FastAPI, Form, HTTPException, UploadFile, status, \
+    BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from psycopg2 import errors as pg_errors
 
@@ -34,6 +35,7 @@ from services.game_service import (
 )
 from services.ranking_service import build_leaderboard
 from services.scoring_service import calculate_progress
+
 
 # ====== APP SETUP
 
@@ -67,7 +69,7 @@ def health():
 
 @app.get("/brawl")
 def get_match(
-    reader_id: int = Depends(get_current_reader_id),
+        reader_id: int = Depends(get_current_reader_id),
 ) -> Match:
     """Return two books to face off"""
     try:
@@ -83,7 +85,7 @@ def get_match(
 
 @app.post("/brawl/resolve", status_code=status.HTTP_201_CREATED)
 def post_match(
-    result: MatchOutcome, reader_id: int = Depends(get_current_reader_id)
+        result: MatchOutcome, reader_id: int = Depends(get_current_reader_id)
 ) -> MatchResolution:
     """Resolve a match between two books and update their records."""
     try:
@@ -104,7 +106,7 @@ def post_match(
 
 @app.get("/progress")
 def get_progress(
-    reader_id: int = Depends(get_current_reader_id),
+        reader_id: int = Depends(get_current_reader_id),
 ) -> Progress:
     """Return the user's overall progress in the game."""
     matches_played = comparisons_repo.count(reader_id)
@@ -119,7 +121,7 @@ def get_progress(
 
 @app.get("/leaderboard")
 def get_leaderboard(
-    reader_id: int = Depends(get_current_reader_id),
+        reader_id: int = Depends(get_current_reader_id),
 ) -> list[BookStanding]:
     return [BookStanding(**book) for book in build_leaderboard(reader_id)]
 
@@ -129,7 +131,7 @@ def get_leaderboard(
 
 @app.get("/stacks")
 def get_books(
-    reader_id: int = Depends(get_current_reader_id),
+        reader_id: int = Depends(get_current_reader_id),
 ) -> list[BookSummary]:
     """Return the user's collection of books, sorted alphabetically by title."""
     return [BookSummary.model_validate(book) for book in books_repo.get_all(reader_id)]
@@ -137,7 +139,7 @@ def get_books(
 
 @app.post("/stacks", status_code=status.HTTP_201_CREATED)
 def add_book(
-    book: BookData, reader_id: int = Depends(get_current_reader_id)
+        book: BookData, reader_id: int = Depends(get_current_reader_id)
 ) -> BookSummary:
     """Add a new book to the collection."""
     try:
@@ -154,11 +156,15 @@ def add_book(
 
 @app.post("/stacks/import", status_code=status.HTTP_201_CREATED)
 def import_books(
-    file: UploadFile,
-    source: FileSource = Form(),
-    reader_id: int = Depends(get_current_reader_id),
+        file: UploadFile,
+        background_tasks: BackgroundTasks,
+        source: FileSource = Form(),
+        reader_id: int = Depends(get_current_reader_id),
 ) -> ImportOutcome:
-    """Import books from a CSV file."""
+    """Import books from a CSV file.
+
+    Sets a background task to enrich book cover URLs.
+    """
     filename = file.filename or ""
     if not filename.lower().endswith(".csv"):
         raise HTTPException(
@@ -189,12 +195,26 @@ def import_books(
 
     result = library_service.import_books(reader_id, source, file_reader)
 
+    if result.imported > 0:
+        background_tasks.add_task(library_service.enrich_covers, reader_id)
+
     return ImportOutcome.model_validate(result)
+
+
+@app.post("/stacks/enrich-covers", status_code=status.HTTP_202_ACCEPTED)
+def enrich_missing_covers(background_tasks: BackgroundTasks,
+                          reader_id: int = Depends(get_current_reader_id)) -> None:
+    """Enrich missing cover URLs for books in a user's collection.
+
+    Ops/backfill endpoint, not called on the frontend happy path.
+    Enrichment is normally triggered automatically after /stacks/import.
+    """
+    background_tasks.add_task(library_service.enrich_covers, reader_id)
 
 
 @app.patch("/stacks/{book_id}")
 def update_book(
-    book_id: int, book: BookData, reader_id: int = Depends(get_current_reader_id)
+        book_id: int, book: BookData, reader_id: int = Depends(get_current_reader_id)
 ) -> BookSummary:
     """Update the details of a book in the collection."""
     try:
@@ -227,10 +247,9 @@ def delete_all_books(reader_id: int = Depends(get_current_reader_id)) -> None:
 
 # ====== USERS
 
-
 @app.post("/readers/me")
 def bootstrap_session(
-    data: UserSync, clerk_id: str = Depends(get_current_user)
+        data: UserSync, clerk_id: str = Depends(get_current_user)
 ) -> UserBookCount:
     """Sync the user with our DB and return their book count.
 
