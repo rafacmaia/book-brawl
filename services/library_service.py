@@ -19,7 +19,7 @@ from db.books_repo import (
     get_missing_covers,
     insert,
     insert_many,
-    record_enrichment_results,
+    record_enrichment_result,
 )
 from db.connection import get_connection
 from models import Book, BookDraft
@@ -209,16 +209,14 @@ def enrich_covers(reader_id: int) -> None:
     if not books:
         return
 
-    results = []
     for book in books:
         metadata = fetch_book_metadata(book.title, book.author)
-        results.append(BookMetadata(book.id, metadata.cover_url, metadata.isbn))
+        record_enrichment_result(
+            BookMetadata(book.id, metadata.cover_url, metadata.isbn)
+        )
 
         # Delay calls to respect Open Library's API rate limits
         time.sleep(REQUEST_DELAY)
-
-    with get_connection(transactional=True) as conn:
-        record_enrichment_results(results, conn=conn)
 
 
 # ====== HELPERS

@@ -1,7 +1,8 @@
-import httpx
 import logging
 import time
 from dataclasses import dataclass
+
+import httpx
 
 # ====== CONFIG
 
@@ -27,7 +28,7 @@ RETRY_DELAY = 1.5
 
 # Open Library API rate limit: 100 requests per 5 minutes; for batch requests, use this
 # delay to stay under limit. Multiplied by 3 for extra safety (allows up to 3
-# simultaneous requests without exceeding limit)
+# simultaneous requests without exceeding the limit)
 REQUEST_DELAY = (5 * 60 / 100) * 3
 
 logger = logging.getLogger(__name__)

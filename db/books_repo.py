@@ -208,33 +208,25 @@ def update_title_and_author(
             return cur.rowcount > 0
 
 
-def record_enrichment_results(updates: list[BookMetadata], *, conn=None) -> None:
-    """Record the outcome of a batch of cover enrichment attempts.
+def record_enrichment_result(result: BookMetadata) -> None:
+    """Record the outcome of a cover enrichment attempt.
 
-    Stamps enrichment_attempted_at on every book in the batch, and fills cover_url and
-    isbn where the attempt returned values (never clears existing data).
+    Stamps enrichment_attempted_at and fills cover_url and isbn if the attempt returned
+    values (null values do not clear existing data).
     """
 
-    def _execute(connection):
-        with connection.cursor() as cur:
-            execute_values(
-                cur,
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
                 """
-                UPDATE book AS b
-                SET cover_url = COALESCE(v.cover_url, b.cover_url), 
-                    isbn = COALESCE(v.isbn, b.isbn),
-                    enrichment_attempted_at = NOW()
-                FROM (VALUES %s) AS v(id, cover_url, isbn)
-                WHERE b.id = v.id
+                    UPDATE book
+                    SET cover_url = COALESCE(%s, cover_url), 
+                        isbn = COALESCE(%s, isbn),
+                        enrichment_attempted_at = NOW()
+                    WHERE id = %s
                 """,
-                [(u.book_id, u.cover_url, u.isbn) for u in updates],
+                (result.cover_url, result.isbn, result.book_id),
             )
-
-    if conn:
-        _execute(conn)
-    else:
-        with get_connection() as c:
-            _execute(c)
 
 
 def update_elo(book: Book, *, conn=None) -> None:
