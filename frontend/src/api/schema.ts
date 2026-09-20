@@ -138,8 +138,33 @@ export interface paths {
         /**
          * Import Books
          * @description Import books from a CSV file.
+         *
+         *     Sets a background task to enrich book cover URLs.
          */
         post: operations["import_books_stacks_import_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stacks/enrich-covers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Enrich Missing Covers
+         * @description Enrich missing cover URLs for books in a user's collection.
+         *
+         *     Ops/backfill endpoint, not called on the frontend happy path.
+         *     Enrichment is normally triggered automatically after /stacks/import.
+         */
+        post: operations["enrich_missing_covers_stacks_enrich_covers_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -200,7 +225,6 @@ export interface components {
         Body_import_books_stacks_import_post: {
             /** File */
             file: string;
-            /** @default custom */
             source: components["schemas"]["FileSource"];
         };
         /** BookData */
@@ -233,6 +257,8 @@ export interface components {
             accuracy_score: number;
             /** Accuracy Tier */
             accuracy_tier: number;
+            /** Cover Url */
+            cover_url?: string | null;
         };
         /** BookSummary */
         BookSummary: {
@@ -242,6 +268,8 @@ export interface components {
             title: string;
             /** Author */
             author: string;
+            /** Cover Url */
+            cover_url?: string | null;
         };
         /**
          * FileSource
@@ -536,6 +564,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    enrich_missing_covers_stacks_enrich_covers_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
         };
