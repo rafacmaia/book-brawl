@@ -16,7 +16,6 @@ import {
   ImportGoodreadsModal,
   ResetModal,
 } from '@/components/StacksModals'
-import PageHeading from '@/components/ui/PageHeading'
 import { useAddBook } from '@/hooks/useAddBook'
 
 // ====== TYPES
@@ -166,8 +165,6 @@ export default function TheStacks() {
 
   return (
     <main className="mx-auto flex h-full min-h-0 w-[97%] grow flex-col items-center gap-4 overflow-y-auto px-2 pb-2 text-primary/95 sm:max-w-6xl sm:gap-4 md:p-4">
-      <PageHeading title={'The Stacks'} style={'mb-5 mt-2 max-md:hidden'} />
-
       {openModal?.type === 'csv' && (
         <ImportCSVModal onClose={closeModal} onImportSuccess={handleImportSuccess} />
       )}
@@ -208,7 +205,7 @@ export default function TheStacks() {
           <section
             className={`mt-0 flex w-full flex-col gap-4 [@media(min-height:700px)]:mt-1.5 [@media(min-height:700px)]:md:mt-2 ${addState.type === 'idle' ? 'md:mb-15' : 'mb-0'}`}
           >
-            <h2 className="pl-px font-calistoga text-[1.6rem] font-bold tracking-wide drop-shadow-md sm:mb-2 [@media(min-height:700px)]:text-3xl">
+            <h2 className="pl-px font-calistoga text-[1.6rem] font-bold tracking-wide underline decoration-accent/80 decoration-wavy decoration-2 underline-offset-3 drop-shadow-md sm:mb-2 [@media(min-height:700px)]:text-3xl">
               New Reads
             </h2>
             <p

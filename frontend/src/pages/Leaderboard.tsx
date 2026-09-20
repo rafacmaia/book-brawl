@@ -1,6 +1,4 @@
 import { useAuth } from '@clerk/react'
-import { InformationCircleIcon as InfoCircleMini } from '@heroicons/react/16/solid'
-import { InformationCircleIcon as InfoCircle } from '@heroicons/react/20/solid'
 import {
   BookIcon,
   SparkleIcon,
@@ -17,7 +15,6 @@ import { apiFetch } from '@/api/client'
 import type { Progress, Rankings } from '@/api/types'
 import { EmptyStateMessage } from '@/components/feedback/EmptyStateMessage'
 import PlaceholderMessaging from '@/components/feedback/PlaceholderMessaging'
-import PageHeading from '@/components/ui/PageHeading'
 
 // ====== CONSTANTS
 
@@ -152,8 +149,6 @@ function LeaderboardContent({ progress, rankings }: { progress: number; rankings
   return (
     <>
       {showAccuracyModal && <AccuracyModal onClose={() => setShowAccuracyModal(false)} />}
-
-      <PageHeading title={'Leaderboard'} style={'mt-2 mb-5 hidden md:block'} />
 
       <section className={'mt-3 flex w-full flex-col items-center gap-3 md:mt-2 md:gap-4'}>
         <div className="relative w-full md:max-w-279">
