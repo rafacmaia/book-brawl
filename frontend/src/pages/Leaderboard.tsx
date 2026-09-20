@@ -108,15 +108,15 @@ export default function Leaderboard() {
           }
         >
           <div className="mb-4 flex items-center justify-center gap-4 md:gap-6">
-            <BookIcon weight={'duotone'} className={'size-12 sm:size-16'} />
+            <BookIcon className={'size-12 sm:size-16'} weight={'duotone'} />
             <Swords className={'size-14 sm:size-20'} />
-            <BookIcon weight={'duotone'} className={'size-12 -scale-x-100 sm:size-16'} />
+            <BookIcon className={'size-12 -scale-x-100 sm:size-16'} weight={'duotone'} />
           </div>
           <p>
             Books must{' '}
             <NavLink
-              to={'/brawl'}
               className={`font-black text-primary/90 underline decoration-accent/80 decoration-4 underline-offset-4 transition-all duration-350 hover:text-5xl hover:text-primary hover:decoration-wavy hover:underline-offset-8 sm:hover:text-6xl`}
+              to={'/brawl'}
             >
               Brawl
             </NavLink>{' '}
@@ -261,6 +261,7 @@ function AccuracyModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
@@ -271,10 +272,10 @@ function AccuracyModal({ onClose }: { onClose: () => void }) {
           Accuracy Tiers
         </h2>
         <button
-          onClick={onClose}
           className="absolute top-2 right-2 cursor-pointer font-extrabold text-red-700 transition-all hover:scale-112 active:scale-95 md:top-3 md:right-3"
+          onClick={onClose}
         >
-          <XCircleIcon weight={'duotone'} className="size-5.75 md:size-7" />
+          <XCircleIcon className="size-5.75 md:size-7" weight={'duotone'} />
         </button>
         <div className="flex flex-col gap-2 text-base text-text/90 md:gap-3 [@media(min-height:700px)]:text-lg">
           <p className="">
@@ -361,15 +362,15 @@ function AccuracyModal({ onClose }: { onClose: () => void }) {
 
 function TierSymbol({ accuracyTier, styling }: { accuracyTier: number; styling: string }) {
   if (accuracyTier === 1) {
-    return <Squircle stroke={'none'} className={`fill-red-500/90 ${styling}`} />
+    return <Squircle className={`fill-red-500/90 ${styling}`} stroke={'none'} />
   } else if (accuracyTier === 2) {
-    return <Squircle stroke={'none'} className={`fill-orange-500/90 ${styling}`} />
+    return <Squircle className={`fill-orange-500/90 ${styling}`} stroke={'none'} />
   } else if (accuracyTier === 3) {
-    return <Squircle stroke={'none'} className={`fill-yellow-600/85 ${styling}`} />
+    return <Squircle className={`fill-yellow-600/85 ${styling}`} stroke={'none'} />
   } else if (accuracyTier === 4) {
-    return <Squircle stroke={'none'} className={`fill-green-600/90 ${styling}`} />
+    return <Squircle className={`fill-green-600/90 ${styling}`} stroke={'none'} />
   } else if (accuracyTier === 5) {
-    return <BadgeCheck strokeWidth={3} className={`text-sky-700/90 ${styling}`} />
+    return <BadgeCheck className={`text-sky-700/90 ${styling}`} strokeWidth={3} />
   } else {
     return null
   }

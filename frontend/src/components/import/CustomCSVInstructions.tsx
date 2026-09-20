@@ -17,7 +17,7 @@ export function CustomCSVInstructions() {
         <span className={`text-emphasis`}>
           Brawl Pit
           <span>
-            <SwordIcon weight={'bold'} className="ml-1 inline -translate-y-0.5" />
+            <SwordIcon className="ml-1 inline -translate-y-0.5" weight={'bold'} />
           </span>
         </span>{' '}
         to put to the test.

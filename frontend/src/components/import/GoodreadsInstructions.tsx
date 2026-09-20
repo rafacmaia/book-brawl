@@ -23,11 +23,11 @@ export function GoodreadsInstructions({
       <p>Upload your Goodreads export file below to auto import all your books!</p>
       <div className="flex w-full flex-col gap-1">
         <button
+          aria-expanded={openSection === 'instructions'}
           className={sectionToggleStyle}
           onClick={() => setOpenSection(openSection === 'instructions' ? null : 'instructions')}
-          aria-expanded={openSection === 'instructions'}
         >
-          <ToggleIcon variant="small" isOpen={openSection === 'instructions'} />
+          <ToggleIcon isOpen={openSection === 'instructions'} variant="small" />
           <h3 className={h3Style}>How to get your export file</h3>
         </button>
         <Collapsible isOpen={openSection === 'instructions'}>
@@ -39,7 +39,7 @@ export function GoodreadsInstructions({
             <ol className="flex list-decimal flex-col gap-2 pl-4.5 marker:font-extrabold sm:pl-5">
               <li>
                 On desktop (not the app), log in to{' '}
-                <a href={'https://goodreads.com'} target={'_blank'} rel={'noopener noreferrer'}>
+                <a href={'https://goodreads.com'} rel={'noopener noreferrer'} target={'_blank'}>
                   <span
                     className={
                       'cursor-pointer font-black underline decoration-accent decoration-wavy decoration-1 underline-offset-2 transition-all hover:text-xl hover:underline-offset-1'
@@ -67,11 +67,11 @@ export function GoodreadsInstructions({
           </div>
         </Collapsible>
         <button
+          aria-expanded={openSection === 'quirks'}
           className={sectionToggleStyle}
           onClick={() => setOpenSection(openSection === 'quirks' ? null : 'quirks')}
-          aria-expanded={openSection === 'quirks'}
         >
-          <ToggleIcon variant="small" isOpen={openSection === 'quirks'} />
+          <ToggleIcon isOpen={openSection === 'quirks'} variant="small" />
           <h3 className={h3Style}>Goodreads quirks</h3>
         </button>
         <Collapsible isOpen={openSection === 'quirks'}>

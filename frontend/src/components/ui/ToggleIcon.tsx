@@ -11,8 +11,8 @@ export function ToggleIcon({
 
   return (
     <CaretCircleRightIcon
-      weight="duotone"
       className={`inline -translate-y-0.5 transition-transform duration-350 ${size} ${isOpen ? 'rotate-90' : 'rotate-0'}`}
+      weight="duotone"
     />
   )
 }

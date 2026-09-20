@@ -32,15 +32,15 @@ export default function Header() {
           {({ isActive }) => (
             <>
               <span className={desktopNavLinkStyle}>
-                <SwordIcon weight={isActive ? 'fill' : 'duotone'} className={iconStyle} />
+                <SwordIcon className={iconStyle} weight={isActive ? 'fill' : 'duotone'} />
                 Brawl
               </span>
               <span className={mobileNavLinkStyle}>
-                <SwordIcon weight={isActive ? 'fill' : 'duotone'} className={iconStyle} />
+                <SwordIcon className={iconStyle} weight={isActive ? 'fill' : 'duotone'} />
                 <WavyDivider
-                  waveLength={21}
-                  stroke={6}
                   className={isActive ? 'opacity-100' : 'opacity-0'}
+                  stroke={6}
+                  waveLength={21}
                 />
               </span>
             </>
@@ -55,15 +55,15 @@ export default function Header() {
           {({ isActive }) => (
             <>
               <span className={desktopNavLinkStyle}>
-                <TrophyIcon weight={isActive ? 'fill' : 'duotone'} className={iconStyle} />
+                <TrophyIcon className={iconStyle} weight={isActive ? 'fill' : 'duotone'} />
                 Leaderboard
               </span>
               <span className={mobileNavLinkStyle}>
-                <TrophyIcon weight={isActive ? 'fill' : 'duotone'} className={iconStyle} />
+                <TrophyIcon className={iconStyle} weight={isActive ? 'fill' : 'duotone'} />
                 <WavyDivider
-                  waveLength={21}
-                  stroke={6}
                   className={isActive ? 'opacity-100' : 'opacity-0'}
+                  stroke={6}
+                  waveLength={21}
                 />
               </span>
             </>
@@ -78,15 +78,15 @@ export default function Header() {
           {({ isActive }) => (
             <>
               <span className={desktopNavLinkStyle}>
-                <BooksIcon weight={isActive ? 'fill' : 'duotone'} className={iconStyle} />
+                <BooksIcon className={iconStyle} weight={isActive ? 'fill' : 'duotone'} />
                 The Stacks
               </span>
               <span className={mobileNavLinkStyle}>
-                <BooksIcon weight={isActive ? 'fill' : 'duotone'} className={iconStyle} />
+                <BooksIcon className={iconStyle} weight={isActive ? 'fill' : 'duotone'} />
                 <WavyDivider
-                  waveLength={21}
-                  stroke={6}
                   className={isActive ? 'opacity-100' : 'opacity-0'}
+                  stroke={6}
+                  waveLength={21}
                 />
               </span>
             </>
