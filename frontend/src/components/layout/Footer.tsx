@@ -9,13 +9,13 @@ export default function Footer() {
         <a
           className="cursor-pointer font-bold underline decoration-footer/40 decoration-dotted decoration-1 underline-offset-3 transition-all duration-200 hover:text-footer hover:brightness-125 active:text-footer active:brightness-125 sm:animate-none sm:no-underline"
           href="https://github.com/rafacmaia"
-          target="_blank"
           rel="noopener noreferrer"
+          target="_blank"
         >
           Zou Labs
           <img
-            src={catIcon}
             alt={'cat icon'}
+            src={catIcon}
             className={
               'inline size-5 brightness-110 [@media(min-height:700px)]:size-5.5 [@media(min-height:700px)]:sm:size-6'
             }
@@ -24,8 +24,8 @@ export default function Footer() {
         <span className={'mr-2 ml-0.5 align-middle sm:mr-2.25 sm:ml-0.75'}>•</span>
         <a
           href="https://github.com/rafacmaia/book-brawl/blob/main/LICENSE"
-          target="_blank"
           rel="noopener noreferrer"
+          target="_blank"
         >
           MIT License
         </a>

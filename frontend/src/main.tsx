@@ -1,5 +1,5 @@
-import { StrictMode } from 'react'
 import { ClerkProvider } from '@clerk/react'
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter as Router } from 'react-router-dom'
 
@@ -16,11 +16,11 @@ if (!publishableKey) {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ClerkProvider
+      appearance={clerkAppearance}
+      localization={clerkLocalization}
       publishableKey={publishableKey}
       signInUrl="/sign-in"
       signUpUrl="/sign-up"
-      appearance={clerkAppearance}
-      localization={clerkLocalization}
     >
       <Router>
         <App />

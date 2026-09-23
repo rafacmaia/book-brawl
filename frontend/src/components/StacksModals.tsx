@@ -40,9 +40,9 @@ export function ImportCSVModal({
       </div>
       <div className="flex flex-col gap-4">
         <ChooseFileButton
+          className={`${chooseFileButtonStyle} ${state.type === 'success' ? 'opacity-85' : 'opacity-95'}`}
           isLoading={state.type === 'loading'}
           onFileSelect={(file) => importBooks(file, 'custom', onImportSuccess)}
-          className={`${chooseFileButtonStyle} ${state.type === 'success' ? 'opacity-85' : 'opacity-95'}`}
         />
         <ImportFeedback state={state} />
       </div>
@@ -77,7 +77,7 @@ export function ImportGoodreadsModal({
               </span>
               , fix a book's title and author
               <span>
-                <PencilSimpleIcon weight={'fill'} className="ml-1 inline size-4 -translate-y-0.5" />
+                <PencilSimpleIcon className="ml-1 inline size-4 -translate-y-0.5" weight={'fill'} />
               </span>
               , or add any missing reads.
             </p>
@@ -85,12 +85,12 @@ export function ImportGoodreadsModal({
         />
       </div>
       <ChooseFileButton
+        className={`${chooseFileButtonStyle} ${state.type === 'success' ? 'opacity-85' : 'opacity-95'}`}
         isLoading={state.type === 'loading'}
         onFileSelect={(file) => {
           setOpenSection(null)
           void importBooks(file, 'goodreads', onImportSuccess)
         }}
-        className={`${chooseFileButtonStyle} ${state.type === 'success' ? 'opacity-85' : 'opacity-95'}`}
       />
       <ImportFeedback state={state} />
     </Modal>
@@ -109,7 +109,7 @@ export function DeleteModal({
   error: string | null
 }) {
   return (
-    <Modal heading="Burn this Book?" onClose={onCancel} variant="red">
+    <Modal heading="Burn this Book?" variant="red" onClose={onCancel}>
       <p className="rounded-lg bg-background/90 px-4 py-3 text-left font-zain text-base text-primary/90 md:text-xl">
         <span className={`font-calistoga text-emphasis tracking-wider`}>{book.title}</span>, by{' '}
         <span className={`font-calistoga text-emphasis tracking-wider`}>{book.author}</span>, will
@@ -117,14 +117,14 @@ export function DeleteModal({
       </p>
       <div className="flex w-full gap-4">
         <button
-          onClick={onConfirm}
           className={`flex-1 border-background bg-red-800/80 hover:bg-red-800 active:bg-red-800 ${modalButtonStyle}`}
+          onClick={onConfirm}
         >
           <FireIcon className="inline size-5.25 -translate-y-0.5 sm:-translate-y-0.5" />
         </button>
         <button
-          onClick={onCancel}
           className={`flex-1 border-red-800 bg-background/90 opacity-90 hover:bg-background active:bg-background ${modalButtonStyle}`}
+          onClick={onCancel}
         >
           KEEP
         </button>
@@ -160,25 +160,25 @@ export function EditModal({
   const unchangedAuthor = author === book.author
 
   return (
-    <Modal heading="Edit Book" onClose={onCancel} variant="red">
+    <Modal heading="Edit Book" variant="red" onClose={onCancel}>
       <div className="flex flex-col gap-2.5 font-zain text-base md:text-lg">
         <input
+          className={`w-full rounded-md border-b-3 border-red-800/85 bg-blue-300/50 px-3 py-2 font-calistoga placeholder-text/50 shadow-lg sm:p-2 ${unchangedTitle ? 'text-text/70' : 'text-text'}`}
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           onKeyDown={handleKeyDown}
-          className={`w-full rounded-md border-b-3 border-red-800/85 bg-blue-300/50 px-3 py-2 font-calistoga placeholder-text/50 shadow-lg sm:p-2 ${unchangedTitle ? 'text-text/70' : 'text-text'}`}
         />
         <input
+          className={`w-full rounded-md border-b-3 border-red-800/85 bg-blue-300/50 px-3 py-2 font-calistoga shadow-lg sm:p-2 ${unchangedAuthor ? 'text-text/70' : 'text-text'}`}
           type="text"
           value={author}
           onChange={(e) => setAuthor(e.target.value)}
           onKeyDown={handleKeyDown}
-          className={`w-full rounded-md border-b-3 border-red-800/85 bg-blue-300/50 px-3 py-2 font-calistoga shadow-lg sm:p-2 ${unchangedAuthor ? 'text-text/70' : 'text-text'}`}
         />
         <button
-          onClick={() => onConfirm(title, author)}
           className={`w-full border-red-800/85 bg-background/90 hover:border-background/90 hover:bg-red-800 active:bg-red-800 ${modalButtonStyle}`}
+          onClick={() => onConfirm(title, author)}
         >
           SAVE
         </button>
@@ -219,7 +219,7 @@ export function ResetModal({
   }, [finalConfirmation])
 
   return (
-    <Modal heading="Burn it all?" onClose={onCancel} variant="red">
+    <Modal heading="Burn it all?" variant="red" onClose={onCancel}>
       <p className="rounded-lg bg-background/90 px-4 py-3 text-left font-zain text-lg tracking-wide text-primary">
         This will{' '}
         <span className={'font-extrabold underline decoration-primary/70 underline-offset-2'}>
@@ -229,17 +229,17 @@ export function ResetModal({
       </p>
       <div className="flex w-full items-center justify-center gap-4">
         <button
-          onClick={() => setFinalConfirmation(true)}
-          disabled={finalConfirmation}
           aria-label="Delete all books and reset the pit"
           className={`flex-2 border-background bg-red-800/75 ${modalButtonStyle} ${finalConfirmation ? 'cursor-not-allowed! hover:scale-100! active:scale-100!' : 'hover:bg-red-800 active:bg-red-800'}`}
+          disabled={finalConfirmation}
+          onClick={() => setFinalConfirmation(true)}
         >
           RESET
         </button>
         <button
-          onClick={onCancel}
           aria-label="Close reset modal and cancel reset"
           className={`flex-3 border-red-800 bg-background hover:bg-background hover:opacity-100 active:bg-background active:opacity-90 ${modalButtonStyle} ${finalConfirmation ? 'opacity-80' : 'opacity-85'}`}
+          onClick={onCancel}
         >
           CANCEL
         </button>
@@ -252,17 +252,17 @@ export function ResetModal({
             Last warning: this cannot be undone. All data will be lost. Do you wish to continue?
           </p>
           <button
-            onClick={onConfirm}
             aria-label="Confirm reset"
-            disabled={resetTimer > 0 || error !== null}
             className={`w-full border-background bg-red-800 pt-2.75! pb-1.75! transition-all ${resetTimer > 0 || error !== null ? 'cursor-not-allowed! opacity-85 hover:scale-100!' : 'opacity-90 hover:scale-103 hover:opacity-100 active:scale-95 active:bg-red-800'} ${modalButtonStyle}`}
+            disabled={resetTimer > 0 || error !== null}
+            onClick={onConfirm}
           >
             {resetTimer > 0 ? (
               `Wait... ${resetTimer}`
             ) : (
               <BombIcon
-                weight={'fill'}
                 className={`inline size-4.75 -translate-y-0.5 drop-shadow-2xl drop-shadow-zinc-950 sm:-translate-y-0.5`}
+                weight={'fill'}
               />
             )}
           </button>

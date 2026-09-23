@@ -59,7 +59,7 @@ export function ImportFeedback({
         <div className={`flex flex-col gap-2 ${containerStyle} ${messageStyle}`}>
           {imported > 0 ? ( // Notify how many books were imported (if any)
             <p className="text-text">
-              <CheckCircleIcon weight={'fill'} aria-hidden={'true'} className={iconStyle} />{' '}
+              <CheckCircleIcon aria-hidden={'true'} className={iconStyle} weight={'fill'} />{' '}
               Imported{' '}
               <span className="underline decoration-accent underline-offset-2">{imported}</span>{' '}
               {imported === 1 ? 'book' : 'books'}!
@@ -68,9 +68,9 @@ export function ImportFeedback({
             // Notify if no books were imported
             <p className={errorStyle}>
               <XCircleIcon
-                weight={'fill'}
                 aria-hidden={'true'}
                 className={`text-red-700 ${iconStyle}`}
+                weight={'fill'}
               />{' '}
               No books imported. Check file and try again.
             </p>
@@ -79,13 +79,13 @@ export function ImportFeedback({
           {invalid + duplicates > 0 && !interrupted && (
             // Check for and notify if there were any skipped rows
             <p className={`text-text`}>
-              <SkipForwardCircleIcon weight={'fill'} aria-hidden={'true'} className={iconStyle} />{' '}
+              <SkipForwardCircleIcon aria-hidden={'true'} className={iconStyle} weight={'fill'} />{' '}
               {skippedMessage}
             </p>
           )}
           {interrupted && ( // Notify if import was incomplete.
             <p className={errorStyle}>
-              <XCircleIcon weight={'fill'} aria-hidden={'true'} className={iconStyle} /> Limit
+              <XCircleIcon aria-hidden={'true'} className={iconStyle} weight={'fill'} /> Limit
               reached — not all books were imported. Remove some books and try again.
             </p>
           )}

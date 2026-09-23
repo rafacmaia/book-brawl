@@ -16,7 +16,6 @@ import {
   ImportGoodreadsModal,
   ResetModal,
 } from '@/components/StacksModals'
-import PageHeading from '@/components/ui/PageHeading'
 import { useAddBook } from '@/hooks/useAddBook'
 
 // ====== TYPES
@@ -166,8 +165,6 @@ export default function TheStacks() {
 
   return (
     <main className="mx-auto flex h-full min-h-0 w-[97%] grow flex-col items-center gap-4 overflow-y-auto px-2 pb-2 text-primary/95 sm:max-w-6xl sm:gap-4 md:p-4">
-      <PageHeading title={'The Stacks'} style={'mb-5 mt-2 max-md:hidden'} />
-
       {openModal?.type === 'csv' && (
         <ImportCSVModal onClose={closeModal} onImportSuccess={handleImportSuccess} />
       )}
@@ -177,24 +174,24 @@ export default function TheStacks() {
       )}
 
       {openModal?.type === 'reset' && (
-        <ResetModal onConfirm={handleReset} onCancel={closeModal} error={modalError} />
+        <ResetModal error={modalError} onCancel={closeModal} onConfirm={handleReset} />
       )}
 
       {openModal?.type === 'edit' && (
         <EditModal
           book={openModal.book}
-          onConfirm={handleEdit}
-          onCancel={closeModal}
           error={modalError}
+          onCancel={closeModal}
+          onConfirm={handleEdit}
         />
       )}
 
       {openModal?.type === 'burn' && (
         <DeleteModal
           book={openModal.book}
-          onConfirm={() => handleBurn(openModal.book)}
-          onCancel={closeModal}
           error={modalError}
+          onCancel={closeModal}
+          onConfirm={() => handleBurn(openModal.book)}
         />
       )}
 
@@ -208,7 +205,8 @@ export default function TheStacks() {
           <section
             className={`mt-0 flex w-full flex-col gap-4 [@media(min-height:700px)]:mt-1.5 [@media(min-height:700px)]:md:mt-2 ${addState.type === 'idle' ? 'md:mb-15' : 'mb-0'}`}
           >
-            <h2 className="pl-px font-calistoga text-[1.6rem] font-bold tracking-wide drop-shadow-md sm:mb-2 [@media(min-height:700px)]:text-3xl">
+<h1 className="sr-only">The Stacks</h1>
+            <h2 className="pl-px font-calistoga text-[1.6rem] font-bold tracking-wide underline decoration-accent/80 decoration-wavy decoration-2 underline-offset-3 drop-shadow-md sm:mb-2 [@media(min-height:700px)]:text-3xl">
               New Reads
             </h2>
             <p
@@ -219,8 +217,8 @@ export default function TheStacks() {
               Pit to put to the test.
             </p>
             <ManualAddForm
-              addState={addState}
               addBook={addBook}
+              addState={addState}
               onSuccess={(newBook) => setBooks((prev) => [newBook, ...prev])}
             />
           </section>
@@ -239,27 +237,27 @@ export default function TheStacks() {
               </p>
               <div className={`flex gap-2.5`}>
                 <button
+                  className={`font-calistoga text-lg font-semibold tracking-wider text-text shadow-2xl md:h-11 md:w-fit md:px-4.5 md:text-xl ${importButtonStyle}`}
                   onClick={() => {
                     setOpenModal({ type: 'csv' })
                   }}
-                  className={`font-calistoga text-lg font-semibold tracking-wider text-text shadow-2xl md:h-11 md:w-fit md:px-4.5 md:text-xl ${importButtonStyle}`}
                 >
                   <CloudArrowUpIcon
-                    weight={`duotone`}
                     className={'inline size-5.25 -translate-y-px md:mr-1.75'}
+                    weight={`duotone`}
                   />
                   <span className={`hidden md:inline`}>CSV</span>
                 </button>
                 <button
+                  className={`overflow-hidden md:size-11 ${importButtonStyle}`}
                   onClick={() => {
                     setOpenModal({ type: 'goodreads' })
                   }}
-                  className={`overflow-hidden md:size-11 ${importButtonStyle}`}
                 >
                   <img
-                    src={goodreadsLogo}
                     alt="Goodreads"
                     className="block h-full w-full object-contain py-1.75"
+                    src={goodreadsLogo}
                   />
                 </button>
               </div>
@@ -284,9 +282,9 @@ export default function TheStacks() {
                           className={`size-5 shrink-0 -translate-y-px self-end text-red-700 md:size-5.5 lg:size-6.25`}
                         />
                         <PencilSimpleLineIcon
-                          weight={'fill'}
                           aria-label="Edit this book"
                           className="size-5 shrink-0 text-text/90 md:size-5.5 lg:size-6"
+                          weight={'fill'}
                         />
                       </div>
                     </th>
@@ -310,9 +308,9 @@ export default function TheStacks() {
                       <td className={`pr-2.5 text-right lg:pr-0`}>
                         <div className={'flex justify-end gap-3.5 lg:justify-center lg:gap-6'}>
                           <button
-                            onClick={() => setOpenModal({ type: 'burn', book })}
-                            title={'Delete book'}
                             className={`group cursor-pointer transition-all duration-200 hover:scale-120 hover:animate-pulse hover:brightness-120 active:scale-130 active:brightness-110`}
+                            title={'Delete book'}
+                            onClick={() => setOpenModal({ type: 'burn', book })}
                           >
                             <FireOutline
                               aria-label="Delete this book"
@@ -324,19 +322,19 @@ export default function TheStacks() {
                             />
                           </button>
                           <button
-                            onClick={() => setOpenModal({ type: 'edit', book })}
-                            title="Edit book details"
                             className={`group cursor-pointer transition-all duration-200 hover:scale-120 hover:animate-pulse hover:brightness-120 active:scale-130 active:brightness-110`}
+                            title="Edit book details"
+                            onClick={() => setOpenModal({ type: 'edit', book })}
                           >
                             <PencilSimpleLineIcon
-                              weight={'duotone'}
                               aria-label="Edit this book"
                               className="block size-5 translate-y-px text-text/75 group-hover:hidden group-active:hidden md:size-5.5 lg:size-6"
+                              weight={'duotone'}
                             />
                             <PencilSimpleLineIcon
-                              weight={'fill'}
                               aria-label="Edit this book"
                               className="hidden size-5 translate-y-px text-text group-hover:block group-active:block md:size-5.5 lg:size-6"
+                              weight={'fill'}
                             />
                           </button>
                         </div>
@@ -350,10 +348,10 @@ export default function TheStacks() {
             {/* Reset button */}
             {books.length > 0 && (
               <button
+                className={`ml-auto cursor-pointer rounded-lg border-b-3 border-red-700/90 bg-button/90 px-6 py-2.5 font-calistoga text-sm font-semibold tracking-wide text-text shadow-2xl transition-all hover:scale-104 hover:bg-button active:scale-96 active:opacity-100 md:bg-button/95 md:text-base md:font-extrabold md:tracking-wider`}
                 onClick={() => {
                   setOpenModal({ type: 'reset' })
                 }}
-                className={`ml-auto cursor-pointer rounded-lg border-b-3 border-red-700/90 bg-button/90 px-6 py-2.5 font-calistoga text-sm font-semibold tracking-wide text-text shadow-2xl transition-all hover:scale-104 hover:bg-button active:scale-96 active:opacity-100 md:bg-button/95 md:text-base md:font-extrabold md:tracking-wider`}
               >
                 <BombIcon
                   weight={'fill'}

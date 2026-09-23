@@ -11,8 +11,10 @@ export function ChooseFileButton({
     <label className={className}>
       {isLoading ? 'Importing...' : 'Choose File'}
       <input
-        type="file"
         accept=".csv"
+        className="sr-only"
+        disabled={isLoading}
+        type="file"
         onChange={(e) => {
           const file = e.target.files?.[0]
           if (file) onFileSelect(file)
@@ -20,8 +22,6 @@ export function ChooseFileButton({
           // when the same file is selected twice)
           e.target.value = ''
         }}
-        disabled={isLoading}
-        className="sr-only"
       />
     </label>
   )

@@ -117,6 +117,7 @@ def get_progress(
     """Return the user's overall progress in the game."""
     matches_played = comparisons_repo.count(reader_id)
 
+    # Return 0% progress if they haven't played at least 3 matches
     if matches_played < 3:
         return Progress(progress=0.0)
 

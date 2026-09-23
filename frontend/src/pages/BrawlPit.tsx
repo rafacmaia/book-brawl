@@ -251,15 +251,15 @@ export default function BrawlPit() {
             >
               <BookCard
                 book={currentMatch.book_a}
-                onClick={() => handleSelection(currentMatch.book_a.id, currentMatch.book_b.id)}
-                isSelected={selectedBook === currentMatch.book_a.id}
                 disabled={!nextMatch}
+                isSelected={selectedBook === currentMatch.book_a.id}
+                onClick={() => handleSelection(currentMatch.book_a.id, currentMatch.book_b.id)}
               />
               <BookCard
                 book={currentMatch.book_b}
-                onClick={() => handleSelection(currentMatch.book_b.id, currentMatch.book_a.id)}
-                isSelected={selectedBook === currentMatch.book_b.id}
                 disabled={!nextMatch}
+                isSelected={selectedBook === currentMatch.book_b.id}
+                onClick={() => handleSelection(currentMatch.book_b.id, currentMatch.book_a.id)}
               />
             </div>
             <div // Desktop match count
@@ -348,13 +348,13 @@ function BookCard({
 
   return (
     <button
-      onClick={onClick}
-      disabled={disabled}
       className={`flex w-[95%] flex-1 basis-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-b-8 py-2 font-calistoga shadow-xl transition-all md:border-b-8 lg:h-80 lg:flex-none lg:rounded-xl xl:h-72 [@media(max-height:500px)]:gap-0.5 [@media(max-height:500px)]:py-1 [@media(min-height:700px)]:w-11/12 [@media(min-height:700px)]:lg:w-116 [@media(min-height:700px)]:xl:w-134 ${hoverStyling} ${cardStyle} ${selectedStyling}`}
+      disabled={disabled}
       style={{
         boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.20)',
         transitionDuration: `${TRANSITION_DURATION}ms`,
       }}
+      onClick={onClick}
     >
       <p
         className={`line-clamp-3 w-full p-1 text-[1.3rem]/6 font-medium text-balance wrap-break-word lg:line-clamp-3 [@media(min-height:600px)]:line-clamp-4 ${titleStyle}`}

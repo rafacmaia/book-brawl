@@ -47,8 +47,8 @@ export default function Onboarding() {
         className={`flex flex-col gap-2 p-1 text-2xl font-bold tracking-wide sm:gap-4 sm:text-3xl ${width}`}
       >
         <BooksIcon
-          weight="light"
           className="inline size-14 -translate-x-2.25 text-primary/90 sm:size-18"
+          weight="light"
         />
         <h1 className={`md:leading-normal`}>
           To find the one book to rule them all, we must first add some contenders.
@@ -60,9 +60,9 @@ export default function Onboarding() {
         className={`${sectionStyle} ${openSection === 'goodreads' ? 'border-primary/80' : 'border-primary/25'}`}
       >
         <button
-          onClick={() => setOpenSection(openSection === 'goodreads' ? null : 'goodreads')}
-          className={toggleOptionStyle}
           aria-expanded={openSection === 'goodreads'}
+          className={toggleOptionStyle}
+          onClick={() => setOpenSection(openSection === 'goodreads' ? null : 'goodreads')}
         >
           <ToggleIcon isOpen={openSection === 'goodreads'} />
           <h2 className={toggleHeadingStyle}>Import from Goodreads</h2>
@@ -77,9 +77,9 @@ export default function Onboarding() {
         className={`${sectionStyle} ${openSection === 'manual' ? 'border-primary/80' : 'border-primary/25'}`}
       >
         <button
-          onClick={() => setOpenSection(openSection === 'manual' ? null : 'manual')}
-          className={toggleOptionStyle}
           aria-expanded={openSection === 'manual'}
+          className={toggleOptionStyle}
+          onClick={() => setOpenSection(openSection === 'manual' ? null : 'manual')}
         >
           <ToggleIcon isOpen={openSection === 'manual'} />
           <h2 className={toggleHeadingStyle}>Manual Entry</h2>
@@ -94,9 +94,9 @@ export default function Onboarding() {
         className={`${sectionStyle} ${openSection === 'custom' ? 'border-primary/80' : 'border-primary/25'}`}
       >
         <button
-          onClick={() => setOpenSection(openSection === 'custom' ? null : 'custom')}
-          className={toggleOptionStyle}
           aria-expanded={openSection === 'custom'}
+          className={toggleOptionStyle}
+          onClick={() => setOpenSection(openSection === 'custom' ? null : 'custom')}
         >
           <ToggleIcon isOpen={openSection === 'custom'} />
           <h2 className={toggleHeadingStyle}>Custom CSV</h2>
@@ -108,23 +108,23 @@ export default function Onboarding() {
 
       {/* CONTINUE */}
       <NavLink
-        to={'/brawl'}
         className={`flex cursor-pointer items-center justify-end gap-1 p-1 font-bold ${width} ${hasAddedBooks ? 'animate-pulse' : ''}`}
+        to={'/brawl'}
       >
         {hasAddedBooks ? (
           <>
             <p className={`text-xl tracking-wider sm:text-2xl`}>Ready to Brawl?</p>
             <SwordIcon
-              weight="duotone"
               className="inline size-5.5 -translate-y-px sm:ml-1 sm:size-7"
+              weight="duotone"
             />
           </>
         ) : (
           <>
             <p className={'text-lg tracking-wide sm:text-xl'}>Skip for now</p>
             <CaretRightIcon
-              weight="duotone"
               className="inline size-5 -translate-y-px sm:size-5.5"
+              weight="duotone"
             />
           </>
         )}
@@ -158,7 +158,7 @@ function GoodreadsImport({ onSuccess }: { onSuccess?: () => void }) {
                 <span className={'whitespace-nowrap'}>
                   Stacks
                   <span>
-                    <BooksIcon weight={'bold'} className="ml-1 inline -translate-y-0.5" />
+                    <BooksIcon className="ml-1 inline -translate-y-0.5" weight={'bold'} />
                   </span>
                 </span>
               </span>{' '}
@@ -169,12 +169,12 @@ function GoodreadsImport({ onSuccess }: { onSuccess?: () => void }) {
         />
       </div>
       <ChooseFileButton
+        className={`my-1 self-center border-red-600/80 bg-button/95 shadow-md hover:bg-primary ${chooseFileButtonStyle}`}
         isLoading={state.type === 'loading'}
         onFileSelect={(file) => {
           setOpenSection(null)
           void importBooks(file, 'goodreads', onSuccess)
         }}
-        className={`my-1 self-center border-red-600/80 bg-button/95 shadow-md hover:bg-primary ${chooseFileButtonStyle}`}
       />
       <ImportOutcome state={state} />
     </div>
@@ -193,17 +193,17 @@ function ManualEntry({ onSuccess }: { onSuccess?: () => void }) {
         <span className={`font-extrabold`}>
           Brawl Pit
           <span>
-            <SwordIcon weight={'bold'} className="ml-1 inline -translate-y-0.5" />
+            <SwordIcon className="ml-1 inline -translate-y-0.5" weight={'bold'} />
           </span>
         </span>{' '}
         to put to the test.
       </p>
 
       <ManualAddForm
-        addState={addState}
         addBook={addBook}
-        onSuccess={onSuccess}
+        addState={addState}
         variant="compact"
+        onSuccess={onSuccess}
       />
 
       {addState.type === 'success' && <StacksMessage />}
@@ -220,9 +220,9 @@ function CustomCSV({ onSuccess }: { onSuccess?: () => void }) {
         <CustomCSVInstructions />
       </div>
       <ChooseFileButton
+        className={`my-1 self-center border-red-600/80 bg-button/95 shadow-md hover:bg-primary ${chooseFileButtonStyle}`}
         isLoading={state.type === 'loading'}
         onFileSelect={(file) => importBooks(file, 'custom', onSuccess)}
-        className={`my-1 self-center border-red-600/80 bg-button/95 shadow-md hover:bg-primary ${chooseFileButtonStyle}`}
       />
       <ImportOutcome state={state} />
     </div>
@@ -252,12 +252,12 @@ function StacksMessage() {
       <p>
         <span className={'font-extrabold'}>Please note:</span> You can add new reads, and view,
         edit, or delete existing ones, anytime, in{' '}
-        <NavLink to={'/stacks'} className={`text-emphasis`}>
+        <NavLink className={`text-emphasis`} to={'/stacks'}>
           The{' '}
           <span className={'whitespace-nowrap'}>
             Stacks
             <span>
-              <BooksIcon weight={'bold'} className="ml-1 inline -translate-y-0.5" />
+              <BooksIcon className="ml-1 inline -translate-y-0.5" weight={'bold'} />
             </span>
           </span>
         </NavLink>

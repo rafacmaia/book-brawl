@@ -15,10 +15,10 @@ export default function App() {
   return (
     <Routes>
       <Route element={<AuthLayout />}>
-        <Route path="/sign-in/*" element={<SignIn routing="path" path="/sign-in" />} />
-        <Route path="/sign-up/*" element={<SignUp routing="path" path="/sign-up" />} />
+        <Route element={<SignIn path="/sign-in" routing="path" />} path="/sign-in/*" />
+        <Route element={<SignUp path="/sign-up" routing="path" />} path="/sign-up/*" />
       </Route>
-      <Route path={'/*'} element={<ProtectedApp />} />
+      <Route element={<ProtectedApp />} path={'/*'} />
     </Routes>
   )
 }
@@ -28,7 +28,7 @@ function ProtectedApp() {
   const syncState = useUserSync()
 
   if (!isLoaded) return <AppLayout />
-  if (!isSignedIn) return <Navigate to="/sign-in" replace />
+  if (!isSignedIn) return <Navigate replace to="/sign-in" />
 
   return <AppRouter state={syncState} />
 }
@@ -49,23 +49,23 @@ function AppRouter({ state }: { state: SyncState }) {
       return (
         <Routes>
           <Route
+            element={<Navigate replace to={state.hasBooks ? '/brawl' : '/freshstart'} />}
             path={'/'}
-            element={<Navigate to={state.hasBooks ? '/brawl' : '/freshstart'} replace />}
           />
           <Route element={<AppLayout />}>
             <Route
+              element={state.hasBooks ? <Navigate replace to={'/brawl'} /> : <Onboarding />}
               path={'/freshstart'}
-              element={state.hasBooks ? <Navigate to={'/brawl'} replace /> : <Onboarding />}
             />
           </Route>
           <Route element={<ChromeLayout />}>
-            <Route path={'/brawl'} element={<BrawlPit />} />
-            <Route path={'/leaderboard'} element={<Leaderboard />} />
-            <Route path={'/stacks'} element={<TheStacks />} />
+            <Route element={<BrawlPit />} path={'/brawl'} />
+            <Route element={<Leaderboard />} path={'/leaderboard'} />
+            <Route element={<TheStacks />} path={'/stacks'} />
           </Route>
           {/* Catch-all for unmatched routes (redirect to `/brawl`).
               TODO: Replace with a dedicated 404 page. */}
-          <Route path="*" element={<Navigate to="/brawl" replace />} />
+          <Route element={<Navigate replace to="/brawl" />} path="*" />
         </Routes>
       )
   }
