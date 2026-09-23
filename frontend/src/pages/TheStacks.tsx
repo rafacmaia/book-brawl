@@ -205,6 +205,7 @@ export default function TheStacks() {
           <section
             className={`mt-0 flex w-full flex-col gap-4 [@media(min-height:700px)]:mt-1.5 [@media(min-height:700px)]:md:mt-2 ${addState.type === 'idle' ? 'md:mb-15' : 'mb-0'}`}
           >
+<h1 className="sr-only">The Stacks</h1>
             <h2 className="pl-px font-calistoga text-[1.6rem] font-bold tracking-wide underline decoration-accent/80 decoration-wavy decoration-2 underline-offset-3 drop-shadow-md sm:mb-2 [@media(min-height:700px)]:text-3xl">
               New Reads
             </h2>

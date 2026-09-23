@@ -137,6 +137,7 @@ function LeaderboardContent({ progress, rankings }: { progress: number; rankings
       {showAccuracyModal && <AccuracyModal onClose={() => setShowAccuracyModal(false)} />}
 
       <section className={'mt-3 flex w-full flex-col items-center gap-3 md:mt-2 md:gap-4'}>
+<h1 className="sr-only">Leaderboard</h1>
         <div className="relative w-full sm:max-w-180">
           <div className="mx-auto h-7 w-full overflow-hidden rounded-md bg-primary/25 sm:h-8 sm:w-full">
             <div
